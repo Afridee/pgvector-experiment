@@ -790,7 +790,7 @@ if __name__ == "__main__":
 EOF
 ```
 
-### **File 3: Quick Test Script (03_test.py)[NEEDS TO BE UPDATED]**
+### **File 3: Quick Test Script (03_test.py)**
 
 Automated test script to verify everything works.
 
@@ -810,77 +810,176 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.utilities import SQLDatabase
 from langchain_postgres.vectorstores import PGVector
-from langchain.agents import Tool, AgentExecutor, create_openai_functions_agent
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain.agents import create_agent
 
 load_dotenv()
 
 READONLY_DB_URL = os.getenv("READONLY_DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
+VECTOR_COLLECTION = "text_embeddings"
 
-# Setup (same as 02_agent.py but condensed)
+print("🔧 Setting up test environment...")
+
+# ============================================================================
+# Setup Databases
+# ============================================================================
+
 sql_db = SQLDatabase.from_uri(READONLY_DB_URL, sample_rows_in_table_info=2)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
-vectorstore = PGVector(connection=DATABASE_URL, collection_name="text_embeddings", embeddings=embeddings)
+vectorstore = PGVector(
+    connection=DATABASE_URL, 
+    collection_name=VECTOR_COLLECTION, 
+    embeddings=embeddings
+)
 
-def sql_tool(query: str) -> str:
+# ============================================================================
+# Define Tools (Plain Python Functions)
+# ============================================================================
+
+def sql_query_tool(query: str) -> str:
+    """Execute SQL SELECT queries on the database."""
     try:
-        if not query.upper().strip().startswith("SELECT"):
-            return "Error: Only SELECT allowed"
-        return sql_db.run(query) or "No results"
+        query_upper = query.upper().strip()
+        if not query_upper.startswith("SELECT"):
+            return "❌ Only SELECT queries are allowed"
+        
+        forbidden = ["DROP", "DELETE", "TRUNCATE", "INSERT", "UPDATE", "ALTER", "CREATE", "GRANT", "REVOKE", "EXEC", "EXECUTE"]
+        for keyword in forbidden:
+            if keyword in query_upper:
+                return f"❌ Forbidden keyword: {keyword}"
+        
+        result = sql_db.run(query)
+        return result if result else "No results found"
     except Exception as e:
-        return f"Error: {e}"
+        return f"❌ Error: {str(e)}"
 
-def semantic_tool(query: str) -> str:
+
+def semantic_search_tool(query: str) -> str:
+    """Search database text content by semantic similarity."""
     try:
         docs = vectorstore.similarity_search(query, k=3)
         if not docs:
-            return "No results"
-        return "\n\n".join([
-            f"{i+1}. {d.metadata.get('name', 'N/A')}\n   {d.page_content[:150]}..."
-            for i, d in enumerate(docs)
-        ])
+            return "No similar content found"
+        
+        results = []
+        for i, doc in enumerate(docs, 1):
+            meta = doc.metadata
+            content_preview = doc.page_content[:150]
+            results.append(
+                f"{i}. {meta.get('name', 'N/A')} [{meta.get('source_table', 'unknown')}]\n"
+                f"   {content_preview}..."
+            )
+        
+        return "\n\n".join(results)
     except Exception as e:
-        return f"Error: {e}"
+        return f"❌ Error: {str(e)}"
 
-tools = [
-    Tool(name="SQLDatabase", func=sql_tool, description="SQL queries for structured data"),
-    Tool(name="SemanticSearch", func=semantic_tool, description="Semantic search by meaning"),
+
+# ============================================================================
+# Create Agent (Modern LangChain API)
+# ============================================================================
+
+system_prompt = """You are a database assistant. 
+
+Use sql_query_tool for:
+- Counts, sums, averages, totals
+- Filtering by exact values
+- Joining tables
+
+Use semantic_search_tool for:
+- Finding by description or meaning
+- Similarity searches
+- Topic-based searches
+
+Provide clear, concise answers."""
+
+agent = create_agent(
+    model="gpt-4",
+    tools=[sql_query_tool, semantic_search_tool],
+    system_prompt=system_prompt,
+)
+
+print("   ✓ Test environment ready\n")
+
+# ============================================================================
+# Test Cases
+# ============================================================================
+
+test_cases = [
+    {
+        "name": "SQL Count Query",
+        "question": "How many products are in the database?",
+        "expected_type": "number",
+    },
+    {
+        "name": "SQL Aggregation Query",
+        "question": "What's the total revenue from all orders?",
+        "expected_type": "number",
+    },
+    {
+        "name": "Semantic Search - Products",
+        "question": "Find products good for gaming",
+        "expected_type": "list",
+    },
+    {
+        "name": "Semantic Search - Reviews",
+        "question": "Show me reviews mentioning battery",
+        "expected_type": "text",
+    },
 ]
 
-llm = ChatOpenAI(model="gpt-4", temperature=0)
-prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a database assistant. Use SQLDatabase for counts/filters, SemanticSearch for descriptions."),
-    ("human", "{input}"),
-    MessagesPlaceholder(variable_name="agent_scratchpad"),
-])
+# ============================================================================
+# Run Tests
+# ============================================================================
 
-agent = create_openai_functions_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-# Run tests
 print("=" * 70)
-print("AUTOMATED TESTS")
+print("AUTOMATED AGENT TESTS")
 print("=" * 70)
 
-tests = [
-    "How many products are in the database?",
-    "What's the total revenue from all orders?",
-    "Find products good for gaming",
-    "Show me reviews mentioning battery",
-]
+passed = 0
+failed = 0
 
-for i, question in enumerate(tests, 1):
-    print(f"\n🧪 TEST {i}/{len(tests)}: {question}")
+for i, test in enumerate(test_cases, 1):
+    print(f"\n🧪 TEST {i}/{len(test_cases)}: {test['name']}")
+    print(f"   Question: {test['question']}")
     print("-" * 70)
+    
     try:
-        result = agent_executor.invoke({"input": question})
-        print(f"\n✅ Answer: {result['output']}\n")
+        # Invoke agent with new API
+        result = agent.invoke({
+            "messages": [{"role": "user", "content": test["question"]}]
+        })
+        
+        # Extract answer from response
+        answer = result["messages"][-1].content
+        
+        # Display result
+        print(f"\n   ✅ Answer: {answer[:200]}")
+        if len(answer) > 200:
+            print(f"      ... (truncated, full length: {len(answer)} chars)")
+        
+        passed += 1
+        
     except Exception as e:
-        print(f"\n❌ Error: {e}\n")
+        print(f"\n   ❌ FAILED: {str(e)}")
+        failed += 1
 
+# ============================================================================
+# Summary
+# ============================================================================
+
+print("\n" + "=" * 70)
+print("TEST SUMMARY")
 print("=" * 70)
-print("✅ TESTING COMPLETE")
+print(f"✅ Passed: {passed}/{len(test_cases)}")
+print(f"❌ Failed: {failed}/{len(test_cases)}")
+
+if failed == 0:
+    print("\n🎉 All tests passed! The agent is working correctly.")
+    print("\nNext step: Run interactive agent with 'python 02_agent.py'")
+else:
+    print(f"\n⚠️  {failed} test(s) failed. Check error messages above.")
+
 print("=" * 70)
 EOF
 ```
