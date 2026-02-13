@@ -1,9 +1,10 @@
 import os
+
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_community.utilities import SQLDatabase
-from langchain_postgres.vectorstores import PGVector
 from langchain.agents import create_agent
+from langchain_community.utilities import SQLDatabase
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_postgres.vectorstores import PGVector
 
 load_dotenv()
 
@@ -20,14 +21,13 @@ print("🔧 Setting up test environment...")
 sql_db = SQLDatabase.from_uri(READONLY_DB_URL, sample_rows_in_table_info=2)
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = PGVector(
-    connection=DATABASE_URL, 
-    collection_name=VECTOR_COLLECTION, 
-    embeddings=embeddings
+    connection=DATABASE_URL, collection_name=VECTOR_COLLECTION, embeddings=embeddings
 )
 
 # ============================================================================
 # Define Tools (Plain Python Functions)
 # ============================================================================
+
 
 def sql_query_tool(query: str) -> str:
     """Execute SQL SELECT queries on the database."""
@@ -35,12 +35,24 @@ def sql_query_tool(query: str) -> str:
         query_upper = query.upper().strip()
         if not query_upper.startswith("SELECT"):
             return "❌ Only SELECT queries are allowed"
-        
-        forbidden = ["DROP", "DELETE", "TRUNCATE", "INSERT", "UPDATE", "ALTER", "CREATE", "GRANT", "REVOKE", "EXEC", "EXECUTE"]
+
+        forbidden = [
+            "DROP",
+            "DELETE",
+            "TRUNCATE",
+            "INSERT",
+            "UPDATE",
+            "ALTER",
+            "CREATE",
+            "GRANT",
+            "REVOKE",
+            "EXEC",
+            "EXECUTE",
+        ]
         for keyword in forbidden:
             if keyword in query_upper:
                 return f"❌ Forbidden keyword: {keyword}"
-        
+
         result = sql_db.run(query)
         return result if result else "No results found"
     except Exception as e:
@@ -53,7 +65,7 @@ def semantic_search_tool(query: str) -> str:
         docs = vectorstore.similarity_search(query, k=3)
         if not docs:
             return "No similar content found"
-        
+
         results = []
         for i, doc in enumerate(docs, 1):
             meta = doc.metadata
@@ -62,7 +74,7 @@ def semantic_search_tool(query: str) -> str:
                 f"{i}. {meta.get('name', 'N/A')} [{meta.get('source_table', 'unknown')}]\n"
                 f"   {content_preview}..."
             )
-        
+
         return "\n\n".join(results)
     except Exception as e:
         return f"❌ Error: {str(e)}"
@@ -136,23 +148,23 @@ for i, test in enumerate(test_cases, 1):
     print(f"\n🧪 TEST {i}/{len(test_cases)}: {test['name']}")
     print(f"   Question: {test['question']}")
     print("-" * 70)
-    
+
     try:
         # Invoke agent with new API
-        result = agent.invoke({
-            "messages": [{"role": "user", "content": test["question"]}]
-        })
-        
+        result = agent.invoke(
+            {"messages": [{"role": "user", "content": test["question"]}]}
+        )
+
         # Extract answer from response
         answer = result["messages"][-1].content
-        
+
         # Display result
         print(f"\n   ✅ Answer: {answer[:200]}")
         if len(answer) > 200:
             print(f"      ... (truncated, full length: {len(answer)} chars)")
-        
+
         passed += 1
-        
+
     except Exception as e:
         print(f"\n   ❌ FAILED: {str(e)}")
         failed += 1

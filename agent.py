@@ -5,12 +5,14 @@ Hybrid Text-to-SQL + RAG agent for answering database questions.
 """
 
 import os
+
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_community.utilities import SQLDatabase
-from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_postgres.vectorstores import PGVector
 from langchain.agents import create_agent
+from langchain.chat_models import init_chat_model
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
+from langchain_community.utilities import SQLDatabase
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_postgres.vectorstores import PGVector
 
 # Load environment variables
 load_dotenv()
@@ -24,6 +26,7 @@ VECTOR_COLLECTION = "text_embeddings"
 # Custom Semantic Search Tool
 # ============================================================================
 
+
 def semantic_search_tool(query: str) -> str:
     """
     Search database text content by semantic similarity.
@@ -35,23 +38,23 @@ def semantic_search_tool(query: str) -> str:
     """
     try:
         docs = vectorstore.similarity_search(query, k=5)
-        
+
         if not docs:
             return "No similar content found"
-        
+
         results = []
         for i, doc in enumerate(docs, 1):
             meta = doc.metadata
             content_preview = doc.page_content[:200]
-            
+
             results.append(
                 f"{i}. {meta.get('name', 'N/A')} [{meta.get('source_table', 'unknown')}]\n"
                 f"   {content_preview}...\n"
                 f"   (ID: {meta.get('id', 'N/A')})"
             )
-        
+
         return "\n\n".join(results)
-        
+
     except Exception as e:
         return f"❌ Error: {str(e)}"
 
@@ -71,9 +74,7 @@ print("   ✓ SQL database connected")
 print("🔗 Connecting to vector database...")
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = PGVector(
-    connection=DATABASE_URL,
-    collection_name=VECTOR_COLLECTION,
-    embeddings=embeddings,
+    connection=DATABASE_URL, collection_name=VECTOR_COLLECTION, embeddings=embeddings,
 )
 print("   ✓ Vector database connected")
 
@@ -84,7 +85,11 @@ print("   ✓ Vector database connected")
 print("🤖 Initializing AI agent...")
 
 # Initialize LLM
-llm = ChatOpenAI(model="gpt-4", temperature=0)
+llm = init_chat_model(
+    "gpt-4o",  # or "gpt-4-turbo"
+    model_provider="openai",
+    temperature=0,  # Deterministic for database queries
+)
 
 # Create SQL toolkit (provides multiple SQL tools)
 sql_toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
@@ -119,11 +124,7 @@ system_prompt = """You are an expert database assistant with access to powerful 
 - Provide clear, concise answers
 """
 
-agent = create_agent(
-    model=llm,
-    tools=all_tools,
-    system_prompt=system_prompt,
-)
+agent = create_agent(model=llm, tools=all_tools, system_prompt=system_prompt,)
 
 print("   ✓ Agent ready")
 print(f"   ✓ Loaded {len(all_tools)} tools")
@@ -131,6 +132,7 @@ print(f"   ✓ Loaded {len(all_tools)} tools")
 # ============================================================================
 # Main Interface
 # ============================================================================
+
 
 def ask_database(question: str) -> str:
     """Ask a question to the database agent."""
@@ -159,17 +161,17 @@ def main():
     print("  5. What are the top 3 best-selling products?")
     print("\nType 'quit', 'exit', or 'q' to exit")
     print("=" * 70 + "\n")
-    
+
     while True:
         question = input("❓ Your question: ").strip()
-        
-        if question.lower() in ['quit', 'exit', 'q']:
+
+        if question.lower() in ["quit", "exit", "q"]:
             print("\n👋 Goodbye!")
             break
-        
+
         if not question:
             continue
-        
+
         print("\n🤔 Thinking...\n")
         answer = ask_database(question)
         print(f"\n💡 Answer:\n{answer}\n")
