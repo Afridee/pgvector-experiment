@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_community.utilities import SQLDatabase
+from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_postgres.vectorstores import PGVector
 from langchain.agents import create_agent
 
@@ -19,41 +20,9 @@ READONLY_DB_URL = os.getenv("READONLY_DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 VECTOR_COLLECTION = "text_embeddings"
 
-# ... (keep all your validation and setup code) ...
-
 # ============================================================================
-# Tool Functions (convert to regular Python functions)
+# Custom Semantic Search Tool
 # ============================================================================
-
-def sql_query_tool(query: str) -> str:
-    """
-    Execute SQL SELECT queries on the database.
-    
-    Use for:
-    - Counting: "How many orders?"
-    - Aggregations: "Total revenue", "Average price"
-    - Filtering: "Products over $100"
-    - Joins: "Customers and their orders"
-    - Exact matches: Dates, IDs, categories
-    """
-    try:
-        # Validate query for security
-        query_upper = query.upper().strip()
-        if not query_upper.startswith("SELECT"):
-            return "❌ Only SELECT queries are allowed"
-        
-        forbidden = ["DROP", "DELETE", "TRUNCATE", "INSERT", "UPDATE", "ALTER", "CREATE", "GRANT", "REVOKE", "EXEC", "EXECUTE"]
-        for keyword in forbidden:
-            if keyword in query_upper:
-                return f"❌ Forbidden keyword: {keyword}"
-        
-        # Execute query
-        result = sql_db.run(query)
-        return result if result else "No results found"
-        
-    except Exception as e:
-        return f"❌ Error: {str(e)}"
-
 
 def semantic_search_tool(query: str) -> str:
     """
@@ -109,38 +78,55 @@ vectorstore = PGVector(
 print("   ✓ Vector database connected")
 
 # ============================================================================
-# Create AI Agent (Official 2025 API)
+# Create AI Agent with Toolkit
 # ============================================================================
 
 print("🤖 Initializing AI agent...")
 
-system_prompt = """You are an expert database assistant with access to two powerful tools:
+# Initialize LLM
+llm = ChatOpenAI(model="gpt-4", temperature=0)
 
-1. **sql_query_tool**: For structured queries (counts, sums, averages, filters, joins)
-2. **semantic_search_tool**: For finding content by description or meaning
+# Create SQL toolkit (provides multiple SQL tools)
+sql_toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
+
+# Get all tools from toolkit + add custom semantic search
+all_tools = sql_toolkit.get_tools() + [semantic_search_tool]
+
+system_prompt = """You are an expert database assistant with access to powerful tools:
+
+**SQL Tools (from toolkit):**
+- sql_db_query: Execute SELECT queries
+- sql_db_schema: Get table structure
+- sql_db_list_tables: List available tables
+- sql_db_query_checker: Validate SQL syntax
+
+**Custom Tools:**
+- semantic_search_tool: Find content by description or meaning
 
 **Decision Guide:**
-- User asks "how many", "total", "average", "sum" → Use sql_query_tool
+- User asks "how many", "total", "average", "sum" → Use sql_db_query
+- User asks "what tables", "schema" → Use sql_db_list_tables or sql_db_schema
 - User asks "find products about X", "similar to Y" → Use semantic_search_tool
-- User asks "top selling products like X" → Use BOTH tools:
+- User asks "top selling products like X" → Use BOTH:
   1. First, semantic_search_tool to find relevant product IDs
-  2. Then, sql_query_tool to get sales data and rank them
+  2. Then, sql_db_query to get sales data and rank them
 
 **Rules:**
-- ALWAYS use sql_query_tool for numerical operations
+- Check table schemas first if you're unsure about column names
+- ALWAYS use sql_db_query for numerical operations
 - ALWAYS use semantic_search_tool for descriptive/semantic queries
-- You can use BOTH tools in sequence for complex queries
+- You can use multiple tools in sequence for complex queries
 - Provide clear, concise answers
-- Be helpful and friendly
 """
 
 agent = create_agent(
-    model="gpt-4",
-    tools=[sql_query_tool, semantic_search_tool],
+    model=llm,
+    tools=all_tools,
     system_prompt=system_prompt,
 )
 
 print("   ✓ Agent ready")
+print(f"   ✓ Loaded {len(all_tools)} tools")
 
 # ============================================================================
 # Main Interface
@@ -150,7 +136,6 @@ def ask_database(question: str) -> str:
     """Ask a question to the database agent."""
     try:
         result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-        # Extract the last message content
         return result["messages"][-1].content
     except Exception as e:
         return f"❌ Error: {str(e)}"
@@ -163,14 +148,15 @@ def main():
     print("=" * 70)
     print("\n✨ Capabilities:")
     print("  ✓ SQL queries (counts, filters, joins, aggregations)")
+    print("  ✓ Schema inspection (tables, columns)")
     print("  ✓ Semantic search (find by description)")
     print("  ✓ Hybrid queries (combine both approaches)")
     print("\n💡 Example questions:")
-    print("  1. How many products are in stock?")
-    print("  2. What's the total revenue from all orders?")
-    print("  3. Find products good for gaming")
-    print("  4. What are the top 3 best-selling products?")
-    print("  5. Show me reviews mentioning battery life")
+    print("  1. What tables are available?")
+    print("  2. How many products are in stock?")
+    print("  3. What's the total revenue from all orders?")
+    print("  4. Find products good for gaming")
+    print("  5. What are the top 3 best-selling products?")
     print("\nType 'quit', 'exit', or 'q' to exit")
     print("=" * 70 + "\n")
     
