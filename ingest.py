@@ -3,19 +3,19 @@ INGESTION SCRIPT
 ================
 Extracts text-heavy columns from PostgreSQL database and creates vector embeddings.
 
-What it does:
-1. Connects to PostgreSQL database
-2. Extracts product descriptions and reviews
+Updated behavior (QMR knowledge ingest):
+1. Reads QMR semantic knowledge chunks from a .txt file (generated from code analysis)
+2. Creates one LangChain Document per chunk with rich metadata (title, tags)
 3. Generates embeddings using OpenAI API
 4. Stores embeddings in pgvector for semantic search
 
-Run this: ONCE initially, then again when data changes
-Cost: ~$0.01-0.05 per run (OpenAI embedding API)
+Run this: ONCE initially, then again when knowledge changes
 """
 
 import os
+import re
+from pathlib import Path
 
-import psycopg2
 from dotenv import load_dotenv
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
@@ -26,110 +26,130 @@ load_dotenv()
 
 # Configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
-VECTOR_COLLECTION = "text_embeddings"
+
+# Use a dedicated collection for QMR knowledge chunks
+VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
+
+# Path to the chunks file (defaults to the file name produced earlier)
+QMR_CHUNKS_FILE = os.getenv("QMR_CHUNKS_FILE", "qmr_semantic_knowledge_chunks.txt")
 
 
-def extract_text_from_database():
+# ----------------------------
+# Parsing helpers
+# ----------------------------
+_CHUNK_SPLIT_RE = re.compile(r"(?m)^\s*---\s*$")
+
+
+def _parse_chunk_fields(chunk_text: str) -> dict:
     """
-    Extract text-heavy columns from database tables.
-    
-    Returns:
-        list[Document]: List of LangChain documents with text content and metadata
+    Parse a single chunk of the form:
+
+    title: ...
+    tags: ...
+    content:
+    ...
+
+    Returns a dict with keys: title (str|None), tags (list[str]), content (str).
     """
-    print("🔗 Connecting to database...")
-    conn = psycopg2.connect(DATABASE_URL)
-    cursor = conn.cursor()
+    # Normalize and trim
+    raw = chunk_text.strip()
+    if not raw:
+        return {"title": None, "tags": [], "content": ""}
 
-    documents = []
+    title = None
+    tags = []
+    content = ""
 
-    # ========================================================================
-    # Extract Product Descriptions
-    # ========================================================================
-    print("📦 Extracting product descriptions...")
-    cursor.execute(
-        """
-        SELECT 
-            id,
-            name,
-            description,
-            category,
-            price
-        FROM products
-        WHERE description IS NOT NULL
+    # Extract title
+    m = re.search(r"(?m)^\s*title:\s*(.+?)\s*$", raw)
+    if m:
+        title = m.group(1).strip()
+
+    # Extract tags
+    m = re.search(r"(?m)^\s*tags:\s*(.+?)\s*$", raw)
+    if m:
+        tags_raw = m.group(1).strip()
+        if tags_raw:
+            tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+
+    # Extract content (everything after the first "content:" line)
+    m = re.search(r"(?ms)^\s*content:\s*\n(.*)$", raw)
+    if m:
+        content = m.group(1).strip()
+    else:
+        # Fallback: if content: marker is missing, keep remaining text
+        content = raw
+
+    return {"title": title, "tags": tags, "content": content}
+
+
+def load_qmr_knowledge_documents(file_path: str) -> list[Document]:
     """
-    )
+    Load QMR semantic knowledge chunks from a .txt file.
 
-    products = cursor.fetchall()
-    for product_id, name, description, category, price in products:
+    Each chunk becomes one Document:
+      - page_content: "Title: ...\nTags: ...\n\n<content>"
+      - metadata: {source_file, type, title, tags, chunk_index}
+    """
+    path = Path(file_path)
+
+    if not path.exists():
+        raise FileNotFoundError(
+            f"QMR chunks file not found: {path.resolve()}\n"
+            f"Set env var QMR_CHUNKS_FILE to the correct path."
+        )
+
+    text = path.read_text(encoding="utf-8", errors="ignore").strip()
+    if not text:
+        return []
+
+    # Split on lines that are exactly '---'
+    # The file format uses '---' as both start and end separators, so splitting will
+    # produce some empty segments which we filter out.
+    parts = [p.strip() for p in _CHUNK_SPLIT_RE.split(text) if p.strip()]
+
+    documents: list[Document] = []
+    for idx, part in enumerate(parts, start=1):
+        fields = _parse_chunk_fields(part)
+        title = fields["title"] or f"QMR Knowledge Chunk {idx}"
+        tags = fields["tags"]
+        content = fields["content"]
+
+        page_content = (
+            f"Title: {title}\n"
+            f"Tags: {', '.join(tags) if tags else ''}\n\n"
+            f"{content}"
+        ).strip()
+
         doc = Document(
-            page_content=f"Product: {name}\n\nDescription: {description}",
+            page_content=page_content,
             metadata={
-                "id": str(product_id),
-                "name": name,
-                "category": category,
-                "price": float(price),
-                "source_table": "products",
-                "type": "product_description",
+                "type": "qmr_rule_chunk",
+                "source_file": str(path.name),
+                "source_path": str(path.resolve()),
+                "chunk_index": idx,
+                "title": title,
+                "tags": tags,  # keep as list for structured filtering in app logic
             },
         )
         documents.append(doc)
-
-    print(f"   ✓ Extracted {len(products)} product descriptions")
-
-    # ========================================================================
-    # Extract Reviews
-    # ========================================================================
-    print("⭐ Extracting reviews...")
-    cursor.execute(
-        """
-        SELECT 
-            r.id,
-            r.product_id,
-            r.review_text,
-            r.rating,
-            p.name
-        FROM reviews r
-        JOIN products p ON r.product_id = p.id
-        WHERE r.review_text IS NOT NULL
-    """
-    )
-
-    reviews = cursor.fetchall()
-    for review_id, product_id, review_text, rating, product_name in reviews:
-        doc = Document(
-            page_content=f"Review for {product_name}:\n\n{review_text}",
-            metadata={
-                "id": str(review_id),
-                "product_id": str(product_id),
-                "product_name": product_name,
-                "rating": rating,
-                "source_table": "reviews",
-                "type": "review",
-            },
-        )
-        documents.append(doc)
-
-    print(f"   ✓ Extracted {len(reviews)} reviews")
-
-    cursor.close()
-    conn.close()
 
     return documents
 
 
-def create_embeddings(documents):
+def create_embeddings(documents: list[Document]) -> None:
     """
     Generate embeddings and store in pgvector.
-    
+
     Args:
         documents: List of Document objects to embed
     """
     total_docs = len(documents)
 
-    # Estimate cost
-    avg_tokens_per_doc = 150
+    # Estimate cost (rough)
+    avg_tokens_per_doc = 250
     total_tokens = total_docs * avg_tokens_per_doc
-    cost_per_million_tokens = 0.02  # text-embedding-3-small pricing
+    cost_per_million_tokens = 0.02  # text-embedding-3-small pricing (example)
     estimated_cost = (total_tokens / 1_000_000) * cost_per_million_tokens
 
     print(f"\n📊 Ingestion Summary:")
@@ -137,18 +157,17 @@ def create_embeddings(documents):
     print(f"   Estimated tokens: ~{total_tokens:,}")
     print(f"   Estimated cost: ~${estimated_cost:.4f}")
 
-    print("\n🚀 Generating embeddings (this may take 10-30 seconds)...")
+    print("\n🚀 Generating embeddings (this may take some seconds)...")
 
-    # Use OpenAI's smaller, cheaper embedding model
     embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 
     # Create vector store in PostgreSQL
-    vectorstore = PGVector.from_documents(
+    PGVector.from_documents(
         documents=documents,
         embedding=embeddings,
         collection_name=VECTOR_COLLECTION,
         connection=DATABASE_URL,
-        pre_delete_collection=True,  # Clear old embeddings
+        pre_delete_collection=True,  # Clear old embeddings (rebuild knowledge base)
     )
 
     print(f"\n✅ Success! Created {total_docs} embeddings")
@@ -159,25 +178,28 @@ def create_embeddings(documents):
 def main():
     """Main execution function."""
     print("=" * 70)
-    print("DATABASE TO VECTOR INGESTION")
+    print("QMR KNOWLEDGE (.TXT) TO VECTOR INGESTION")
     print("=" * 70)
     print()
 
+    if not DATABASE_URL:
+        raise ValueError("DATABASE_URL is not set. Add it to your .env file.")
+
     try:
-        # Step 1: Extract text from database
-        documents = extract_text_from_database()
+        print(f"📄 Loading QMR knowledge chunks from: {QMR_CHUNKS_FILE}")
+        documents = load_qmr_knowledge_documents(QMR_CHUNKS_FILE)
 
         if not documents:
-            print("⚠️  No documents found to ingest!")
+            print("⚠️  No knowledge chunks found to ingest!")
             return
 
-        # Step 2: Create embeddings
+        print(f"   ✓ Loaded {len(documents)} knowledge chunks")
+
         create_embeddings(documents)
 
         print("\n" + "=" * 70)
         print("✅ INGESTION COMPLETE!")
         print("=" * 70)
-        print("\nNext step: Run the agent with 'python 02_agent.py'")
 
     except Exception as e:
         print(f"\n❌ Error: {e}")

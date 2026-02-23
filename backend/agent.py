@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
+from langchain.tools import tool
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -20,43 +21,63 @@ load_dotenv()
 # Configuration
 READONLY_DB_URL = os.getenv("READONLY_DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
-VECTOR_COLLECTION = "text_embeddings"
+VECTOR_COLLECTION = "qmr_knowledge_chunks"
 
 # ============================================================================
 # Custom Semantic Search Tool
 # ============================================================================
 
 
+@tool(response_format="content_and_artifact")
 def semantic_search_tool(query: str) -> str:
     """
-    Search database text content by semantic similarity.
-    
-    Use for:
-    - Finding by description: "products for gaming"
-    - Similarity: "items like laptops"
-    - Topic search: "reviews about battery"
+    Search QMR knowledge chunks by semantic similarity (RAG over pgvector).
+
+    Intended use:
+    - "How is Memo calculated?"
+    - "What tables are queried for current date?"
+    - "What filters exist for region/area/territory?"
+    - "Which generator runs for Brand vs SKU?"
+
+    Returns a readable ranked list of matching knowledge chunks.
     """
     try:
         docs = vectorstore.similarity_search(query, k=5)
 
         if not docs:
-            return "No similar content found"
+            return "No similar QMR knowledge found."
 
         results = []
         for i, doc in enumerate(docs, 1):
-            meta = doc.metadata
-            content_preview = doc.page_content[:200]
+            meta = doc.metadata or {}
+
+            title = meta.get("title") or f"Chunk {meta.get('chunk_index', 'N/A')}"
+            tags = meta.get("tags") or []
+            if isinstance(tags, str):
+                # In case tags were stored as a comma-separated string
+                tags = [t.strip() for t in tags.split(",") if t.strip()]
+
+            source_file = (
+                meta.get("source_file") or meta.get("source_path") or "unknown"
+            )
+            chunk_index = meta.get("chunk_index", "N/A")
+
+            # Make a compact preview (first ~400 chars)
+            preview = " ".join((doc.page_content or "").split())
+            if len(preview) > 400:
+                preview = preview[:400].rstrip() + "..."
 
             results.append(
-                f"{i}. {meta.get('name', 'N/A')} [{meta.get('source_table', 'unknown')}]\n"
-                f"   {content_preview}...\n"
-                f"   (ID: {meta.get('id', 'N/A')})"
+                f"{i}. {title}\n"
+                f"   Tags: {', '.join(tags) if tags else 'N/A'}\n"
+                f"   Source: {source_file} (chunk {chunk_index})\n"
+                f"   Preview: {preview}"
             )
 
-        return "\n\n".join(results)
+        return "\n\n".join(results), docs
 
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return f"❌ Error in semantic_search_tool: {str(e)}"
 
 
 # ============================================================================
@@ -97,31 +118,32 @@ sql_toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
 # Get all tools from toolkit + add custom semantic search
 all_tools = sql_toolkit.get_tools() + [semantic_search_tool]
 
-system_prompt = """You are an expert database assistant with access to powerful tools:
+system_prompt = """You are an expert QMR reporting/database assistant with access to powerful tools.
 
 **SQL Tools (from toolkit):**
-- sql_db_query: Execute SELECT queries
+- sql_db_query: Execute SELECT queries (read-only)
 - sql_db_schema: Get table structure
 - sql_db_list_tables: List available tables
 - sql_db_query_checker: Validate SQL syntax
 
 **Custom Tools:**
-- semantic_search_tool: Find content by description or meaning
+- semantic_search_tool: Retrieve QMR rules, definitions, and query patterns from the embedded knowledge base (NOT product catalog search).
 
 **Decision Guide:**
-- User asks "how many", "total", "average", "sum" → Use sql_db_query
-- User asks "what tables", "schema" → Use sql_db_list_tables or sql_db_schema
-- User asks "find products about X", "similar to Y" → Use semantic_search_tool
-- User asks "top selling products like X" → Use BOTH:
-  1. First, semantic_search_tool to find relevant product IDs
-  2. Then, sql_db_query to get sales data and rank them
+- User asks about QMR business logic ("How is Memo computed?", "What tables are queried?", "What happens when current date is in range?") → Use semantic_search_tool
+- User asks about real database facts ("How many rows...", "total STT last month...", "which regions exist...") → Use sql_db_query
+- User asks about schema ("what columns does X have?", "what tables exist?") → Use sql_db_list_tables or sql_db_schema
+- User asks to implement a metric from rules ("Compute Memo/STT for ...") → Use BOTH:
+  1) semantic_search_tool to fetch the definition and filters
+  2) sql_db_schema to confirm table/column names
+  3) sql_db_query to execute the final aggregation
 
 **Rules:**
-- Check table schemas first if you're unsure about column names
-- ALWAYS use sql_db_query for numerical operations
-- ALWAYS use semantic_search_tool for descriptive/semantic queries
-- You can use multiple tools in sequence for complex queries
-- Provide clear, concise answers
+- Prefer semantic_search_tool for definitions of Memo, STT, product type behavior (SKU/Brand/Family/Segment/Total), date splitting (monthly vs daily), and filter rules.
+- Prefer sql_db_schema if unsure about column names before writing SQL.
+- ALWAYS use sql_db_query for numeric results.
+- When answering, cite which tool you used and summarize the supporting rule or query.
+- If the knowledge base conflicts with the actual schema/data, treat the database as authoritative and explain the discrepancy.
 """
 
 agent = create_agent(model=llm, tools=all_tools, system_prompt=system_prompt,)
@@ -146,19 +168,27 @@ def ask_database(question: str) -> str:
 def main():
     """Main interactive loop."""
     print("\n" + "=" * 70)
-    print("DATABASE QUESTION ANSWERING AGENT")
+    print("QMR DATABASE + KNOWLEDGE AGENT")
     print("=" * 70)
-    print("\n✨ Capabilities:")
-    print("  ✓ SQL queries (counts, filters, joins, aggregations)")
+    print("\nCapabilities:")
+    print(
+        "  ✓ SQL queries (counts, filters, joins, aggregations) on the reporting database"
+    )
     print("  ✓ Schema inspection (tables, columns)")
-    print("  ✓ Semantic search (find by description)")
-    print("  ✓ Hybrid queries (combine both approaches)")
-    print("\n💡 Example questions:")
+    print(
+        "  ✓ QMR semantic knowledge search (Memo/STT definitions, date-splitting rules, filters)"
+    )
+    print("  ✓ Hybrid reasoning (retrieve QMR rules, then validate/compute with SQL)")
+    print("\nExample questions:")
     print("  1. What tables are available?")
-    print("  2. How many products are in stock?")
-    print("  3. What's the total revenue from all orders?")
-    print("  4. Find products good for gaming")
-    print("  5. What are the top 3 best-selling products?")
+    print("  2. How is 'Memo' calculated for SKU vs Total?")
+    print("  3. What happens if today's date is within the requested date range?")
+    print(
+        "  4. What filters are supported (region/area/territory/subChannel/activeStatus)?"
+    )
+    print(
+        "  5. Which tables are used: monthly_order_cache_YYYY_MM vs daily_order_cache?"
+    )
     print("\nType 'quit', 'exit', or 'q' to exit")
     print("=" * 70 + "\n")
 
