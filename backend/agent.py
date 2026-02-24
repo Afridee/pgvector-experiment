@@ -5,14 +5,16 @@ Hybrid Text-to-SQL + RAG agent for answering database questions.
 """
 
 import os
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 from langchain.agents import create_agent
 from langchain.chat_models import init_chat_model
+from langchain.messages import ToolMessage
 from langchain.tools import tool
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
 
 # Load environment variables
@@ -21,7 +23,7 @@ load_dotenv()
 # Configuration
 READONLY_DB_URL = os.getenv("READONLY_DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
-VECTOR_COLLECTION = "qmr_knowledge_chunks"
+VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
 
 # ============================================================================
 # Custom Semantic Search Tool
@@ -29,23 +31,19 @@ VECTOR_COLLECTION = "qmr_knowledge_chunks"
 
 
 @tool(response_format="content_and_artifact")
-def semantic_search_tool(query: str) -> str:
+def semantic_search_tool(query: str):
     """
     Search QMR knowledge chunks by semantic similarity (RAG over pgvector).
 
-    Intended use:
-    - "How is Memo calculated?"
-    - "What tables are queried for current date?"
-    - "What filters exist for region/area/territory?"
-    - "Which generator runs for Brand vs SKU?"
-
-    Returns a readable ranked list of matching knowledge chunks.
+    Returns:
+      - content: a human-readable ranked list
+      - artifact: the raw retrieved Documents (so the caller/UI can display them)
     """
     try:
         docs = vectorstore.similarity_search(query, k=5)
 
         if not docs:
-            return "No similar QMR knowledge found."
+            return "No similar QMR knowledge found.", []
 
         results = []
         for i, doc in enumerate(docs, 1):
@@ -54,7 +52,6 @@ def semantic_search_tool(query: str) -> str:
             title = meta.get("title") or f"Chunk {meta.get('chunk_index', 'N/A')}"
             tags = meta.get("tags") or []
             if isinstance(tags, str):
-                # In case tags were stored as a comma-separated string
                 tags = [t.strip() for t in tags.split(",") if t.strip()]
 
             source_file = (
@@ -62,7 +59,6 @@ def semantic_search_tool(query: str) -> str:
             )
             chunk_index = meta.get("chunk_index", "N/A")
 
-            # Make a compact preview (first ~400 chars)
             preview = " ".join((doc.page_content or "").split())
             if len(preview) > 400:
                 preview = preview[:400].rstrip() + "..."
@@ -75,14 +71,19 @@ def semantic_search_tool(query: str) -> str:
             )
 
         return "\n\n".join(results), docs
-
     except Exception as e:
-        return f"❌ Error in semantic_search_tool: {str(e)}"
+        return f"❌ Error in semantic_search_tool: {str(e)}", []
 
 
 # ============================================================================
 # Setup: SQL Database
 # ============================================================================
+
+if not READONLY_DB_URL:
+    raise ValueError("READONLY_DATABASE_URL is not set (check your .env).")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set (check your .env).")
 
 print("🔗 Connecting to SQL database...")
 sql_db = SQLDatabase.from_uri(READONLY_DB_URL, sample_rows_in_table_info=2)
@@ -105,17 +106,9 @@ print("   ✓ Vector database connected")
 
 print("🤖 Initializing AI agent...")
 
-# Initialize LLM
-llm = init_chat_model(
-    "gpt-4o",  # or "gpt-4-turbo"
-    model_provider="openai",
-    temperature=0,  # Deterministic for database queries
-)
+llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0,)
 
-# Create SQL toolkit (provides multiple SQL tools)
 sql_toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
-
-# Get all tools from toolkit + add custom semantic search
 all_tools = sql_toolkit.get_tools() + [semantic_search_tool]
 
 system_prompt = """You are an expert QMR reporting/database assistant with access to powerful tools.
@@ -146,7 +139,7 @@ system_prompt = """You are an expert QMR reporting/database assistant with acces
 - If the knowledge base conflicts with the actual schema/data, treat the database as authoritative and explain the discrepancy.
 """
 
-agent = create_agent(model=llm, tools=all_tools, system_prompt=system_prompt,)
+agent = create_agent(model=llm, tools=all_tools, system_prompt=system_prompt)
 
 print("   ✓ Agent ready")
 print(f"   ✓ Loaded {len(all_tools)} tools")
@@ -156,39 +149,85 @@ print(f"   ✓ Loaded {len(all_tools)} tools")
 # ============================================================================
 
 
-def ask_database(question: str) -> str:
-    """Ask a question to the database agent."""
+def _serialize_docs(docs: List[Any]) -> List[Dict[str, Any]]:
+    """Convert LangChain Document objects into JSON-serializable dicts for the UI."""
+    serialized: List[Dict[str, Any]] = []
+    for d in docs or []:
+        meta = getattr(d, "metadata", None) or {}
+        content = getattr(d, "page_content", "") or ""
+        serialized.append(
+            {
+                "title": meta.get("title"),
+                "tags": meta.get("tags"),
+                "chunk_index": meta.get("chunk_index"),
+                "source_file": meta.get("source_file"),
+                "source_path": meta.get("source_path"),
+                "type": meta.get("type"),
+                "preview": content[:800],  # UI can truncate further
+                "metadata": meta,
+            }
+        )
+    return serialized
+
+
+def ask_database(question: str) -> Dict[str, Any]:
+    """
+    Ask a question to the database agent.
+
+    Returns a dict for richer UIs (Streamlit):
+      {
+        "answer": <final assistant text>,
+        "artifacts": {
+            "semantic_search_docs": [ ... ]   # present only if available
+        },
+        "raw": <raw agent output (optional)>
+      }
+    """
     try:
         result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-        return result["messages"][-1].content
+        answer = result["messages"][-1].content
+
+        artifacts: Dict[str, Any] = {}
+
+        tool_messages = result.get("messages", [])
+        semantic_docs: List[Any] = []
+
+        for message in tool_messages:
+            if not isinstance(message, ToolMessage):
+                continue
+
+            tool_name = (
+                getattr(message, "name", None)
+                or getattr(message, "tool", None)
+                or getattr(message, "tool_name", None)
+            )
+            artifact = getattr(message, "artifact", None)
+
+            if (
+                tool_name == "semantic_search_tool"
+                and isinstance(artifact, list)
+                and artifact
+            ):
+                semantic_docs.extend(artifact)
+
+        if semantic_docs:
+            artifacts["semantic_search_docs"] = _serialize_docs(semantic_docs)
+
+        return {
+            "answer": answer,
+            "artifacts": artifacts,
+            "raw": result,  # keep for debugging; Streamlit can hide unless toggled
+        }
+
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        return {"answer": f"❌ Error: {str(e)}", "artifacts": {}, "raw": None}
 
 
 def main():
-    """Main interactive loop."""
+    """Main interactive loop (CLI)."""
     print("\n" + "=" * 70)
     print("QMR DATABASE + KNOWLEDGE AGENT")
     print("=" * 70)
-    print("\nCapabilities:")
-    print(
-        "  ✓ SQL queries (counts, filters, joins, aggregations) on the reporting database"
-    )
-    print("  ✓ Schema inspection (tables, columns)")
-    print(
-        "  ✓ QMR semantic knowledge search (Memo/STT definitions, date-splitting rules, filters)"
-    )
-    print("  ✓ Hybrid reasoning (retrieve QMR rules, then validate/compute with SQL)")
-    print("\nExample questions:")
-    print("  1. What tables are available?")
-    print("  2. How is 'Memo' calculated for SKU vs Total?")
-    print("  3. What happens if today's date is within the requested date range?")
-    print(
-        "  4. What filters are supported (region/area/territory/subChannel/activeStatus)?"
-    )
-    print(
-        "  5. Which tables are used: monthly_order_cache_YYYY_MM vs daily_order_cache?"
-    )
     print("\nType 'quit', 'exit', or 'q' to exit")
     print("=" * 70 + "\n")
 
@@ -196,15 +235,20 @@ def main():
         question = input("❓ Your question: ").strip()
 
         if question.lower() in ["quit", "exit", "q"]:
-            print("\n👋 Goodbye!")
+            print("\nGoodbye!")
             break
 
         if not question:
             continue
 
-        print("\n🤔 Thinking...\n")
-        answer = ask_database(question)
-        print(f"\n💡 Answer:\n{answer}\n")
+        print("\nThinking...\n")
+        res = ask_database(question)
+        print(f"\nAnswer:\n{res['answer']}\n")
+        if res.get("artifacts", {}).get("semantic_search_docs"):
+            print(
+                "(Retrieved knowledge chunks: "
+                f"{len(res['artifacts']['semantic_search_docs'])})"
+            )
         print("=" * 70 + "\n")
 
 

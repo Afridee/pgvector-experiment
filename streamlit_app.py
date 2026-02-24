@@ -101,10 +101,10 @@ if prompt:
 
                 # If you later return tool artifacts (e.g., the docs from semantic_search_tool),
                 # you can display them here.
-                if artifacts:
-                    st.divider()
-                    st.subheader("Artifacts")
-                    st.write(artifacts)
+                # if artifacts:
+                #     st.divider()
+                #     st.subheader("Artifacts")
+                #     st.write(artifacts)
 
             except Exception as e:
                 err = f"Error: {e}"
