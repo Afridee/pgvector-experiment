@@ -5,7 +5,7 @@ Hybrid Text-to-SQL + RAG agent for answering database questions.
 """
 
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
 from langchain.agents import create_agent
@@ -16,44 +16,46 @@ from langchain_community.agent_toolkits import SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
 from langchain_openai import OpenAIEmbeddings
 from langchain_postgres.vectorstores import PGVector
+from langgraph.checkpoint.base import BaseCheckpointSaver
+from langgraph.checkpoint.postgres import PostgresSaver
 
-# Load environment variables
 load_dotenv()
 
-# Configuration
 READONLY_DB_URL = os.getenv("READONLY_DATABASE_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
+CHECKPOINT_DB_URL = os.getenv("CHECKPOINT_DB_URL", DATABASE_URL)
 
-# ============================================================================
-# Custom Semantic Search Tool
-# ============================================================================
+if not READONLY_DB_URL:
+    raise ValueError("READONLY_DATABASE_URL is not set (check your .env).")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set (check your .env).")
+if not CHECKPOINT_DB_URL:
+    raise ValueError("CHECKPOINT_DB_URL is not set (check your .env).")
+
+# ----------------------------------------------------------------------------
+# Globals (singleton agent + open context manager)
+# ----------------------------------------------------------------------------
+_AGENT = None
+_CHECKPOINTER_CM = None  # context manager object
+_CHECKPOINTER = None  # entered saver instance
 
 
 @tool(response_format="content_and_artifact")
 def semantic_search_tool(query: str):
-    """
-    Search QMR knowledge chunks by semantic similarity (RAG over pgvector).
-
-    Returns:
-      - content: a human-readable ranked list
-      - artifact: the raw retrieved Documents (so the caller/UI can display them)
-    """
+    """Search QMR knowledge chunks by semantic similarity (RAG over pgvector)."""
     try:
         docs = vectorstore.similarity_search(query, k=5)
-
         if not docs:
             return "No similar QMR knowledge found.", []
 
         results = []
         for i, doc in enumerate(docs, 1):
             meta = doc.metadata or {}
-
             title = meta.get("title") or f"Chunk {meta.get('chunk_index', 'N/A')}"
             tags = meta.get("tags") or []
             if isinstance(tags, str):
                 tags = [t.strip() for t in tags.split(",") if t.strip()]
-
             source_file = (
                 meta.get("source_file") or meta.get("source_path") or "unknown"
             )
@@ -75,23 +77,9 @@ def semantic_search_tool(query: str):
         return f"❌ Error in semantic_search_tool: {str(e)}", []
 
 
-# ============================================================================
-# Setup: SQL Database
-# ============================================================================
-
-if not READONLY_DB_URL:
-    raise ValueError("READONLY_DATABASE_URL is not set (check your .env).")
-
-if not DATABASE_URL:
-    raise ValueError("DATABASE_URL is not set (check your .env).")
-
 print("🔗 Connecting to SQL database...")
 sql_db = SQLDatabase.from_uri(READONLY_DB_URL, sample_rows_in_table_info=2)
 print("   ✓ SQL database connected")
-
-# ============================================================================
-# Setup: Vector Database
-# ============================================================================
 
 print("🔗 Connecting to vector database...")
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
@@ -100,57 +88,47 @@ vectorstore = PGVector(
 )
 print("   ✓ Vector database connected")
 
-# ============================================================================
-# Create AI Agent with Toolkit
-# ============================================================================
-
-print("🤖 Initializing AI agent...")
-
-llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0,)
+llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0)
 
 sql_toolkit = SQLDatabaseToolkit(db=sql_db, llm=llm)
 all_tools = sql_toolkit.get_tools() + [semantic_search_tool]
 
 system_prompt = """You are an expert QMR reporting/database assistant with access to powerful tools.
-
-**SQL Tools (from toolkit):**
-- sql_db_query: Execute SELECT queries (read-only)
-- sql_db_schema: Get table structure
-- sql_db_list_tables: List available tables
-- sql_db_query_checker: Validate SQL syntax
-
-**Custom Tools:**
-- semantic_search_tool: Retrieve QMR rules, definitions, and query patterns from the embedded knowledge base (NOT product catalog search).
-
-**Decision Guide:**
-- User asks about QMR business logic ("How is Memo computed?", "What tables are queried?", "What happens when current date is in range?") → Use semantic_search_tool
-- User asks about real database facts ("How many rows...", "total STT last month...", "which regions exist...") → Use sql_db_query
-- User asks about schema ("what columns does X have?", "what tables exist?") → Use sql_db_list_tables or sql_db_schema
-- User asks to implement a metric from rules ("Compute Memo/STT for ...") → Use BOTH:
-  1) semantic_search_tool to fetch the definition and filters
-  2) sql_db_schema to confirm table/column names
-  3) sql_db_query to execute the final aggregation
-
-**Rules:**
-- Prefer semantic_search_tool for definitions of Memo, STT, product type behavior (SKU/Brand/Family/Segment/Total), date splitting (monthly vs daily), and filter rules.
-- Prefer sql_db_schema if unsure about column names before writing SQL.
-- ALWAYS use sql_db_query for numeric results.
-- When answering, cite which tool you used and summarize the supporting rule or query.
-- If the knowledge base conflicts with the actual schema/data, treat the database as authoritative and explain the discrepancy.
+... (unchanged) ...
 """
 
-agent = create_agent(model=llm, tools=all_tools, system_prompt=system_prompt)
 
-print("   ✓ Agent ready")
-print(f"   ✓ Loaded {len(all_tools)} tools")
+def get_agent():
+    """
+    Streamlit-safe singleton:
+    - keeps the PostgresSaver context open for the lifetime of the process
+    - creates the agent once
+    """
+    global _AGENT, _CHECKPOINTER_CM, _CHECKPOINTER
 
-# ============================================================================
-# Main Interface
-# ============================================================================
+    if _AGENT is not None:
+        return _AGENT
+
+    # Enter the context manager ONCE and never exit it until process shutdown
+    _CHECKPOINTER_CM = PostgresSaver.from_conn_string(CHECKPOINT_DB_URL)
+    _CHECKPOINTER = _CHECKPOINTER_CM.__enter__()
+
+    if not isinstance(_CHECKPOINTER, BaseCheckpointSaver):
+        raise TypeError(f"Expected BaseCheckpointSaver, got {type(_CHECKPOINTER)}")
+
+    # Run setup once at startup
+    _CHECKPOINTER.setup()
+
+    _AGENT = create_agent(
+        model=llm,
+        tools=all_tools,
+        system_prompt=system_prompt,
+        checkpointer=_CHECKPOINTER,
+    )
+    return _AGENT
 
 
 def _serialize_docs(docs: List[Any]) -> List[Dict[str, Any]]:
-    """Convert LangChain Document objects into JSON-serializable dicts for the UI."""
     serialized: List[Dict[str, Any]] = []
     for d in docs or []:
         meta = getattr(d, "metadata", None) or {}
@@ -163,94 +141,45 @@ def _serialize_docs(docs: List[Any]) -> List[Dict[str, Any]]:
                 "source_file": meta.get("source_file"),
                 "source_path": meta.get("source_path"),
                 "type": meta.get("type"),
-                "preview": content[:800],  # UI can truncate further
+                "preview": content[:800],
                 "metadata": meta,
             }
         )
     return serialized
 
 
-def ask_database(question: str) -> Dict[str, Any]:
-    """
-    Ask a question to the database agent.
+def ask_database(question: str, thread_id: str) -> Dict[str, Any]:
+    agent = get_agent()
 
-    Returns a dict for richer UIs (Streamlit):
-      {
-        "answer": <final assistant text>,
-        "artifacts": {
-            "semantic_search_docs": [ ... ]   # present only if available
-        },
-        "raw": <raw agent output (optional)>
-      }
-    """
-    try:
-        result = agent.invoke({"messages": [{"role": "user", "content": question}]})
-        answer = result["messages"][-1].content
+    result = agent.invoke(
+        {"messages": [{"role": "user", "content": question}]},
+        config={"configurable": {"thread_id": thread_id}},
+    )
 
-        artifacts: Dict[str, Any] = {}
+    answer = result["messages"][-1].content
 
-        tool_messages = result.get("messages", [])
-        semantic_docs: List[Any] = []
+    artifacts: Dict[str, Any] = {}
+    semantic_docs: List[Any] = []
 
-        for message in tool_messages:
-            if not isinstance(message, ToolMessage):
-                continue
-
-            tool_name = (
-                getattr(message, "name", None)
-                or getattr(message, "tool", None)
-                or getattr(message, "tool_name", None)
-            )
-            artifact = getattr(message, "artifact", None)
-
-            if (
-                tool_name == "semantic_search_tool"
-                and isinstance(artifact, list)
-                and artifact
-            ):
-                semantic_docs.extend(artifact)
-
-        if semantic_docs:
-            artifacts["semantic_search_docs"] = _serialize_docs(semantic_docs)
-
-        return {
-            "answer": answer,
-            "artifacts": artifacts,
-            "raw": result,  # keep for debugging; Streamlit can hide unless toggled
-        }
-
-    except Exception as e:
-        return {"answer": f"❌ Error: {str(e)}", "artifacts": {}, "raw": None}
-
-
-def main():
-    """Main interactive loop (CLI)."""
-    print("\n" + "=" * 70)
-    print("QMR DATABASE + KNOWLEDGE AGENT")
-    print("=" * 70)
-    print("\nType 'quit', 'exit', or 'q' to exit")
-    print("=" * 70 + "\n")
-
-    while True:
-        question = input("❓ Your question: ").strip()
-
-        if question.lower() in ["quit", "exit", "q"]:
-            print("\nGoodbye!")
-            break
-
-        if not question:
+    for message in result.get("messages", []):
+        if not isinstance(message, ToolMessage):
             continue
 
-        print("\nThinking...\n")
-        res = ask_database(question)
-        print(f"\nAnswer:\n{res['answer']}\n")
-        if res.get("artifacts", {}).get("semantic_search_docs"):
-            print(
-                "(Retrieved knowledge chunks: "
-                f"{len(res['artifacts']['semantic_search_docs'])})"
-            )
-        print("=" * 70 + "\n")
+        tool_name = (
+            getattr(message, "name", None)
+            or getattr(message, "tool", None)
+            or getattr(message, "tool_name", None)
+        )
+        artifact = getattr(message, "artifact", None)
 
+        if (
+            tool_name == "semantic_search_tool"
+            and isinstance(artifact, list)
+            and artifact
+        ):
+            semantic_docs.extend(artifact)
 
-if __name__ == "__main__":
-    main()
+    if semantic_docs:
+        artifacts["semantic_search_docs"] = _serialize_docs(semantic_docs)
+
+    return {"answer": answer, "artifacts": artifacts, "raw": result}

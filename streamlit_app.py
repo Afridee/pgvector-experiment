@@ -9,6 +9,7 @@ Where ask_database(question: str) -> str (or dict) calls the LangChain agent.
 
 import json
 import os
+import uuid
 
 import streamlit as st
 
@@ -73,7 +74,9 @@ if prompt:
     with st.chat_message("assistant"):
         with st.spinner("Thinking…"):
             try:
-                result = ask_database(prompt)
+                if "thread_id" not in st.session_state:
+                    st.session_state.thread_id = f"st_{uuid.uuid4().hex}"
+                result = ask_database(prompt, thread_id=st.session_state.thread_id)
 
                 # Your current ask_database returns a string.
                 # But we also support a future enhancement: returning a dict with fields.
