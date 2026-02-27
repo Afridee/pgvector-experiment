@@ -1,405 +1,266 @@
 ---
-title: Date range is split between monthly materialized caches and live daily cache when “current date” is included
-tags: dates, materialized-view, monthly_order_cache, daily_order_cache, split-range
+title: QMR SQL Template Overview (Must Follow)
+tags: topic:overview, applies_to:all, sql_template
 content:
-The report checks whether today’s date (system currentDate) falls inside the requested [startDate, endDate] (inclusive).
-- If today is inside the range, the query is split:
-  - Historical portion uses monthly materialized-cache tables up to “yesterday” (mv_end_date = currentDate - 1 day).
-  - Live portion uses the daily cache table for [currentDate, endDate + 1 day).
-- If today is not inside the range, the entire query uses only the monthly materialized-cache tables up to endDate.
----
+You must generate QMR SQL using ONLY these sources/tables:
+- monthly_order_cache_YYYY_MM (materialized monthly cache)
+- daily_order_cache (live daily cache for current date and later)
+No additional joins are allowed in primary/retailer queries.
 
+You must output two queries:
+1) primaryDataQuery (required)
+2) retailerOrderDataQuery (required; if productType=Total then return: SELECT 1 as "Dummy")
+
+You must follow the date split rules and productType mapping chunks.
+
+Placeholders used in templates:
+- {startDate}            : 'YYYY-MM-DD'
+- {mvEndDateExclusive}   : 'YYYY-MM-DD' (exclusive upper bound for MV portion)
+- {currentDate}          : 'YYYY-MM-DD' (only if current date in range)
+- {endDatePlusOne}       : 'YYYY-MM-DD' (exclusive upper bound overall)
+- {monthlyTablesSql}     : UNION ALL of per-table monthly SELECTs
+- {dailySql}             : daily_order_cache SELECT (only if needed)
+- {filtersSql}           : concatenated AND conditions (may be empty)
+- {productFieldSql}      : e.g., o.sku_id / o.brand_id / o.family_id / o.segment_id (empty for Total)
+- {productSelectSql}     : e.g., o.sku_id AS "sku_id", (empty for Total)
+- {productGroupBySql}    : e.g., o.sku_id,  (empty for Total)
+- {productDistinctKeySql}: e.g., || '-' || o.sku_id (empty for Total)
+- {productFilterSql}     : AND o.sku_id IN (...) depending on productType (empty if no product filter)
+
+IMPORTANT:
+- Use >= lower bound and < upper bound (exclusive) for date filtering.
+- Memo distinct key is retailer_id + DATE(order_placed_at) + optional product_id.
+- Total Memo distinct key is retailer_id + DATE(order_placed_at) only (no product_id).
 ---
-title: Monthly cache table naming and selection logic
-tags: monthly tables, table suffix, partitioning, monthly_order_cache
+title: QMR ProductType -> Cache Field Mapping
+tags: topic:product_type, applies_to:all, sql_template
 content:
-Monthly data is read from tables named:
-- monthly_order_cache_<YYYY>_<MM> (e.g., monthly_order_cache_2026_02)
+Normalize productType into one of: SKU, Brand, Family, Segment, Total.
 
-The code generates the list of monthly table names by iterating month-by-month starting at the first day of startDate’s month through mv_end_date’s month (inclusive). These tables are later UNION ALL’d together.
----
+Mapping (cache column):
+- SKU     -> o.sku_id
+- Brand   -> o.brand_id
+- Family  -> o.family_id
+- Segment -> o.segment_id
+- Total   -> (no product field)
 
+Template fragments:
+
+If productType != Total:
+- {productFieldSql}       = o.<mapped>_id
+- {productSelectSql}      = o.<mapped>_id AS "{productIdAlias}",
+- {productGroupBySql}     = o.<mapped>_id,
+- {productDistinctKeySql} = || '-' || o.<mapped>_id
+
+If productType = Total:
+- {productFieldSql}       = (empty)
+- {productSelectSql}      = (empty)
+- {productGroupBySql}     = (empty)
+- {productDistinctKeySql} = (empty)
+
+Product filter fragment (append to WHERE when productFilter is present):
+- SKU     -> AND o.sku_id IN ({productIdsCsv})
+- Brand   -> AND o.brand_id IN ({productIdsCsv})
+- Family  -> AND o.family_id IN ({productIdsCsv})
+- Segment -> AND o.segment_id IN ({productIdsCsv})
+- Total   -> (optional) AND o.sku_id IN ({productIdsCsv}) only if you explicitly want Total to filter by SKU IDs; otherwise no product filter.
 ---
-title: Inclusive end date implemented via “endDatePlusOne” half-open interval
-tags: dates, endDatePlusOne, time window, half-open interval
+title: QMR Date Split Rules (MV vs Daily)
+tags: topic:date_split, applies_to:all, sql_template
 content:
-Date filters use half-open ranges:
-- order_placed_at >= startDate
-- order_placed_at < endBoundary
+Given startDate and endDate:
+- endDatePlusOne = endDate + 1 day (exclusive upper bound).
+- currentDate = today's date.
 
-Where:
-- endDatePlusOne = endDate + 1 day, so [startDate, endDatePlusOne) includes the full endDate day.
-For monthly materialized queries, the end boundary is mvEndDateStr:
-- If the query is split (today included): mvEndDateStr = currentDate (so monthly caches cover [startDate, currentDate))
-- Otherwise: mvEndDateStr = endDatePlusOne (so monthly caches cover [startDate, endDate+1))
-For daily cache queries (only when split): [currentDate, endDatePlusOne).
----
+If startDate <= currentDate <= endDate:
+- MV portion uses monthly tables with:
+  o.order_placed_at >= '{startDate}' AND o.order_placed_at < '{currentDate}'
+- Daily portion uses daily_order_cache with:
+  o.order_placed_at >= '{currentDate}' AND o.order_placed_at < '{endDatePlusOne}'
 
+Else:
+- Only MV portion:
+  o.order_placed_at >= '{startDate}' AND o.order_placed_at < '{endDatePlusOne}'
+  and no daily_order_cache query.
+
+Monthly tables list:
+monthly_order_cache_{YYYY}_{MM} for each month intersecting the MV portion.
 ---
-title: Primary sales data source tables and pattern (monthly vs daily)
-tags: SQL pattern, primaryDataQuery, monthly_order_cache, daily_order_cache, union-all
+title: QMR Filters Template (Cache WHERE clauses)
+tags: topic:filters, applies_to:all, sql_template
 content:
-Primary KPI data comes from:
-- monthly_order_cache_YYYY_MM tables (multiple, UNION ALL)
-- plus daily_order_cache (only if today is within the date range)
+Filters are optional and appended as AND clauses.
 
-All per-table queries share the same SELECT fields, WHERE filters, and GROUP BY keys, then are combined with UNION ALL and re-aggregated in an outer query (SUM of Memo and STT) to consolidate duplicates across partitions.
----
+Each filter is an ID list; ignore if empty or contains "all".
 
+Mapping:
+- regionFilter       -> AND o.region_id IN ({regionIdsCsv})
+- areaFilter         -> AND o.area_id IN ({areaIdsCsv})
+- distributorFilter  -> AND o.house_id IN ({houseIdsCsv})
+- territoryFilter    -> AND o.territory_id IN ({territoryIdsCsv})
+- pointFilter        -> AND o.point_id IN ({pointIdsCsv})
+- subChannelFilter   -> AND o.sub_channel_id IN ({subChannelIdsCsv})
+- productFilter      -> use ProductType mapping chunk to choose AND o.<field> IN ({productIdsCsv})
+
+Combine into:
+{filtersSql} = (zero or more lines, each starting with AND ...)
 ---
-title: Product type normalization rules (input → canonical type)
-tags: productType, normalization, SKU, Brand, Family, Segment, Total
+title: QMR Primary Query Template (Per-Table SELECT)
+tags: topic:primary_query, applies_to:all, sql_template
 content:
-productType is read from query.productType (default “SKU”), lowercased, then mapped to canonical capitalization:
-- "sku" → "SKU"
-- "brand" → "Brand"
-- "family" → "Family"
-- "segment" → "Segment"
-- "total" → "Total"
-This canonical value drives:
-- which product id column is used in caches
-- how product filters are applied
-- which Excel generator function is called
-- whether productQuery and retailerOrderData are meaningful or replaced with a dummy query
----
+Per-table SELECT template. Use this for BOTH monthly_order_cache_* tables and daily_order_cache (with different date bounds).
 
+```sql
+SELECT
+  o.point_id AS "pointId",
+  o.retailer_code AS "Retailer Code",
+  o.retailer_name AS "Retailer Name",
+  o.sub_channel_id AS "SubChannelId",
+  o.cluster_id AS "ClusterId",
+  o.tpg_id AS "TpgId",
+  o.original_route_section_id AS "RouteSectionId",
+  {productSelectSql}
+  COUNT(
+    DISTINCT
+      o.retailer_id || '-' || DATE(o.order_placed_at) {productDistinctKeySql}
+  )::INT4 AS "Memo",
+  SUM(o.total_stt) AS "STT"
+FROM {tableName} o
+WHERE
+  o.order_placed_at >= '{dateLowerInclusive}'
+  AND o.order_placed_at < '{dateUpperExclusive}'
+  {filtersSql}
+  {productFilterSql}
+GROUP BY
+  {productGroupBySql}
+  o.point_id,
+  o.retailer_code,
+  o.retailer_name,
+  o.sub_channel_id,
+  o.cluster_id,
+  o.tpg_id,
+  o.original_route_section_id
+```
+
+Notes:
+- {productSelectSql}, {productGroupBySql}, {productDistinctKeySql} are empty for Total.
+- {filtersSql} should already include leading ANDs; if empty, remove blank lines.
 ---
-title: Product dimension field mapping: caches use *_id fields; productQuery uses dimension tables
-tags: product mapping, ids only, sku_id, brand_id, family_id, segment_id
+title: QMR Primary Query Template (Union + Outer Aggregate)
+tags: topic:primary_query_outer, applies_to:all, sql_template
 content:
-For non-Total product types, the report groups and counts using ID fields from the cache tables (not names):
+After generating per-table primary SELECTs, UNION ALL them, then aggregate:
 
-Cache table field used (mv_product_field) per productType:
-- SKU: o.sku_id  (alias "sku_id")
-- Brand: o.brand_id (alias "Brand")
-- Family: o.family_id (alias "Family")
-- Segment: o.segment_id (alias "Segment")
+If productType != Total:
 
-This field is selected and included in GROUP BY, and also used in the Memo distinct-count key for non-Total reports.
+```sql
+SELECT
+  "pointId",
+  "Retailer Code",
+  "Retailer Name",
+  "SubChannelId",
+  "ClusterId",
+  "TpgId",
+  "RouteSectionId",
+  "{productIdAlias}",
+  SUM("Memo")::INT4 AS "Memo",
+  SUM("STT") AS "STT"
+FROM (
+  {unionAllPrimarySelects}
+) combined
+GROUP BY
+  "{productIdAlias}",
+  "pointId",
+  "Retailer Code",
+  "Retailer Name",
+  "SubChannelId",
+  "ClusterId",
+  "TpgId",
+  "RouteSectionId"
+ORDER BY "pointId"
+```
+
+If productType = Total:
+
+```sql
+SELECT
+  "pointId",
+  "Retailer Code",
+  "Retailer Name",
+  "SubChannelId",
+  "ClusterId",
+  "TpgId",
+  "RouteSectionId",
+  SUM("Memo")::INT4 AS "Memo",
+  SUM("STT") AS "STT"
+FROM (
+  {unionAllPrimarySelects}
+) combined
+GROUP BY
+  "pointId",
+  "Retailer Code",
+  "Retailer Name",
+  "SubChannelId",
+  "ClusterId",
+  "TpgId",
+  "RouteSectionId"
+ORDER BY "pointId"
+```
 ---
-
----
-title: Key KPIs: “Memo” distinct-count definition and “STT” sum definition
-tags: KPI, Memo, STT, distinct-count, aggregation
+title: QMR Retailer Order Query Template (Per-Table SELECT)
+tags: topic:retailer_query, applies_to:sku, applies_to:brand, applies_to:family, applies_to:segment, sql_template
 content:
-Two main KPIs are computed from the order cache tables:
+Only generate this query when productType != Total.
 
-1) Memo:
-- Defined as COUNT(DISTINCT retailer_id + '-' + DATE(order_placed_at) [+ '-' + product_id]).
-- For non-Total product types: distinct key includes product id, so Memo is per (retailer, day, product).
-- For Total product type: distinct key excludes product id, so Memo is per (retailer, day) overall.
+Per-table SELECT template:
 
-2) STT:
-- Defined as SUM(o.total_stt).
+```sql
+SELECT
+  o.point_id AS "pointId",
+  o.retailer_code AS "Retailer Code",
+  o.original_route_section_id AS "RouteSectionId",
+  COUNT(DISTINCT o.retailer_id || '-' || DATE(o.order_placed_at))::INT4 AS "Total Memo"
+FROM {tableName} o
+WHERE
+  o.order_placed_at >= '{dateLowerInclusive}'
+  AND o.order_placed_at < '{dateUpperExclusive}'
+  {filtersSql}
+  {productFilterSql}
+GROUP BY
+  o.point_id,
+  o.retailer_code,
+  o.original_route_section_id
+```
 
-These are computed per partition-table query, then summed again in an outer aggregation after UNION ALL.
+Note:
+- Do NOT include productDistinctKeySql here. Total Memo is retailer_id+date only.
 ---
-
----
-title: Primary data query output columns (report grain fields)
-tags: primaryDataQuery, columns, grouping, point, retailer, route, subchannel, cluster, tpg
+title: QMR Retailer Order Query Template (Union + Outer Aggregate)
+tags: topic:retailer_query_outer, applies_to:sku, applies_to:brand, applies_to:family, applies_to:segment, sql_template
 content:
-The primary data query returns, at minimum, the following dimensional columns:
-- pointId (o.point_id)
-- Retailer Code (o.retailer_code)
-- Retailer Name (o.retailer_name)
-- SubChannelId (o.sub_channel_id)
-- ClusterId (o.cluster_id)
-- TpgId (o.tpg_id)
-- RouteSectionId (o.original_route_section_id)
-Plus product id column when productType != Total (as mapped by product type).
-Measures:
-- Memo
-- STT
+Only for productType != Total.
 
-Grouping is by the above fields (and by product id when applicable).
+```sql
+SELECT
+  "pointId",
+  "Retailer Code",
+  "RouteSectionId",
+  SUM("Total Memo")::INT4 AS "Total Memo"
+FROM (
+  {unionAllRetailerSelects}
+) combined
+GROUP BY
+  "pointId",
+  "Retailer Code",
+  "RouteSectionId"
+```
 ---
-
----
-title: Cross-partition consolidation: outer query sums per-group Memo and STT
-tags: union-all, outer group by, re-aggregation
+title: QMR Retailer Order Query Template (Total ProductType)
+tags: topic:retailer_query, applies_to:total, sql_template
 content:
-Because data is pulled from multiple monthly tables (and possibly daily cache) via UNION ALL, the final step wraps the UNION ALL in an outer SELECT that:
-- GROUP BY the same dimensional fields (including product id where applicable)
-- Computes SUM("Memo") and SUM("STT")
+If productType = Total, retailerOrderDataQuery must be a dummy query:
 
-This ensures the final dataset is consolidated across all partitions.
----
-
----
-title: “Retailer order” query provides Total Memo per retailer-day independent of product
-tags: retailerOrderData, Total Memo, distinct-count
-content:
-A second dataset is computed (only when productType != Total) to represent retailer-level activity:
-
-- Total Memo = COUNT(DISTINCT retailer_id + '-' + DATE(order_placed_at))
-- Grouped by: retailer_code, RouteSectionId, pointId
-
-This query is also run per monthly table (and daily cache if split), UNION ALL’d, then summed in an outer query:
-- SUM("Total Memo") grouped by retailer_code, RouteSectionId, pointId
-
-This metric is intentionally NOT split by product, even when the main report is by SKU/Brand/Family/Segment.
----
-
----
-title: Total product type disables retailer-order query and productQuery (dummy placeholders)
-tags: Total, dummy query, retailerOrderData, productQuery
-content:
-When productType == "Total":
-- retailerOrderData is replaced by a dummy query returning a single column "Dummy".
-- productQuery is replaced by a dummy query returning "Dummy".
-This indicates the “Total” report does not require product dimension data or retailer-level Total Memo dataset from the retailer-order query logic.
----
-
----
-title: Filter list parsing: “all” values are removed (or nullified) before SQL IN clauses
-tags: filters, all, IN clause, region, area, territory, distributor, point
-content:
-Several filters are turned into comma-separated lists for SQL IN (...) clauses. For region/area/distributor/territory/point:
-- If the filter list contains items equal to the string "all", those are excluded.
-- If, after excluding "all", the list is empty, the filter condition is omitted entirely.
-Affected filters:
-- regionFilter → o.region_id IN (...)
-- areaFilter → o.area_id IN (...)
-- distributorFilter (house) → o.house_id IN (...)
-- territoryFilter → o.territory_id IN (...)
-- pointFilter → o.point_id IN (...)
----
-
----
-title: SubChannel filter behavior differs: “all” is NOT removed
-tags: subChannelFilter, filters, potential behavior
-content:
-subChannelFilter is built from query.subChannelFilter without removing "all".
-As a result, if "all" appears in subChannelFilter, it will be included in:
-- o.sub_channel_id IN (subChannelFilter)
-This differs from region/area/distributor/territory/point filters which explicitly remove "all".
----
-
----
-title: Product filter application depends on product type; Total uses SKU filter path
-tags: productFilter, SKU, Brand, Family, Segment, Total, IN clause
-content:
-products is a comma-separated list from query.productFilter (no special “all” removal shown).
-
-In the primary/daily cache WHERE clause, the product filter is applied as follows:
-- If productType in ("SKU", "Total"): filter by o.sku_id IN (products)
-- If productType == "Brand": filter by o.brand_id IN (products)
-- If productType == "Family": filter by o.family_id IN (products)
-- If productType == "Segment": filter by o.segment_id IN (products)
-
-Notably, “Total” still applies productFilter to o.sku_id (if products is provided).
----
-
----
-title: Active status filter normalization and meaning
-tags: activeStatus, current, inactive, all, boolean mapping
-content:
-activeStatus is read from query.activeStatus and normalized:
-- If activeStatus is a list with:
-  - "all" present OR length > 1 → activeStatus becomes None (no active filtering)
-  - Exactly one value:
-    - "current" → activeStatus = "true"
-    - otherwise → activeStatus = "false"
-- Any other shape or empty → activeStatus = None
-
-This activeStatus is used only in productQuery (dimension tables), not in the cache-table primary queries.
----
-
----
-title: Product dimension query (productQuery) joins SKU to Brand/Family/Segment and uses show_in_report
-tags: productQuery, fmc_products, brands, families, segments, show_in_report, sort_priority
-content:
-For non-Total product types, product metadata is retrieved from:
-- fmc_products fp
-  JOIN brands bnd ON fp.brand_id = bnd.id
-  JOIN families fml ON fp.family_id = fml.id
-  JOIN segments sg ON fp.segment_id = sg.id
-
-Base rule:
-- Only products with fp.show_in_report = true are included.
-Ordering:
-- ORDER BY fp.sort_priority ("Sort")
-
-Returned fields include:
-- fp.id as productId, fp.sku as SKU_Name, fp.sort_priority as Sort
-- brandId + Brand_Name
-- familyId + Family_Name
-- segmentId + Segment_Name
----
-
----
-title: Active status is applied selectively depending on report’s product type
-tags: active filtering, brands.is_active, families.is_active, segments.is_active, fmc_products.is_active
-content:
-If activeStatus is set (true/false), it is applied differently based on productType:
-- For Brand reports: adds condition on brands table: bnd.is_active = activeStatus
-- For Family reports: adds condition on families table: fml.is_active = activeStatus
-- For Segment reports: adds condition on segments table: sg.is_active = activeStatus
-- For SKU reports: adds condition on fmc_products table: fp.is_active = activeStatus
-
-This means “active” filtering is applied at the level of the grouped dimension, not uniformly across all joined tables.
----
-
----
-title: Report type controls whether Memo and STT columns are shown
-tags: reportType, showMemoColumn, showSttColumn, output columns
-content:
-reportType is read from query.reportType:
-- If missing or equals ["all"] → treated as None (show everything)
-
-Then:
-- showSttColumn = ("stt" in reportType) if reportType else True
-- showMemoColumn = ("memo" in reportType) if reportType else True
-
-So by default both Memo and STT are included. If reportType is specified, only explicitly included metrics are shown.
----
-
----
-title: Distribution network lookup: points link to territory, distributor, area, region
-tags: distribution network, points, territories, distributors, areas, regions, joins
-content:
-distributionNetworkQuery retrieves the geographic hierarchy for each point:
-- points p
-  JOIN territories tr ON p.territory_id = tr.id
-  JOIN distributors dh ON p.distributor_id = dh.id
-  JOIN areas a ON p.area_id = a.id
-  JOIN regions rg ON p.region_id = rg.id
-
-Returned columns:
-- p.id
-- Point (p.name)
-- Territory (tr.name)
-- House (dh.name)
-- Area (a.name)
-- Region (rg.name)
-
-This provides mapping from pointId in primary data to its network labels.
----
-
----
-title: Route section lookup: route_sections join routes and sections, displayed as concatenated label
-tags: routeSection, route_sections, routes, sections, concat
-content:
-routeSectionQuery builds a human-readable route label:
-- route_sections rs
-  JOIN routes r ON rs.route_id = r.id
-  JOIN sections s ON rs.section_id = s.id
-
-Output:
-- rs.id
-- Route = concat(r.name, s.name)
-
-This maps RouteSectionId from cache tables to a route label.
----
-
----
-title: Channel lookup: sub_channels join channels for Channel/SubChannel names
-tags: channels, sub_channels, lookup
-content:
-channelQuery provides:
-- sub_channels sch
-  JOIN channels ch ON sch.channel_id = ch.id
-
-Outputs:
-- sch.id
-- Channel = ch.name
-- SubChannel = sch.name
-
-This maps SubChannelId to channel labels.
----
-
----
-title: Cluster lookup: clusters join cluster_types for Cluster and Cluster Type
-tags: clusters, cluster_types, lookup
-content:
-clusterQuery provides:
-- clusters cls
-  JOIN cluster_types clt ON cls.cluster_type_id = clt.id
-
-Outputs:
-- cls.id
-- Cluster = cls.name
-- Cluster Type = clt.name
-
-This maps ClusterId to descriptive labels.
----
-
----
-title: TPG lookup table provides TPG name by id
-tags: tpg, lookup
-content:
-tpgQuery:
-- FROM tpg
-Outputs:
-- id
-- TPG = tpg.name
-
-This maps TpgId to its label.
----
-
----
-title: Generator function mapping by product type
-tags: report generator, mapping, SKU, Brand, Family, Segment, Total, excel
-content:
-After data retrieval, the Excel generator function is selected strictly by productType:
-- SKU → qmr_excel_generator_by_sku
-- Brand → qmr_excel_generator_by_brand
-- Family → qmr_excel_generator_by_family
-- Segment → qmr_excel_generator_by_segment
-- Total → qmr_excel_generator_total
-
-All generators receive the same dataset bundle:
-primaryData, retailerOrderData, distributionNetwork, productData, routeSectionData, channelData, clusterData, tpgData,
-plus showMemoColumn/showSttColumn and date strings (startDateStr, endDateStr) and requestId.
----
-
----
-title: “No data” behavior depends on primaryData presence
-tags: empty results, 404, primaryData
-content:
-The report returns a 404 “No data found for the given query” if:
-- primaryData is empty or missing (explicit check), regardless of other lookups.
-There is also an earlier check `if not any(results)` which attempts to detect totally empty query results, but the decisive condition is that primaryData must contain rows.
----
-
----
-title: Output delivery rule when invoked “fromQueue”
-tags: RMQ, mailing queue, publish_message, async job
-content:
-If fromQueue is true, the generator publishes a message to RMQ_MAILING_QUEUE_NAME containing:
-- fileDetails
-- issuer email
-- requestId
-This indicates asynchronous delivery/emailing is triggered only for queue-driven requests.
----
-
----
-title: Core WHERE filter set applied consistently across monthly and daily cache queries
-tags: SQL filters, region, area, house, territory, point, subchannel, product
-content:
-Both monthly cache queries and the daily cache query apply the same filter pattern:
-- Time window (order_placed_at bounds)
-- Optional IN filters:
-  - region_id, area_id, house_id (distributor), territory_id, point_id, sub_channel_id
-  - product id filter based on productType (sku/brand/family/segment; Total uses sku_id)
-
-These filters are applied identically in:
-- primary data queries (Memo, STT)
-- retailer-order queries (Total Memo) when productType != Total
----
-
----
-title: Grain differences between primary data vs retailer-order data
-tags: grain, grouping, primary vs retailer memo
-content:
-Primary data grain includes:
-- point + retailer_code + retailer_name + routeSection + subchannel + cluster + tpg
-- plus product id (except Total)
-
-Retailer-order data grain includes:
-- point + retailer_code + routeSection
-(no retailer_name, no subchannel/cluster/tpg, and no product id)
-
-This implies retailer-order is intended as a higher-level denominator/coverage metric compared to product-level primary metrics.
+```sql
+SELECT 1 as "Dummy"
+```
 ---
