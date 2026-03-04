@@ -1,10 +1,10 @@
 """
-Streamlit Chat App for QMR Database + Knowledge Agent
+Streamlit Chat App for Database + Knowledge Agent
 
 Assumes you already expose:
-    from backend.core import ask_database
+    from backend.agent import ask_database
 
-Where ask_database(question: str) -> str (or dict) calls the LangChain agent.
+Where ask_database(question: str, thread_id: str) -> dict calls the LangChain agent.
 """
 
 import json
@@ -17,14 +17,13 @@ import streamlit as st
 from backend.agent import ask_database
 
 st.set_page_config(
-    page_title="QMR Database + Knowledge Agent", page_icon="🧠", layout="wide",
+    page_title="Database Assistant", page_icon="📊", layout="wide",
 )
 
-st.title("QMR Database + Knowledge Agent")
+st.title("Database Assistant")
 
 with st.sidebar:
     st.header("Settings")
-    st.caption("Uses your existing backend.core.ask_database()")
 
     show_debug = st.toggle("Show debug / raw response", value=False)
     st.divider()
@@ -40,10 +39,10 @@ with st.sidebar:
     st.markdown(
         """
 **Example questions**
-- How is Memo calculated for SKU vs Total?
-- What happens if today's date is within the requested date range?
-- Which tables are used: monthly_order_cache_YYYY_MM vs daily_order_cache?
-- What filters are supported (region/area/territory/subChannel/activeStatus)?
+- Show me Memo and STT for Dhaka region from 2025-01-01 to 2025-03-31
+- Give me SKU-level report for January 2025
+- Total Memo across all SKUs for territory X in February 2025
+- Which SKUs had the highest STT last month?
 """
     )
 
@@ -52,7 +51,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = [
         {
             "role": "assistant",
-            "content": "Ask me about QMR report rules (Memo/STT, date splitting, filters) or run SQL-based questions.",
+            "content": "Ask me anything about your data — I'll look up the right approach and fetch the results for you.",
         }
     ]
 
@@ -78,8 +77,6 @@ if prompt:
                     st.session_state.thread_id = f"st_{uuid.uuid4().hex}"
                 result = ask_database(prompt, thread_id=st.session_state.thread_id)
 
-                # Your current ask_database returns a string.
-                # But we also support a future enhancement: returning a dict with fields.
                 if isinstance(result, dict):
                     answer = result.get("answer") or result.get("content") or ""
                     artifacts = result.get("artifacts")

@@ -2,257 +2,246 @@
 title: QMR SQL Template Overview (Must Follow)
 tags: topic:overview, applies_to:all, sql_template
 content:
-You must generate QMR SQL using ONLY these sources/tables:
-- monthly_order_cache_YYYY_MM (materialized monthly cache)
-- daily_order_cache (live daily cache for current date and later)
-No additional joins are allowed in primary/retailer queries.
+You must generate QMR SQL using ONLY these yearly tables:
+- raw_apsis_qmr_data_2022
+- raw_apsis_qmr_data_2023
+- raw_apsis_qmr_data_2024
+- raw_apsis_qmr_data_2025
+
+There is NO daily cache table and NO monthly partitioned table. All data including recent dates
+comes from the yearly raw_apsis_qmr_data_YYYY tables. No additional joins are allowed.
+
+Each row is already pre-aggregated (one row per retailer per SKU per extracted_date).
+Do NOT use COUNT(DISTINCT ...) for Memo — use SUM(o.memo_value::numeric) instead.
+Do NOT use COUNT(DISTINCT ...) for STT  — use SUM(o.stt_value::numeric) instead.
 
 You must output two queries:
 1) primaryDataQuery (required)
 2) retailerOrderDataQuery (required; if productType=Total then return: SELECT 1 as "Dummy")
 
-You must follow the date split rules and productType mapping chunks.
-
-Placeholders used in templates:
-- {startDate}            : 'YYYY-MM-DD'
-- {mvEndDateExclusive}   : 'YYYY-MM-DD' (exclusive upper bound for MV portion)
-- {currentDate}          : 'YYYY-MM-DD' (only if current date in range)
-- {endDatePlusOne}       : 'YYYY-MM-DD' (exclusive upper bound overall)
-- {monthlyTablesSql}     : UNION ALL of per-table monthly SELECTs
-- {dailySql}             : daily_order_cache SELECT (only if needed)
-- {filtersSql}           : concatenated AND conditions (may be empty)
-- {productFieldSql}      : e.g., o.sku_id / o.brand_id / o.family_id / o.segment_id (empty for Total)
-- {productSelectSql}     : e.g., o.sku_id AS "sku_id", (empty for Total)
-- {productGroupBySql}    : e.g., o.sku_id,  (empty for Total)
-- {productDistinctKeySql}: e.g., || '-' || o.sku_id (empty for Total)
-- {productFilterSql}     : AND o.sku_id IN (...) depending on productType (empty if no product filter)
+Table columns (all VARCHAR unless noted):
+- region, area, house (distributor), territory, point, route_section
+- retailer_code, retailer_name, cluster, cluster_type, tpg, sub_channel, channel
+- sku              : SKU name — the ONLY product dimension available
+- stt_value        : pre-aggregated STT  (cast: stt_value::numeric)
+- memo_value       : pre-aggregated Memo (cast: memo_value::numeric)
+- extracted_date   : date string in 'YYYY-MM-DD' format — use string comparison for filtering
 
 IMPORTANT:
-- Use >= lower bound and < upper bound (exclusive) for date filtering.
-- Memo distinct key is retailer_id + DATE(order_placed_at) + optional product_id.
-- Total Memo distinct key is retailer_id + DATE(order_placed_at) only (no product_id).
+- Use >= lower bound and < upper bound (exclusive) for date filtering on extracted_date.
+- extracted_date is VARCHAR in ISO format — string comparison (>=, <) is correct.
+- All filters are NAME-based (text), NOT id-based.
+- Only SKU and Total product types are supported (no brand/family/segment columns exist).
 ---
-title: QMR ProductType -> Cache Field Mapping
-tags: topic:product_type, applies_to:all, sql_template
-content:
-Normalize productType into one of: SKU, Brand, Family, Segment, Total.
-
-Mapping (cache column):
-- SKU     -> o.sku_id
-- Brand   -> o.brand_id
-- Family  -> o.family_id
-- Segment -> o.segment_id
-- Total   -> (no product field)
-
-Template fragments:
-
-If productType != Total:
-- {productFieldSql}       = o.<mapped>_id
-- {productSelectSql}      = o.<mapped>_id AS "{productIdAlias}",
-- {productGroupBySql}     = o.<mapped>_id,
-- {productDistinctKeySql} = || '-' || o.<mapped>_id
-
-If productType = Total:
-- {productFieldSql}       = (empty)
-- {productSelectSql}      = (empty)
-- {productGroupBySql}     = (empty)
-- {productDistinctKeySql} = (empty)
-
-Product filter fragment (append to WHERE when productFilter is present):
-- SKU     -> AND o.sku_id IN ({productIdsCsv})
-- Brand   -> AND o.brand_id IN ({productIdsCsv})
-- Family  -> AND o.family_id IN ({productIdsCsv})
-- Segment -> AND o.segment_id IN ({productIdsCsv})
-- Total   -> (optional) AND o.sku_id IN ({productIdsCsv}) only if you explicitly want Total to filter by SKU IDs; otherwise no product filter.
----
-title: QMR Date Split Rules (MV vs Daily)
+title: QMR Year Table Selection Rules
 tags: topic:date_split, applies_to:all, sql_template
 content:
 Given startDate and endDate:
 - endDatePlusOne = endDate + 1 day (exclusive upper bound).
-- currentDate = today's date.
+- Select ALL yearly tables whose year intersects the date range.
 
-If startDate <= currentDate <= endDate:
-- MV portion uses monthly tables with:
-  o.order_placed_at >= '{startDate}' AND o.order_placed_at < '{currentDate}'
-- Daily portion uses daily_order_cache with:
-  o.order_placed_at >= '{currentDate}' AND o.order_placed_at < '{endDatePlusOne}'
+Available tables and their year coverage:
+- raw_apsis_qmr_data_2022  (year 2022)
+- raw_apsis_qmr_data_2023  (year 2023)
+- raw_apsis_qmr_data_2024  (year 2024)
+- raw_apsis_qmr_data_2025  (year 2025)
 
-Else:
-- Only MV portion:
-  o.order_placed_at >= '{startDate}' AND o.order_placed_at < '{endDatePlusOne}'
-  and no daily_order_cache query.
+For each selected table, apply the FULL date range filter:
+  o.extracted_date >= '{startDate}' AND o.extracted_date < '{endDatePlusOne}'
 
-Monthly tables list:
-monthly_order_cache_{YYYY}_{MM} for each month intersecting the MV portion.
+The yearly table itself limits data to its year naturally — no extra year filter needed.
+
+Example: startDate=2024-10-01, endDate=2025-03-31
+- endDatePlusOne = 2025-04-01
+- Use raw_apsis_qmr_data_2024 WITH: extracted_date >= '2024-10-01' AND extracted_date < '2025-04-01'
+- Use raw_apsis_qmr_data_2025 WITH: extracted_date >= '2024-10-01' AND extracted_date < '2025-04-01'
+- UNION ALL both, then aggregate in outer query.
+
+There is NO daily cache and NO current-date split logic needed.
 ---
-title: QMR Filters Template (Cache WHERE clauses)
+title: QMR ProductType Mapping
+tags: topic:product_type, applies_to:all, sql_template
+content:
+Only two product types are supported (the table only has a sku text column):
+- SKU   -> group by o.sku, include in SELECT
+- Total -> no product grouping (aggregate across all SKUs)
+
+If productType = SKU:
+- {productSelectSql}  = o.sku AS "SKU",
+- {productGroupBySql} = o.sku,
+- {productFilterSql}  = AND o.sku IN ({skuNamesCsv})   [only if skuFilter provided; values are text names]
+
+If productType = Total:
+- {productSelectSql}  = (empty)
+- {productGroupBySql} = (empty)
+- {productFilterSql}  = (empty)
+
+Note: productFilter values are SKU NAMES (text strings), not numeric IDs.
+---
+title: QMR Filters Template
 tags: topic:filters, applies_to:all, sql_template
 content:
-Filters are optional and appended as AND clauses.
+Filters are optional AND clauses. ALL filters use TEXT/NAME matching — not IDs.
 
-Each filter is an ID list; ignore if empty or contains "all".
+Each filter is a name list; ignore if empty or contains "all".
 
 Mapping:
-- regionFilter       -> AND o.region_id IN ({regionIdsCsv})
-- areaFilter         -> AND o.area_id IN ({areaIdsCsv})
-- distributorFilter  -> AND o.house_id IN ({houseIdsCsv})
-- territoryFilter    -> AND o.territory_id IN ({territoryIdsCsv})
-- pointFilter        -> AND o.point_id IN ({pointIdsCsv})
-- subChannelFilter   -> AND o.sub_channel_id IN ({subChannelIdsCsv})
-- productFilter      -> use ProductType mapping chunk to choose AND o.<field> IN ({productIdsCsv})
+- regionFilter      -> AND o.region IN ({regionNamesCsv})
+- areaFilter        -> AND o.area IN ({areaNamesCsv})
+- distributorFilter -> AND o.house IN ({houseNamesCsv})
+- territoryFilter   -> AND o.territory IN ({territoryNamesCsv})
+- pointFilter       -> AND o.point IN ({pointNamesCsv})
+- subChannelFilter  -> AND o.sub_channel IN ({subChannelNamesCsv})
+- skuFilter         -> AND o.sku IN ({skuNamesCsv})  [only when productType=SKU]
 
-Combine into:
-{filtersSql} = (zero or more lines, each starting with AND ...)
+Values must be quoted strings in SQL, e.g.: AND o.region IN ('Dhaka', 'Rajshahi')
+
+Combine into {filtersSql} = (zero or more lines, each starting with AND ...).
 ---
 title: QMR Primary Query Template (Per-Table SELECT)
 tags: topic:primary_query, applies_to:all, sql_template
 content:
-Per-table SELECT template. Use this for BOTH monthly_order_cache_* tables and daily_order_cache (with different date bounds).
+Per-table SELECT for raw_apsis_qmr_data_YYYY. Data is pre-aggregated — use SUM, not COUNT(DISTINCT).
 
 ```sql
 SELECT
-  o.point_id AS "pointId",
+  o.point AS "Point",
   o.retailer_code AS "Retailer Code",
   o.retailer_name AS "Retailer Name",
-  o.sub_channel_id AS "SubChannelId",
-  o.cluster_id AS "ClusterId",
-  o.tpg_id AS "TpgId",
-  o.original_route_section_id AS "RouteSectionId",
+  o.sub_channel AS "SubChannel",
+  o.cluster AS "Cluster",
+  o.tpg AS "TPG",
+  o.route_section AS "RouteSection",
   {productSelectSql}
-  COUNT(
-    DISTINCT
-      o.retailer_id || '-' || DATE(o.order_placed_at) {productDistinctKeySql}
-  )::INT4 AS "Memo",
-  SUM(o.total_stt) AS "STT"
+  SUM(o.memo_value::numeric)::INT4 AS "Memo",
+  SUM(o.stt_value::numeric) AS "STT"
 FROM {tableName} o
 WHERE
-  o.order_placed_at >= '{dateLowerInclusive}'
-  AND o.order_placed_at < '{dateUpperExclusive}'
+  o.extracted_date >= '{startDate}'
+  AND o.extracted_date < '{endDatePlusOne}'
   {filtersSql}
   {productFilterSql}
 GROUP BY
   {productGroupBySql}
-  o.point_id,
+  o.point,
   o.retailer_code,
   o.retailer_name,
-  o.sub_channel_id,
-  o.cluster_id,
-  o.tpg_id,
-  o.original_route_section_id
+  o.sub_channel,
+  o.cluster,
+  o.tpg,
+  o.route_section
 ```
 
 Notes:
-- {productSelectSql}, {productGroupBySql}, {productDistinctKeySql} are empty for Total.
-- {filtersSql} should already include leading ANDs; if empty, remove blank lines.
+- {productSelectSql} and {productGroupBySql} are empty for Total.
+- {filtersSql} includes leading ANDs; remove blank lines if empty.
+- extracted_date is VARCHAR ISO format; string comparison >= and < is safe.
 ---
 title: QMR Primary Query Template (Union + Outer Aggregate)
 tags: topic:primary_query_outer, applies_to:all, sql_template
 content:
 After generating per-table primary SELECTs, UNION ALL them, then aggregate:
 
-If productType != Total:
+If productType = SKU:
 
 ```sql
 SELECT
-  "pointId",
+  "Point",
   "Retailer Code",
   "Retailer Name",
-  "SubChannelId",
-  "ClusterId",
-  "TpgId",
-  "RouteSectionId",
-  "{productIdAlias}",
+  "SubChannel",
+  "Cluster",
+  "TPG",
+  "RouteSection",
+  "SKU",
   SUM("Memo")::INT4 AS "Memo",
   SUM("STT") AS "STT"
 FROM (
   {unionAllPrimarySelects}
 ) combined
 GROUP BY
-  "{productIdAlias}",
-  "pointId",
+  "SKU",
+  "Point",
   "Retailer Code",
   "Retailer Name",
-  "SubChannelId",
-  "ClusterId",
-  "TpgId",
-  "RouteSectionId"
-ORDER BY "pointId"
+  "SubChannel",
+  "Cluster",
+  "TPG",
+  "RouteSection"
+ORDER BY "Point"
 ```
 
 If productType = Total:
 
 ```sql
 SELECT
-  "pointId",
+  "Point",
   "Retailer Code",
   "Retailer Name",
-  "SubChannelId",
-  "ClusterId",
-  "TpgId",
-  "RouteSectionId",
+  "SubChannel",
+  "Cluster",
+  "TPG",
+  "RouteSection",
   SUM("Memo")::INT4 AS "Memo",
   SUM("STT") AS "STT"
 FROM (
   {unionAllPrimarySelects}
 ) combined
 GROUP BY
-  "pointId",
+  "Point",
   "Retailer Code",
   "Retailer Name",
-  "SubChannelId",
-  "ClusterId",
-  "TpgId",
-  "RouteSectionId"
-ORDER BY "pointId"
+  "SubChannel",
+  "Cluster",
+  "TPG",
+  "RouteSection"
+ORDER BY "Point"
 ```
 ---
 title: QMR Retailer Order Query Template (Per-Table SELECT)
-tags: topic:retailer_query, applies_to:sku, applies_to:brand, applies_to:family, applies_to:segment, sql_template
+tags: topic:retailer_query, applies_to:sku, sql_template
 content:
-Only generate this query when productType != Total.
+Only generate this query when productType = SKU.
 
-Per-table SELECT template:
+This computes Total Memo at retailer level (ignoring SKU). Since rows are pre-aggregated per SKU,
+use COUNT(DISTINCT retailer_code || '-' || extracted_date) to avoid double-counting.
+Do NOT apply skuFilter here — Total Memo is across all SKUs.
 
 ```sql
 SELECT
-  o.point_id AS "pointId",
+  o.point AS "Point",
   o.retailer_code AS "Retailer Code",
-  o.original_route_section_id AS "RouteSectionId",
-  COUNT(DISTINCT o.retailer_id || '-' || DATE(o.order_placed_at))::INT4 AS "Total Memo"
+  o.route_section AS "RouteSection",
+  COUNT(DISTINCT o.retailer_code || '-' || o.extracted_date)::INT4 AS "Total Memo"
 FROM {tableName} o
 WHERE
-  o.order_placed_at >= '{dateLowerInclusive}'
-  AND o.order_placed_at < '{dateUpperExclusive}'
+  o.extracted_date >= '{startDate}'
+  AND o.extracted_date < '{endDatePlusOne}'
   {filtersSql}
-  {productFilterSql}
 GROUP BY
-  o.point_id,
+  o.point,
   o.retailer_code,
-  o.original_route_section_id
+  o.route_section
 ```
-
-Note:
-- Do NOT include productDistinctKeySql here. Total Memo is retailer_id+date only.
 ---
 title: QMR Retailer Order Query Template (Union + Outer Aggregate)
-tags: topic:retailer_query_outer, applies_to:sku, applies_to:brand, applies_to:family, applies_to:segment, sql_template
+tags: topic:retailer_query_outer, applies_to:sku, sql_template
 content:
-Only for productType != Total.
+Only for productType = SKU.
 
 ```sql
 SELECT
-  "pointId",
+  "Point",
   "Retailer Code",
-  "RouteSectionId",
+  "RouteSection",
   SUM("Total Memo")::INT4 AS "Total Memo"
 FROM (
   {unionAllRetailerSelects}
 ) combined
 GROUP BY
-  "pointId",
+  "Point",
   "Retailer Code",
-  "RouteSectionId"
+  "RouteSection"
 ```
 ---
 title: QMR Retailer Order Query Template (Total ProductType)
