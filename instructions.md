@@ -1,6 +1,6 @@
 # How to Write QMR Semantic Knowledge Chunks
 
-This file explains how to write and maintain `qmr_semantic_knowledge_chunks.txt` — the knowledge base that the QMR agent uses to understand business rules, SQL templates, and query logic.
+This file explains how to write and maintain `knowledge_chunks.txt` — the knowledge base that the QMR agent uses to understand business rules, SQL templates, and query logic.
 
 ---
 
