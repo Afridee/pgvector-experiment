@@ -1,255 +1,124 @@
 ---
-title: QMR SQL Template Overview (Must Follow)
-tags: topic:overview, applies_to:all, sql_template
+title: API Overview — JSONPlaceholder Base URL and Available Resources
+tags: topic:overview, applies_to:all
 content:
-You must generate QMR SQL using ONLY these yearly tables:
-- raw_apsis_qmr_data_2022
-- raw_apsis_qmr_data_2023
-- raw_apsis_qmr_data_2024
-- raw_apsis_qmr_data_2025
+This knowledge base documents the JSONPlaceholder API — a free live REST API
+available at:
 
-There is NO daily cache table and NO monthly partitioned table. All data including recent dates
-comes from the yearly raw_apsis_qmr_data_YYYY tables. No additional joins are allowed.
+  https://jsonplaceholder.typicode.com
 
-Each row is already pre-aggregated (one row per retailer per SKU per extracted_date).
-Do NOT use COUNT(DISTINCT ...) for Memo — use SUM(o.memo_value::numeric) instead.
-Do NOT use COUNT(DISTINCT ...) for STT  — use SUM(o.stt_value::numeric) instead.
+No authentication is required. Do NOT send any Authorization header.
 
-You must output two queries:
-1) primaryDataQuery (required)
-2) retailerOrderDataQuery (required; if productType=Total then return: SELECT 1 as "Dummy")
+Available resources and their base endpoints:
+- Posts    → /posts
+- Comments → /comments
+- Albums   → /albums
+- Photos   → /photos
+- Todos    → /todos
+- Users    → /users
 
-Table columns (all VARCHAR unless noted):
-- region, area, house (distributor), territory, point, route_section
-- retailer_code, retailer_name, cluster, cluster_type, tpg, sub_channel, channel
-- sku              : SKU name — the ONLY product dimension available
-- stt_value        : pre-aggregated STT  (cast: stt_value::numeric)
-- memo_value       : pre-aggregated Memo (cast: memo_value::numeric)
-- extracted_date   : date string in 'YYYY-MM-DD' format — use string comparison for filtering
+Nested resource endpoints (also supported):
+- /posts/{postId}/comments     → comments belonging to a post
+- /albums/{albumId}/photos     → photos belonging to an album
+- /users/{userId}/posts        → posts created by a user
+- /users/{userId}/albums       → albums created by a user
+- /users/{userId}/todos        → todos belonging to a user
 
-IMPORTANT:
-- Use >= lower bound and < upper bound (exclusive) for date filtering on extracted_date.
-- extracted_date is VARCHAR in ISO format — string comparison (>=, <) is correct.
-- All filters are NAME-based (text), NOT id-based.
-- Only SKU and Total product types are supported (no brand/family/segment columns exist).
+All responses are JSON. POST/PUT/PATCH/DELETE calls are simulated —
+the API responds realistically but does not persist changes. This is expected.
+
+Always present data in readable tables or summaries. Never dump raw JSON
+at the user unless they explicitly ask for it.
 ---
-title: QMR Year Table Selection Rules
-tags: topic:date_split, applies_to:all, sql_template
+
+---
+title: API General Error Handling
+tags: topic:errors, applies_to:all, edge_case
 content:
-Given startDate and endDate:
-- endDatePlusOne = endDate + 1 day (exclusive upper bound).
-- Select ALL yearly tables whose year intersects the date range.
+Handle these HTTP error codes for ALL endpoints:
 
-Available tables and their year coverage:
-- raw_apsis_qmr_data_2022  (year 2022)
-- raw_apsis_qmr_data_2023  (year 2023)
-- raw_apsis_qmr_data_2024  (year 2024)
-- raw_apsis_qmr_data_2025  (year 2025)
+HTTP 404 — Not Found:
+  The resource does not exist at that ID.
+  Tell the user: "No record found with that ID. Please check and try again."
+  Valid ranges: post_id 1–100, user_id 1–10, album_id 1–100,
+                photo_id 1–5000, todo_id 1–200, comment_id 1–500.
 
-For each selected table, apply the FULL date range filter:
-  o.extracted_date >= '{startDate}' AND o.extracted_date < '{endDatePlusOne}'
+HTTP 400 — Bad Request:
+  The request body or parameters are malformed.
+  Tell the user what field looks wrong and ask them to correct it.
 
-The yearly table itself limits data to its year naturally — no extra year filter needed.
+HTTP 500 — Server Error:
+  Tell the user: "The API is currently unavailable. Please try again shortly."
 
-Example: startDate=2024-10-01, endDate=2025-03-31
-- endDatePlusOne = 2025-04-01
-- Use raw_apsis_qmr_data_2024 WITH: extracted_date >= '2024-10-01' AND extracted_date < '2025-04-01'
-- Use raw_apsis_qmr_data_2025 WITH: extracted_date >= '2024-10-01' AND extracted_date < '2025-04-01'
-- UNION ALL both, then aggregate in outer query.
+For any error, do NOT retry automatically. Always inform the user first.
 
-There is NO daily cache and NO current-date split logic needed.
+If the user provides an ID outside the valid range, warn them BEFORE calling:
+  "Post IDs range from 1 to 100. Please provide a valid ID."
 ---
-title: QMR ProductType Mapping
-tags: topic:product_type, applies_to:all, sql_template
+
+---
+title: API Parameter Validation Rules
+tags: topic:validation, applies_to:all, business_rule
 content:
-Only two product types are supported (the table only has a sku text column):
-- SKU   -> group by o.sku, include in SELECT
-- Total -> no product grouping (aggregate across all SKUs)
+Apply these rules before calling any endpoint:
 
-If productType = SKU:
-- {productSelectSql}  = o.sku AS "SKU",
-- {productGroupBySql} = o.sku,
-- {productFilterSql}  = AND o.sku IN ({skuNamesCsv})   [only if skuFilter provided; values are text names]
+ID field valid ranges:
+- post_id    : integer, 1 to 100
+- user_id    : integer, 1 to 10
+- album_id   : integer, 1 to 100
+- photo_id   : integer, 1 to 5000
+- todo_id    : integer, 1 to 200
+- comment_id : integer, 1 to 500
 
-If productType = Total:
-- {productSelectSql}  = (empty)
-- {productGroupBySql} = (empty)
-- {productFilterSql}  = (empty)
-
-Note: productFilter values are SKU NAMES (text strings), not numeric IDs.
+Rules:
+- All IDs must be positive integers. If the user provides a non-integer, ask
+  them to correct it.
+- If an ID is outside the valid range, warn the user before making the call.
+- String fields (title, body, name) must not be empty. Ask the user to provide
+  content if they are empty.
+- userId in POST bodies must be an integer between 1 and 10.
+- Do NOT use placeholder or assumed values for any required parameter.
+  Always ask the user explicitly if something is missing.
 ---
-title: QMR Filters Template
-tags: topic:filters, applies_to:all, sql_template
+
+---
+title: Fetch All Posts — Endpoint and Method
+tags: topic:endpoint, applies_to:posts, api_template
 content:
-Filters are optional AND clauses. ALL filters use TEXT/NAME matching — not IDs.
+To fetch all posts, make a GET request to:
 
-Each filter is a name list; ignore if empty or contains "all".
+  https://jsonplaceholder.typicode.com/posts
 
-Mapping:
-- regionFilter      -> AND o.region IN ({regionNamesCsv})
-- areaFilter        -> AND o.area IN ({areaNamesCsv})
-- distributorFilter -> AND o.house IN ({houseNamesCsv})
-- territoryFilter   -> AND o.territory IN ({territoryNamesCsv})
-- pointFilter       -> AND o.point IN ({pointNamesCsv})
-- subChannelFilter  -> AND o.sub_channel IN ({subChannelNamesCsv})
-- skuFilter         -> AND o.sku IN ({skuNamesCsv})  [only when productType=SKU]
-
-Values must be quoted strings in SQL, e.g.: AND o.region IN ('Dhaka', 'Rajshahi')
-
-Combine into {filtersSql} = (zero or more lines, each starting with AND ...).
+No parameters or payload required.
+No required information to collect from the user before calling.
 ---
-title: QMR Primary Query Template (Per-Table SELECT)
-tags: topic:primary_query, applies_to:all, sql_template
+
+---
+title: Fetch All Posts — Optional Parameters
+tags: topic:parameters, applies_to:posts
 content:
-Per-table SELECT for raw_apsis_qmr_data_YYYY. Data is pre-aggregated — use SUM, not COUNT(DISTINCT).
+The following optional query parameter can be used to filter posts by user:
 
-```sql
-SELECT
-  o.point AS "Point",
-  o.retailer_code AS "Retailer Code",
-  o.retailer_name AS "Retailer Name",
-  o.sub_channel AS "SubChannel",
-  o.cluster AS "Cluster",
-  o.tpg AS "TPG",
-  o.route_section AS "RouteSection",
-  {productSelectSql}
-  SUM(o.memo_value::numeric)::INT4 AS "Memo",
-  SUM(o.stt_value::numeric) AS "STT"
-FROM {tableName} o
-WHERE
-  o.extracted_date >= '{startDate}'
-  AND o.extracted_date < '{endDatePlusOne}'
-  {filtersSql}
-  {productFilterSql}
-GROUP BY
-  {productGroupBySql}
-  o.point,
-  o.retailer_code,
-  o.retailer_name,
-  o.sub_channel,
-  o.cluster,
-  o.tpg,
-  o.route_section
-```
+- userId : integer (1–10) — return only posts created by this user.
 
-Notes:
-- {productSelectSql} and {productGroupBySql} are empty for Total.
-- {filtersSql} includes leading ANDs; remove blank lines if empty.
-- extracted_date is VARCHAR ISO format; string comparison >= and < is safe.
+Only include this parameter if the user explicitly asks to filter by a user.
+Example URL with filter: https://jsonplaceholder.typicode.com/posts?userId=1
+
+Do NOT prompt the user for this. Only use it if they mention a specific user.
 ---
-title: QMR Primary Query Template (Union + Outer Aggregate)
-tags: topic:primary_query_outer, applies_to:all, sql_template
+
+---
+title: Fetch All Posts — Response Handling
+tags: topic:response, applies_to:posts
 content:
-After generating per-table primary SELECTs, UNION ALL them, then aggregate:
+A successful response (HTTP 200) is an array of post objects:
 
-If productType = SKU:
-
-```sql
-SELECT
-  "Point",
-  "Retailer Code",
-  "Retailer Name",
-  "SubChannel",
-  "Cluster",
-  "TPG",
-  "RouteSection",
-  "SKU",
-  SUM("Memo")::INT4 AS "Memo",
-  SUM("STT") AS "STT"
-FROM (
-  {unionAllPrimarySelects}
-) combined
-GROUP BY
-  "SKU",
-  "Point",
-  "Retailer Code",
-  "Retailer Name",
-  "SubChannel",
-  "Cluster",
-  "TPG",
-  "RouteSection"
-ORDER BY "Point"
-```
-
-If productType = Total:
-
-```sql
-SELECT
-  "Point",
-  "Retailer Code",
-  "Retailer Name",
-  "SubChannel",
-  "Cluster",
-  "TPG",
-  "RouteSection",
-  SUM("Memo")::INT4 AS "Memo",
-  SUM("STT") AS "STT"
-FROM (
-  {unionAllPrimarySelects}
-) combined
-GROUP BY
-  "Point",
-  "Retailer Code",
-  "Retailer Name",
-  "SubChannel",
-  "Cluster",
-  "TPG",
-  "RouteSection"
-ORDER BY "Point"
-```
----
-title: QMR Retailer Order Query Template (Per-Table SELECT)
-tags: topic:retailer_query, applies_to:sku, sql_template
-content:
-Only generate this query when productType = SKU.
-
-This computes Total Memo at retailer level (ignoring SKU). Since rows are pre-aggregated per SKU,
-use COUNT(DISTINCT retailer_code || '-' || extracted_date) to avoid double-counting.
-Do NOT apply skuFilter here — Total Memo is across all SKUs.
-
-```sql
-SELECT
-  o.point AS "Point",
-  o.retailer_code AS "Retailer Code",
-  o.route_section AS "RouteSection",
-  COUNT(DISTINCT o.retailer_code || '-' || o.extracted_date)::INT4 AS "Total Memo"
-FROM {tableName} o
-WHERE
-  o.extracted_date >= '{startDate}'
-  AND o.extracted_date < '{endDatePlusOne}'
-  {filtersSql}
-GROUP BY
-  o.point,
-  o.retailer_code,
-  o.route_section
-```
----
-title: QMR Retailer Order Query Template (Union + Outer Aggregate)
-tags: topic:retailer_query_outer, applies_to:sku, sql_template
-content:
-Only for productType = SKU.
-
-```sql
-SELECT
-  "Point",
-  "Retailer Code",
-  "RouteSection",
-  SUM("Total Memo")::INT4 AS "Total Memo"
-FROM (
-  {unionAllRetailerSelects}
-) combined
-GROUP BY
-  "Point",
-  "Retailer Code",
-  "RouteSection"
-```
----
-title: QMR Retailer Order Query Template (Total ProductType)
-tags: topic:retailer_query, applies_to:total, sql_template
-content:
-If productType = Total, retailerOrderDataQuery must be a dummy query:
-
-```sql
-SELECT 1 as "Dummy"
-```
----
+```json
+[
+  {
+    "userId": 1,
+    "id": 1,
+    "title": "sunt aut facere repellat provident",
+    "body": "quia et suscipit suscipit recusandae consequuntur expedita"
+  }
+]
