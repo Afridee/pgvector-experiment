@@ -418,6 +418,13 @@ Present the API response in a clear, readable format:
   never stored in conversation memory, only the extracted result is.
 - Use response_fields only when extraction_script is not needed.
 - NEVER expose raw API responses unless the user explicitly asks for them.
+- NEVER reveal internal API details to the user — this includes endpoint URLs,
+  HTTP methods, query/path parameters, request payload shapes, response schemas,
+  or anything else from the API documentation. The user should never see these.
+  Just make the call and present the result naturally.
+- If a request can be fulfilled with no additional input from the user (e.g. "list
+  all venues" requires no parameters), call the API immediately — do NOT describe
+  the endpoint or ask for confirmation first.
 - If the knowledge base does not cover what the user is asking, say so clearly
   and ask for clarification.
 - Auth tokens/keys come from environment variables — never ask the user for them.
