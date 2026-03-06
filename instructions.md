@@ -9,6 +9,7 @@ This file explains how to write and maintain `knowledge_chunks.txt` — the know
 It's a plain text file containing a list of **knowledge chunks**. Each chunk teaches the agent one specific thing about an API — an endpoint, its parameters, its response format, an auth rule, an edge case, etc.
 
 When the agent receives a request, it searches this file semantically and retrieves the most relevant chunks **before making any API call**. The agent relies entirely on these chunks to know:
+
 - Which endpoint to call
 - What parameters are required vs. optional
 - How to build the payload or query string
@@ -38,6 +39,7 @@ Every chunk has exactly three fields: `title`, `tags`, and `content`. That's it.
 ## The Three Fields
 
 ### `title`
+
 A short, descriptive name for the chunk.
 
 - Be specific — the agent uses the title to judge relevance
@@ -45,6 +47,7 @@ A short, descriptive name for the chunk.
 - Think of it as the heading of an API reference section
 
 ✅ Good:
+
 ```text
 title: Sales Report API — Endpoint and Method
 title: Sales Report API — Required Parameters
@@ -53,6 +56,7 @@ title: Report Response — Download URL Handling
 ```
 
 ❌ Avoid:
+
 ```text
 title: Rule 1
 title: Important
@@ -62,17 +66,19 @@ title: API stuff
 ---
 
 ### `tags`
+
 A comma-separated list of labels. Used for your own organization — they don't directly control agent behavior, but they help retrieval slightly and keep the file readable as it grows.
 
 Recommended prefixes:
 
-| Prefix | Purpose | Examples |
-|--------|---------|---------|
-| `topic:` | What the chunk is about | `topic:endpoint`, `topic:auth`, `topic:parameters`, `topic:response` |
-| `applies_to:` | Which endpoint or scope it applies to | `applies_to:sales_report`, `applies_to:all` |
-| *(free tag)* | Any extra label | `api_template`, `business_rule`, `edge_case` |
+| Prefix        | Purpose                               | Examples                                                             |
+| ------------- | ------------------------------------- | -------------------------------------------------------------------- |
+| `topic:`      | What the chunk is about               | `topic:endpoint`, `topic:auth`, `topic:parameters`, `topic:response` |
+| `applies_to:` | Which endpoint or scope it applies to | `applies_to:sales_report`, `applies_to:all`                          |
+| _(free tag)_  | Any extra label                       | `api_template`, `business_rule`, `edge_case`                         |
 
 Example:
+
 ```text
 tags: topic:parameters, applies_to:sales_report, business_rule
 ```
@@ -82,9 +88,11 @@ tags: topic:parameters, applies_to:sales_report, business_rule
 ---
 
 ### `content`
+
 The actual instructions. This is what the agent reads and follows.
 
 **Write it as direct instructions to the agent:**
+
 - Use "You must...", "Do NOT...", "When X then Y"
 - Be explicit — don't assume the agent will infer things
 - Include JSON payload examples and response examples where relevant (use fenced code blocks)
@@ -94,7 +102,7 @@ The actual instructions. This is what the agent reads and follows.
 
 ## Full Example
 
-```text
+````text
 ---
 title: Sales Report API — Endpoint and Method
 tags: topic:endpoint, applies_to:sales_report, api_template
@@ -118,25 +126,29 @@ Example request:
   "end_date": "2025-01-31",
   "product_type": "SKU"
 }
-```
+````
+
 ---
 
 ---
+
 title: Sales Report API — Required Parameters
 tags: topic:parameters, applies_to:sales_report, business_rule
 content:
 Before calling the Sales Report API, you MUST collect all of the following from the user:
 
-- region       : string — the region name (e.g. "Dhaka", "Rajshahi")
-- start_date   : string in YYYY-MM-DD format — start of the reporting period
-- end_date     : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- region : string — the region name (e.g. "Dhaka", "Rajshahi")
+- start_date : string in YYYY-MM-DD format — start of the reporting period
+- end_date : string in YYYY-MM-DD format — end of the reporting period (inclusive)
 - product_type : string — either "SKU" or "Total"
 
 If ANY of these are missing, ask the user for them BEFORE calling the API.
 Do NOT use placeholder or default values.
+
 ---
 
 ---
+
 title: Sales Report API — Response and Download Link
 tags: topic:response, applies_to:sales_report
 content:
@@ -154,12 +166,14 @@ A successful Sales Report API response (HTTP 200) looks like:
 If the response contains a "download_url" field, present it to the user as a
 clickable download link. Use this format in your reply:
 
-  📥 Your report is ready: [Download Report](https://files.example.com/reports/abc123.xlsx)
+📥 Your report is ready: [Download Report](https://files.example.com/reports/abc123.xlsx)
 
 If "status" is not "success", or if "download_url" is missing, inform the user
 that the report could not be generated and show the error details.
+
 ---
-```
+
+`````
 
 ---
 
@@ -196,16 +210,69 @@ Split further if an endpoint has complex logic (e.g. conditional parameters, pag
 
 ---
 
+## Recommended Endpoint Blueprint (for Better Field Extraction)
+
+To help the agent request only relevant fields from large responses, write endpoint knowledge in a consistent structure inside chunk `content`.
+
+For each endpoint, make sure your chunks collectively provide these 4 things:
+
+1. Purpose of the API
+- One short description of what this endpoint is for.
+
+2. Endpoint details
+- HTTP method + full URL/path.
+- Any path params and query params.
+
+3. Payload structure + content type
+- Required headers (especially `Content-Type`).
+- Required and optional payload fields.
+- A JSON request example.
+
+4. Response structure
+- A JSON response example.
+- Field-path map for important values, e.g.:
+  - `data.user.address.city`
+  - `data.user.address.postal_code`
+  - `data.download_url`
+
+When response paths are clearly documented, the agent can pass those keys/paths as `response_fields` to `api_call` and avoid returning huge full payloads.
+
+### Mini Template
+
+```text
+Purpose:
+- Returns profile details for a single user.
+
+Endpoint:
+- Method: GET
+- URL: https://api.example.com/v1/users/{user_id}
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: include, locale
+
+Response Structure:
+- Top-level: status, data, message
+- Important field paths:
+  - data.user.id
+  - data.user.name
+  - data.user.address.street
+  - data.user.address.city
+  - data.user.address.postal_code
+`````
+
+---
+
 ## What Makes a Good Chunk?
 
-| ✅ Good chunk | ❌ Bad chunk |
-|---|---|
-| Covers exactly one aspect of one endpoint | Mixes endpoint definition with parameter list |
-| Written as direct agent instructions | Written as documentation for humans |
-| Includes a JSON example | Vague, no examples |
-| Specific, descriptive title | Generic title like "API Rules" |
-| Explicit about which params are required vs. optional | Leaves it ambiguous |
-| States what to do with download URLs | Assumes the agent will figure it out |
+| ✅ Good chunk                                         | ❌ Bad chunk                                  |
+| ----------------------------------------------------- | --------------------------------------------- |
+| Covers exactly one aspect of one endpoint             | Mixes endpoint definition with parameter list |
+| Written as direct agent instructions                  | Written as documentation for humans           |
+| Includes a JSON example                               | Vague, no examples                            |
+| Specific, descriptive title                           | Generic title like "API Rules"                |
+| Explicit about which params are required vs. optional | Leaves it ambiguous                           |
+| States what to do with download URLs                  | Assumes the agent will figure it out          |
 
 ---
 
@@ -240,8 +307,8 @@ Before saving the file, verify:
 
 Update this table whenever you add or remove a chunk.
 
-| Title | Topic | Applies To |
-|-------|-------|------------|
-| *(add your chunks here)* | | |
+| Title                    | Topic | Applies To |
+| ------------------------ | ----- | ---------- |
+| _(add your chunks here)_ |       |            |
 
 > **Tip:** Group rows by endpoint name for readability.

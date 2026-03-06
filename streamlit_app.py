@@ -12,6 +12,45 @@ import streamlit as st
 
 from backend.agent import ask_agent
 
+
+# ----------------------------------------------------------------------------
+# Helper — extract and render download links from API response strings
+# ----------------------------------------------------------------------------
+def _extract_and_show_download_link(api_response_str: str) -> None:
+    """
+    If the API response contains a URL that looks like a file download
+    (common keys: download_url, file_url, report_url, url), render it
+    as a visible download link in the Streamlit UI.
+    """
+    import re
+
+    # Try to parse JSON out of the success string "Success (200): {...}"
+    match = re.search(r"Success \(\d+\):\s*(\{.*\}|\[.*\])", api_response_str, re.S)
+    if not match:
+        return
+
+    try:
+        data = json.loads(match.group(1))
+    except (json.JSONDecodeError, ValueError):
+        return
+
+    # Flatten one level if it's a list
+    if isinstance(data, list) and data:
+        data = data[0]
+
+    if not isinstance(data, dict):
+        return
+
+    # Common keys that APIs use for downloadable file links
+    link_keys = ["download_url", "file_url", "report_url", "url", "link", "file_link"]
+    for key in link_keys:
+        url = data.get(key)
+        if url and isinstance(url, str) and url.startswith("http"):
+            st.divider()
+            st.markdown(f"📥 **Download your report:** [Click here to download]({url})")
+            break
+
+
 st.set_page_config(
     page_title="Report Assistant",
     page_icon="📊",
@@ -132,39 +171,3 @@ if prompt:
                 st.session_state.messages.append({"role": "assistant", "content": err})
 
 
-# ----------------------------------------------------------------------------
-# Helper — extract and render download links from API response strings
-# ----------------------------------------------------------------------------
-def _extract_and_show_download_link(api_response_str: str) -> None:
-    """
-    If the API response contains a URL that looks like a file download
-    (common keys: download_url, file_url, report_url, url), render it
-    as a visible download link in the Streamlit UI.
-    """
-    import re
-
-    # Try to parse JSON out of the success string "Success (200): {...}"
-    match = re.search(r"Success \(\d+\):\s*(\{.*\}|\[.*\])", api_response_str, re.S)
-    if not match:
-        return
-
-    try:
-        data = json.loads(match.group(1))
-    except (json.JSONDecodeError, ValueError):
-        return
-
-    # Flatten one level if it's a list
-    if isinstance(data, list) and data:
-        data = data[0]
-
-    if not isinstance(data, dict):
-        return
-
-    # Common keys that APIs use for downloadable file links
-    link_keys = ["download_url", "file_url", "report_url", "url", "link", "file_link"]
-    for key in link_keys:
-        url = data.get(key)
-        if url and isinstance(url, str) and url.startswith("http"):
-            st.divider()
-            st.markdown(f"📥 **Download your report:** [Click here to download]({url})")
-            break
