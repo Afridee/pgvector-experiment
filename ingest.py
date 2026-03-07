@@ -31,7 +31,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
 
 # Path to the chunks file (defaults to the file name produced earlier)
-QMR_CHUNKS_FILE = os.getenv("QMR_CHUNKS_FILE", "qmr_semantic_knowledge_chunks.txt")
+CHUNKS_FILE = os.getenv("CHUNKS_FILE", "knowledge_chunks.txt")
 
 
 # ----------------------------
@@ -96,7 +96,7 @@ def load_qmr_knowledge_documents(file_path: str) -> list[Document]:
     if not path.exists():
         raise FileNotFoundError(
             f"QMR chunks file not found: {path.resolve()}\n"
-            f"Set env var QMR_CHUNKS_FILE to the correct path."
+            f"Set env var CHUNKS_FILE to the correct path."
         )
 
     text = path.read_text(encoding="utf-8", errors="ignore").strip()
@@ -186,8 +186,8 @@ def main():
         raise ValueError("DATABASE_URL is not set. Add it to your .env file.")
 
     try:
-        print(f"📄 Loading QMR knowledge chunks from: {QMR_CHUNKS_FILE}")
-        documents = load_qmr_knowledge_documents(QMR_CHUNKS_FILE)
+        print(f"📄 Loading QMR knowledge chunks from: {CHUNKS_FILE}")
+        documents = load_qmr_knowledge_documents(CHUNKS_FILE)
 
         if not documents:
             print("⚠️  No knowledge chunks found to ingest!")

@@ -1094,3 +1094,109 @@ Important field paths:
 - REPORT.breakageDetails[*].glasswareItem.name
 - REPORT.breakageDetails[*].glasswareItem.unitCost
 ---
+---
+title: Get All Enrolments API — Endpoint and Method
+tags: topic:endpoint, applies_to:get_all_enrolments, api_template
+content:
+To retrieve all staff enrolments, make a GET request to:
+
+  https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/getAllEnrolments
+
+HTTP Method: GET
+No request body is required.
+No query parameters are required.
+
+The response is a JSON array. Each element is a staff enrolment object.
+Use the staff.id field from each enrolment when calling the clock-in or clock-out APIs.
+---
+---
+title: Get All Enrolments API — Parameters
+tags: topic:parameters, applies_to:get_all_enrolments
+content:
+This endpoint requires NO parameters — no query params, no path params, no request body.
+
+Do NOT ask the user for any input before calling this endpoint.
+Call it directly when the user asks to fetch, list, or refresh all staff enrolments.
+---
+---
+title: Get All Enrolments API — Response Structure
+tags: topic:response, applies_to:get_all_enrolments
+content:
+A successful response (HTTP 200) is a JSON array of staff enrolment objects.
+
+Example (single element shown):
+
+```json
+[
+  {
+    "id": 42,
+    "givenNames": "Jane",
+    "surname": "Doe",
+    "dob": "1990-05-15",
+    "address": "12 Main Street",
+    "postCode": "2000",
+    "homePhoneNumber": "0291234567",
+    "mobileNumber": "0412345678",
+    "email": "jane.doe@example.com",
+    "nextOfKinName": "John Doe",
+    "nextOfKinPhone": "0411111111",
+    "defaultSite": {
+      "id": 3,
+      "name": "Sydney HQ"
+    },
+    "personalPhotoFiles": [
+      { "id": 101, "url": "https://..." }
+    ],
+    "staff": {
+      "id": 7,
+      "firstName": "Jane",
+      "middleName": null,
+      "lastName": "Doe",
+      "dob": "1990-05-15",
+      "address": "12 Main Street",
+      "postCode": "2000",
+      "suburb": "Sydney",
+      "phoneNumber": "0412345678",
+      "enrolmentSubmitted": true,
+      "enrolmentCompleted": true,
+      "accessProhibited": false,
+      "terminated": false,
+      "authUser": {
+        "id": 55,
+        "username": "jane.doe"
+      },
+      "staffPermissions": []
+    },
+    "staffDepartment": {
+      "id": 2,
+      "name": "Front of House"
+    }
+  }
+]
+```
+
+Important field paths (per array element):
+- [*].id                          — enrolment record ID
+- [*].givenNames                  — staff given/first name(s)
+- [*].surname                     — staff surname
+- [*].dob                         — date of birth (string)
+- [*].email                       — staff email
+- [*].mobileNumber                — mobile phone number
+- [*].defaultSite.id              — default site ID (use as siteId in clock-in/out calls)
+- [*].defaultSite.name            — default site name
+- [*].personalPhotoFiles[0].url   — URL of the staff's profile photo
+- [*].staff.id                    — staff ID (REQUIRED for clock-in, clock-out, image upload, access code APIs)
+- [*].staff.firstName             — staff first name (from staff sub-object)
+- [*].staff.lastName              — staff last name
+- [*].staff.enrolmentSubmitted    — boolean; whether enrolment has been submitted
+- [*].staff.enrolmentCompleted    — boolean; whether enrolment is fully completed
+- [*].staff.accessProhibited      — boolean; if true, staff cannot clock in
+- [*].staff.terminated            — boolean; if true, staff is no longer active
+- [*].staff.authUser.id           — auth user ID
+- [*].staff.authUser.username     — login username
+- [*].staffDepartment.id          — department ID
+- [*].staffDepartment.name        — department name
+
+If the array is empty, inform the user that no enrolments were found.
+If the request fails (non-200), show the HTTP status code and any error message returned.
+---
