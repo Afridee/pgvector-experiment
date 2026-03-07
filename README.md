@@ -1,8 +1,8 @@
-# 🚀 QMR Database + Knowledge Agent
+# 🚀 API + Knowledge Agent (Report Assistant)
 
 **System:** macOS (Intel) with Homebrew  
 **Date:** March 2026  
-**Purpose:** Hybrid Text-to-SQL + RAG agent for QMR (Outlet Query Manager Report) questions
+**Purpose:** Hybrid API-calling + RAG agent that retrieves context from a pgvector knowledge base and calls external REST APIs to generate reports and answer questions.
 
 ---
 
@@ -16,8 +16,8 @@
 6. [Create Database](#create-database)
 7. [Setup Python Environment](#setup-python-environment)
 8. [Environment Variables](#environment-variables)
-9. [Run Ingestion](#run-ingestion)
-10. [Run Tests](#run-tests)
+9. [Add API Knowledge](#add-api-knowledge)
+10. [Run Ingestion](#run-ingestion)
 11. [Run the App](#run-the-app)
 12. [Usage Examples](#usage-examples)
 13. [Troubleshooting](#troubleshooting)
@@ -28,51 +28,52 @@
 ## **1. ARCHITECTURE OVERVIEW**
 
 ```
-User Question (Streamlit / CLI)
+User Question (Streamlit chat)
           │
           ▼
 ┌─────────────────────────────────────────────┐
-│  QMR Agent  (agent.py)                      │
+│  Report Assistant  (backend/agent.py)       │
 │  GPT-4o + LangGraph checkpointing           │
-│  - Analyzes question                        │
-│  - Chooses tool(s)                          │
+│  - Understands the request                  │
+│  - Retrieves API docs from knowledge base   │
+│  - Collects required parameters from user   │
+│  - Calls external API                       │
 └─────────────────────────────────────────────┘
           │
-          ├──────────────────┬─────────────────────┐
-          ▼                  ▼                     ▼
-  ┌──────────────┐  ┌─────────────────┐  ┌───────────────┐
-  │  SQL Toolkit │  │ semantic_search │  │   Both tools  │
-  │  (read-only) │  │ _tool (pgvector)│  │  in sequence  │
-  └──────────────┘  └─────────────────┘  └───────────────┘
-          │                  │
-          ▼                  ▼
-┌─────────────────────────────────────────────────────────┐
-│  PostgreSQL Database                                    │
-│  ┌────────────────────┐  ┌───────────────────────────┐ │
-│  │  QMR Cache Tables  │  │  pgvector store            │ │
-│  │  monthly_order_    │  │  (qmr_knowledge_chunks)    │ │
-│  │  cache_YYYY_MM     │  │  QMR rules, templates,     │ │
-│  │  daily_order_cache │  │  ProductType mapping, etc. │ │
-│  └────────────────────┘  └───────────────────────────┘ │
-└─────────────────────────────────────────────────────────┘
-          │
-          ▼
-  Answer + (optional) source chunks
+          ├──────────────────────────────────────┐
+          ▼                                      ▼
+  ┌─────────────────────────┐        ┌──────────────────────┐
+  │  semantic_search_tool   │        │  api_call            │
+  │  RAG over pgvector      │        │  HTTP GET/POST/etc.  │
+  │  Retrieves API docs,    │        │  Injects API_TOKEN   │
+  │  required params, etc.  │        │  from environment    │
+  └─────────────────────────┘        └──────────────────────┘
+          │                                      │
+          ▼                                      ▼
+┌──────────────────────────┐        ┌────────────────────────┐
+│  PostgreSQL (pgvector)   │        │  External REST APIs    │
+│  knowledge_chunks        │        │  (configured in        │
+│  collection — API docs,  │        │  knowledge_chunks.txt) │
+│  parameters, responses   │        │                        │
+└──────────────────────────┘        └────────────────────────┘
+
+  Conversation history stored in PostgreSQL via LangGraph PostgresSaver
 ```
 
 ## **2. PREREQUISITES**
 
 - macOS (Intel Mac)
 - Homebrew installed
-- Python 3.10+ installed
+- Python 3.12+ installed
 - [uv](https://docs.astral.sh/uv/) installed
 - OpenAI API key (get one at https://platform.openai.com/api-keys)
+- API token for the external REST APIs the agent will call
 
 ### Verify Prerequisites
 
 ```bash
 brew --version       # Homebrew 4.x+
-python --version     # Python 3.10+
+python --version     # Python 3.12+
 uv --version         # uv 0.x+
 ```
 
@@ -131,43 +132,34 @@ createdb qmrdb
 
 # Enable pgvector
 psql qmrdb -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
-# Create a read-only agent user (security best practice)
-psql qmrdb -c "
-  CREATE USER readonly_agent WITH PASSWORD 'agent123';
-  GRANT CONNECT ON DATABASE qmrdb TO readonly_agent;
-  GRANT USAGE ON SCHEMA public TO readonly_agent;
-  GRANT SELECT ON ALL TABLES IN SCHEMA public TO readonly_agent;
-  ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO readonly_agent;
-"
 ```
 
-> **✅ Checkpoint:** `qmrdb` exists, pgvector enabled, `readonly_agent` user created.
+> **✅ Checkpoint:** `qmrdb` exists and pgvector is enabled.
+> PostgreSQL is used for two things: **pgvector embeddings** (knowledge base) and **LangGraph conversation checkpoints**. No application data tables are required.
 
 ---
 
 ## **7. SETUP PYTHON ENVIRONMENT**
 
 ```bash
-mkdir -p ~/qmr-agent && cd ~/qmr-agent
+cd /path/to/pgvector-experiment
 
-# Initialise a uv-managed project (creates pyproject.toml + .venv)
-uv init --python 3.12
-
-# Add all runtime dependencies
-uv add \
-  langchain \
-  langchain-openai \
-  langchain-postgres \
-  langchain-community \
-  langgraph \
-  "psycopg[binary]" \
-  sqlalchemy \
-  python-dotenv \
-  streamlit
+# Install all dependencies from pyproject.toml into a managed .venv
+uv sync
 ```
 
 All subsequent commands (`uv run python ...`) automatically use the project's virtual environment — no manual activation needed.
+
+**Key dependencies** (see `pyproject.toml`):
+
+| Package                                      | Purpose                                       |
+| -------------------------------------------- | --------------------------------------------- |
+| `langchain`, `langchain-openai`              | LLM + tools framework                         |
+| `langchain-postgres`                         | pgvector vector store                         |
+| `langgraph`, `langgraph-checkpoint-postgres` | Agent graph + persistent conversation history |
+| `psycopg[binary]`, `psycopg2-binary`         | PostgreSQL drivers                            |
+| `streamlit`                                  | Web chat UI                                   |
+| `python-dotenv`                              | `.env` loading                                |
 
 ---
 
@@ -180,31 +172,80 @@ cat > .env << 'EOF'
 # OpenAI
 OPENAI_API_KEY=sk-your-actual-openai-key-here
 
-# Main DB (read-write: vector store + checkpoints)
+# PostgreSQL — used for pgvector embeddings and LangGraph checkpoints
 DATABASE_URL=postgresql://localhost:5432/qmrdb
-
-# Read-only DB for SQL agent queries
-READONLY_DATABASE_URL=postgresql://readonly_agent:agent123@localhost:5432/qmrdb
 
 # (Optional) separate DB for LangGraph checkpoints — defaults to DATABASE_URL
 CHECKPOINT_DB_URL=postgresql://localhost:5432/qmrdb
 
-# pgvector collection name
+# pgvector collection name (must match what ingest.py wrote)
 VECTOR_COLLECTION=qmr_knowledge_chunks
 
-# Path to QMR knowledge chunks file (used by ingest.py)
-QMR_CHUNKS_FILE=qmr_semantic_knowledge_chunks.txt
+# Path to API knowledge chunks file
+CHUNKS_FILE=knowledge_chunks.txt
+
+# Bearer token injected automatically into every API call
+API_TOKEN=your-api-token-here
 EOF
 ```
 
-> **⚠️ IMPORTANT:** Replace `sk-your-actual-openai-key-here` with your real key.
+> **⚠️ IMPORTANT:** Replace placeholder values with your real credentials. `API_TOKEN` is injected automatically into every `api_call` — never hardcode it in knowledge chunks.
 
 ---
 
-## **9. RUN INGESTION**
+## **9. ADD API KNOWLEDGE**
 
-Ingestion reads `qmr_semantic_knowledge_chunks.txt`, generates embeddings, and stores them in pgvector.
-Run this **once initially**, then again whenever the knowledge file changes.
+The agent has no built-in knowledge of your APIs. You teach it by writing knowledge chunks in `knowledge_chunks.txt`. Read `instructions.md` for the full authoring guide.
+
+Each chunk covers one aspect of one endpoint:
+
+| Chunk                          | What it covers                                     |
+| ------------------------------ | -------------------------------------------------- |
+| `[Name] — Endpoint and Method` | URL, HTTP method, authentication note              |
+| `[Name] — Required Parameters` | Fields the agent MUST collect before calling       |
+| `[Name] — Optional Parameters` | Fields with defaults or that can be omitted        |
+| `[Name] — Response`            | Response shape, field paths, download URL handling |
+
+**Minimal example:**
+
+```text
+---
+title: My Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:my_report, api_template
+content:
+Purpose:
+- Generates a sales report for the given date range.
+
+Endpoint:
+- Method: POST
+- URL: https://api.example.com/v1/reports/sales
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth token is injected automatically — do NOT ask the user for it.
+---
+
+---
+title: My Report API — Required Parameters
+tags: topic:parameters, applies_to:my_report, business_rule
+content:
+Before calling this endpoint you MUST collect:
+- region     : string — e.g. "Dhaka", "Rajshahi"
+- start_date : string YYYY-MM-DD
+- end_date   : string YYYY-MM-DD
+
+Do NOT call the API until all three are provided.
+---
+```
+
+After adding or editing chunks, re-run ingestion (see next section).
+
+---
+
+## **10. RUN INGESTION**
+
+Ingestion reads `knowledge_chunks.txt`, generates embeddings, and stores them in pgvector.
+Run this **once initially**, then again whenever `knowledge_chunks.txt` changes.
 
 ```bash
 uv run python ingest.py
@@ -217,17 +258,17 @@ uv run python ingest.py
 QMR KNOWLEDGE (.TXT) TO VECTOR INGESTION
 ======================================================================
 
-📄 Loading QMR knowledge chunks from: qmr_semantic_knowledge_chunks.txt
-   ✓ Loaded 9 knowledge chunks
+📄 Loading QMR knowledge chunks from: knowledge_chunks.txt
+   ✓ Loaded 30 knowledge chunks
 
 📊 Ingestion Summary:
-   Total documents: 9
-   Estimated tokens: ~2,250
-   Estimated cost: ~$0.0001
+   Total documents: 30
+   Estimated tokens: ~7,500
+   Estimated cost: ~$0.0002
 
 🚀 Generating embeddings (this may take some seconds)...
 
-✅ Success! Created 9 embeddings
+✅ Success! Created 30 embeddings
    Collection name: qmr_knowledge_chunks
    Storage: PostgreSQL (pgvector)
 
@@ -236,51 +277,7 @@ QMR KNOWLEDGE (.TXT) TO VECTOR INGESTION
 ======================================================================
 ```
 
-> **✅ Checkpoint:** All knowledge chunks embedded and stored.
-
----
-
-## **10. RUN TESTS**
-
-```bash
-uv run python test.py
-```
-
-The test suite covers:
-
-| # | Test | Type |
-|---|------|------|
-| 1 | Schema inspection | SQL |
-| 2 | Count query (`daily_order_cache`) | SQL |
-| 3 | Memo calculation rules (SKU vs Total) | Semantic |
-| 4 | Date split rules (today within range) | Semantic |
-| 5 | ProductType → cache column mapping | Semantic |
-| 6 | Distributor filter SQL clause | Semantic |
-| 7 | Full QMR SQL generation — SKU, past range | SQL gen |
-| 8 | Full QMR SQL generation — Total productType | SQL gen |
-
-**Expected output:**
-
-```
-======================================================================
-AUTOMATED AGENT TESTS
-======================================================================
-
-🧪 TEST 1/8: SQL — Schema inspection
-   ...
-   ✅ Answer: The available tables are: ...
-
-...
-
-======================================================================
-TEST SUMMARY
-======================================================================
-✅ Passed: 8/8
-❌ Failed: 0/8
-
-🎉 All tests passed! The agent is working correctly.
-======================================================================
-```
+> **✅ Checkpoint:** All knowledge chunks embedded and stored. The document count will vary depending on how many chunks are in `knowledge_chunks.txt`.
 
 ---
 
@@ -294,67 +291,69 @@ uv run streamlit run streamlit_app.py
 
 Open http://localhost:8501 in your browser.
 
+The **Report Assistant** sidebar shows a toggle for debug output (raw agent response + retrieved knowledge chunks) and displays the current state of required environment variables.
+
 ### Programmatic usage
 
 ```python
-from agent import ask_database
+from backend.agent import ask_agent
 
-result = ask_database(
-    question="Generate QMR SQL for productType=Brand, startDate=2026-01-01, endDate=2026-01-31",
+result = ask_agent(
+    question="List all available clocking sites",
     thread_id="my-session-001",
 )
 print(result["answer"])
 ```
 
-`ask_database` returns:
+`ask_agent` returns:
 
 ```python
 {
-    "answer": "...",           # LLM final answer (JSON with primaryDataQuery + retailerOrderDataQuery)
-    "artifacts": {             # Optional: only present when semantic search was used
-        "semantic_search_docs": [...]
+    "answer": "...",           # Final assistant message
+    "artifacts": {
+        "semantic_search_docs": [...],   # Knowledge chunks retrieved (if any)
+        "api_responses": [...],          # Raw API responses (if any)
     },
     "raw": {...}               # Full LangGraph result (messages, metadata, etc.)
 }
 ```
 
+Each call is tied to a `thread_id` — LangGraph persists conversation history in PostgreSQL so the agent remembers context across turns.
+
 ---
 
 ## **12. USAGE EXAMPLES**
 
-### QMR SQL Generation
+### List all available venues
 
 **Prompt:**
-> Generate QMR SQL for productType=SKU, startDate=2025-12-01, endDate=2025-12-31, no filters. Today is 2026-03-02.
 
-**Expected response format:**
-```json
-{
-  "primaryDataQuery": "SELECT ... FROM monthly_order_cache_2025_12 o WHERE ...",
-  "retailerOrderDataQuery": "SELECT ... FROM monthly_order_cache_2025_12 o WHERE ...",
-  "notes": [
-    "Date range is fully in the past — only monthly tables used.",
-    "MV tables used: monthly_order_cache_2025_12",
-    "productType=SKU → o.sku_id selected and grouped"
-  ]
-}
-```
+> Show me all available venues
 
-### QMR Rules (RAG)
+**Agent behaviour:** Searches knowledge base for the venues endpoint, calls it (no parameters required), and presents results in a table.
+
+### Fetch a checklist record
 
 **Prompt:**
-> How is the Memo distinct key different for primary vs retailer order queries?
 
-**Expected:** The agent retrieves the relevant knowledge chunks and explains:
-- Primary query Memo = `DISTINCT retailer_id || '-' || DATE(order_placed_at) || '-' || product_id` (product_id omitted for Total)
-- Retailer order query "Total Memo" = `DISTINCT retailer_id || '-' || DATE(order_placed_at)` (never includes product_id)
+> Get the closing checklist for venue "Main Hall" on 5 January 2025
 
-### Date Split
+**Agent behaviour:** Searches knowledge base, identifies required parameters (`date`, `typeId`, `venueId`), fetches the venue/type IDs by calling the relevant lookup endpoints, then calls the checklist record endpoint and presents the result.
+
+### Check clocking status
 
 **Prompt:**
-> startDate=2026-02-01, endDate=2026-03-15. Today is 2026-03-02. Which tables should be used?
 
-**Expected:** MV portion uses `monthly_order_cache_2026_02` with upper bound `< '2026-03-02'`; daily portion uses `daily_order_cache` from `>= '2026-03-02'` to `< '2026-03-16'`.
+> Is staff member 54 currently clocked in?
+
+**Agent behaviour:** Looks up the check-status endpoint documentation, calls it with `staffId=54`, and reports whether a clock-in session is active along with duration if applicable.
+
+### Debug mode
+
+Enable **Show debug / raw response** in the sidebar to inspect:
+
+- Which knowledge chunks the agent retrieved
+- The raw API response before formatting
 
 ---
 
@@ -381,46 +380,49 @@ brew reinstall pgvector
 psql qmrdb -c "CREATE EXTENSION IF NOT EXISTS vector;"
 ```
 
-### `READONLY_DATABASE_URL is not set`
+### `DATABASE_URL is not set` or missing env vars
 
 Ensure `.env` exists in your working directory and contains all required keys. Double-check with:
 
 ```bash
-cat .env | grep DATABASE_URL
+cat .env | grep -E "DATABASE_URL|API_TOKEN|OPENAI_API_KEY"
 ```
 
 ### `No module named 'langchain'` (or any other package)
 
-```bash
-uv add langchain langchain-openai langchain-postgres \
-  langchain-community langgraph "psycopg[binary]" sqlalchemy python-dotenv streamlit
-```
-
-Or sync from `pyproject.toml` (e.g. after cloning the repo):
+Sync dependencies from `pyproject.toml`:
 
 ```bash
 uv sync
 ```
 
-### Agent returns wrong / empty SQL
+### Agent says it doesn't know about an endpoint
 
-1. Re-run ingestion to refresh the knowledge base:
-   ```bash
-   uv run python ingest.py
-   ```
-2. Run tests to verify semantic retrieval is working:
-   ```bash
-   uv run python test.py
-   ```
+The agent only knows what is in `knowledge_chunks.txt`. Add the missing endpoint documentation as new chunks, then re-run ingestion:
+
+```bash
+uv run python ingest.py
+```
+
+Enable **Show debug / raw response** in the Streamlit sidebar to see which chunks were (or weren't) retrieved for a query.
+
+### Agent calls the wrong endpoint or uses wrong parameters
+
+1. Check the relevant chunk in `knowledge_chunks.txt` — ensure the title is descriptive and the content is precise.
+2. Re-run ingestion after any edits.
 3. Check that `VECTOR_COLLECTION` in `.env` matches the collection used during ingestion.
 
 ### `Expected BaseCheckpointSaver, got ...`
 
-Ensure `langgraph` is installed and up to date:
+Ensure `langgraph` and `langgraph-checkpoint-postgres` are installed and up to date:
 
 ```bash
-uv add --upgrade langgraph
+uv add --upgrade langgraph langgraph-checkpoint-postgres
 ```
+
+### API calls return `401 Unauthorized`
+
+Verify `API_TOKEN` is set correctly in `.env`. The token is injected as a `Bearer` header automatically — never put it in knowledge chunks.
 
 ---
 
@@ -432,17 +434,16 @@ uv add --upgrade langgraph
 brew services stop postgresql@15
 ```
 
-### Drop database and users
+### Drop database
 
 ```bash
 dropdb qmrdb
-psql postgres -c "DROP USER IF EXISTS readonly_agent;"
 ```
 
-### Remove project
+### Remove project virtual environment
 
 ```bash
-rm -rf ~/qmr-agent
+rm -rf .venv
 ```
 
 ### Uninstall (optional)
@@ -455,19 +456,4 @@ sed -i '' '/postgresql@15/d' ~/.zshrc && source ~/.zshrc
 
 ---
 
-## **APPENDIX — QMR SQL Rules Summary**
-
-| Rule | Detail |
-|------|--------|
-| Allowed tables | `monthly_order_cache_YYYY_MM`, `daily_order_cache` only |
-| Required output | `primaryDataQuery` + `retailerOrderDataQuery` (always both) |
-| Total productType | `retailerOrderDataQuery` must be `SELECT 1 as "Dummy"` |
-| Date bounds | `>= lower` (inclusive), `< upper` (exclusive) |
-| Date split | If today ∈ [startDate, endDate]: MV portion < today; daily ≥ today |
-| Memo key (primary) | `retailer_id \|\| '-' \|\| DATE(order_placed_at)` + product_id (non-Total) |
-| Total Memo key | `retailer_id \|\| '-' \|\| DATE(order_placed_at)` (never product_id) |
-| Filters | Optional AND clauses; ignore empty or `"all"` lists |
-
----
-
-**Questions?** Review the troubleshooting section or ask the agent directly via `streamlit_app.py`!
+**Questions?** Review the troubleshooting section or ask the agent directly via `streamlit_app.py`. To add new APIs, see `instructions.md`.
