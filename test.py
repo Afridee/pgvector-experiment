@@ -118,10 +118,7 @@ checkpointer = _checkpointer_cm.__enter__()
 checkpointer.setup()
 
 agent = create_agent(
-    model=llm,
-    tools=all_tools,
-    system_prompt=system_prompt,
-    checkpointer=checkpointer,
+    model=llm, tools=all_tools, system_prompt=system_prompt, checkpointer=checkpointer,
 )
 
 print(f"   ✓ Test environment ready ({len(all_tools)} tools loaded)\n")
@@ -250,13 +247,16 @@ for i, test in enumerate(test_cases, 1):
             if artifacts:
                 print(f"   📎 Semantic docs retrieved: {len(artifacts)} chunk(s)")
             else:
-                print("   ⚠️  No semantic search artifacts returned (knowledge chunks not used)")
+                print(
+                    "   ⚠️  No semantic search artifacts returned (knowledge chunks not used)"
+                )
 
         passed += 1
 
     except Exception as e:
         print(f"\n   ❌ FAILED: {str(e)}")
         import traceback
+
         traceback.print_exc()
         failed += 1
 

@@ -52,9 +52,7 @@ def _extract_and_show_download_link(api_response_str: str) -> None:
 
 
 st.set_page_config(
-    page_title="Report Assistant",
-    page_icon="📊",
-    layout="wide",
+    page_title="Report Assistant", page_icon="📊", layout="wide",
 )
 
 st.title("Report Assistant")
@@ -153,8 +151,7 @@ if prompt:
                     st.subheader("🔍 Debug — Raw result")
                     try:
                         st.code(
-                            json.dumps(result, indent=2, default=str),
-                            language="json",
+                            json.dumps(result, indent=2, default=str), language="json",
                         )
                     except Exception:
                         st.write(result)
@@ -169,5 +166,3 @@ if prompt:
                 err = f"Error: {e}"
                 st.error(err)
                 st.session_state.messages.append({"role": "assistant", "content": err})
-
-

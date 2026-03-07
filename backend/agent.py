@@ -4,8 +4,8 @@ API AGENT
 Hybrid API-calling + RAG agent for answering questions and generating reports.
 """
 
-import os
 import json
+import os
 import threading
 from typing import Any, Dict, List, Optional
 
@@ -37,7 +37,7 @@ if not CHECKPOINT_DB_URL:
 # ----------------------------------------------------------------------------
 _AGENT = None
 _CHECKPOINTER_CM = None  # context manager object
-_CHECKPOINTER = None     # entered saver instance
+_CHECKPOINTER = None  # entered saver instance
 
 MAX_TOOL_OUTPUT_CHARS = int(os.getenv("MAX_TOOL_OUTPUT_CHARS", "12000"))
 MAX_FIELD_MATCHES_PER_TARGET = int(os.getenv("MAX_FIELD_MATCHES_PER_TARGET", "5"))
@@ -45,14 +45,38 @@ EXTRACTION_TIMEOUT_SECS = int(os.getenv("EXTRACTION_TIMEOUT_SECS", "5"))
 
 # Builtins available inside extraction scripts — no imports, no file/network access.
 _SCRIPT_BUILTINS: Dict[str, Any] = {
-    "abs": abs, "all": all, "any": any, "bool": bool, "dict": dict,
-    "enumerate": enumerate, "filter": filter, "float": float,
-    "getattr": getattr, "hasattr": hasattr, "int": int,
-    "isinstance": isinstance, "iter": iter, "len": len, "list": list,
-    "map": map, "max": max, "min": min, "next": next, "range": range,
-    "repr": repr, "round": round, "set": set, "sorted": sorted,
-    "str": str, "sum": sum, "tuple": tuple, "type": type, "zip": zip,
-    "None": None, "True": True, "False": False,
+    "abs": abs,
+    "all": all,
+    "any": any,
+    "bool": bool,
+    "dict": dict,
+    "enumerate": enumerate,
+    "filter": filter,
+    "float": float,
+    "getattr": getattr,
+    "hasattr": hasattr,
+    "int": int,
+    "isinstance": isinstance,
+    "iter": iter,
+    "len": len,
+    "list": list,
+    "map": map,
+    "max": max,
+    "min": min,
+    "next": next,
+    "range": range,
+    "repr": repr,
+    "round": round,
+    "set": set,
+    "sorted": sorted,
+    "str": str,
+    "sum": sum,
+    "tuple": tuple,
+    "type": type,
+    "zip": zip,
+    "None": None,
+    "True": True,
+    "False": False,
 }
 
 
@@ -86,9 +110,7 @@ def _run_extraction_script(data: Any, script: str) -> str:
     thread.join(timeout=EXTRACTION_TIMEOUT_SECS)
 
     if thread.is_alive():
-        return (
-            f"❌ Extraction script timed out after {EXTRACTION_TIMEOUT_SECS}s."
-        )
+        return f"❌ Extraction script timed out after {EXTRACTION_TIMEOUT_SECS}s."
     if error_box[0]:
         return f"❌ Extraction script error: {error_box[0]}"
 
@@ -106,8 +128,7 @@ def _truncate_text(value: str, max_chars: int = MAX_TOOL_OUTPUT_CHARS) -> str:
     if len(value) <= max_chars:
         return value
     return (
-        value[:max_chars].rstrip()
-        + f" ... [truncated {len(value) - max_chars} chars]"
+        value[:max_chars].rstrip() + f" ... [truncated {len(value) - max_chars} chars]"
     )
 
 
@@ -142,14 +163,14 @@ def _matches_target(target: str, key: str, full_path: str) -> bool:
     if not target_parts:
         return False
     path_parts = [_normalize_token(p) for p in _path_tokens(full_path) if p.strip()]
-    return len(path_parts) >= len(target_parts) and path_parts[-len(target_parts):] == target_parts
+    return (
+        len(path_parts) >= len(target_parts)
+        and path_parts[-len(target_parts) :] == target_parts
+    )
 
 
 def _collect_field_matches(
-    payload: Any,
-    target: str,
-    path: str,
-    out: List[Dict[str, Any]],
+    payload: Any, target: str, path: str, out: List[Dict[str, Any]],
 ) -> None:
     if len(out) >= MAX_FIELD_MATCHES_PER_TARGET:
         return
@@ -194,7 +215,7 @@ def _extract_response_fields(payload: Any, targets: List[str]) -> Dict[str, Any]
 
 def _paginate_result(items: List[Any], offset: int, limit: int) -> Dict[str, Any]:
     total = len(items)
-    page = items[offset: offset + limit]
+    page = items[offset : offset + limit]
     has_more = (offset + limit) < total
     return {
         "items": page,
@@ -209,6 +230,7 @@ def _paginate_result(items: List[Any], offset: int, limit: int) -> Dict[str, Any
 # ----------------------------------------------------------------------------
 # Tools
 # ----------------------------------------------------------------------------
+
 
 @tool(response_format="content_and_artifact")
 def semantic_search_tool(query: str):
@@ -251,22 +273,20 @@ def semantic_search_tool(query: str):
 
 class ApiInput(BaseModel):
     """Schema for API calls."""
+
     url: str = Field(..., description="Full API endpoint URL")
     method: str = Field(
-        default="GET",
-        description="HTTP method: GET, POST, PUT, DELETE, PATCH",
+        default="GET", description="HTTP method: GET, POST, PUT, DELETE, PATCH",
     )
     payload: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="JSON payload / request body (for POST, PUT, PATCH)",
+        default=None, description="JSON payload / request body (for POST, PUT, PATCH)",
     )
     headers: Optional[Dict[str, str]] = Field(
         default=None,
         description="Custom HTTP headers, e.g. {'Authorization': 'Bearer token'}",
     )
     params: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="URL query parameters (for GET requests)",
+        default=None, description="URL query parameters (for GET requests)",
     )
     response_fields: Optional[List[str]] = Field(
         default=None,
@@ -353,8 +373,12 @@ def api_call(
                     try:
                         extracted_data = json.loads(extracted)
                         if isinstance(extracted_data, list):
-                            paged = _paginate_result(extracted_data, list_offset or 0, list_limit)
-                            serialized = json.dumps(paged, ensure_ascii=True, default=str)
+                            paged = _paginate_result(
+                                extracted_data, list_offset or 0, list_limit
+                            )
+                            serialized = json.dumps(
+                                paged, ensure_ascii=True, default=str
+                            )
                             return f"Success ({response.status_code}) [extracted+paged]: {_truncate_text(serialized)}"
                     except (ValueError, TypeError):
                         pass
@@ -403,9 +427,7 @@ def api_call(
 print("🔗 Connecting to vector database...")
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
 vectorstore = PGVector(
-    connection=DATABASE_URL,
-    collection_name=VECTOR_COLLECTION,
-    embeddings=embeddings,
+    connection=DATABASE_URL, collection_name=VECTOR_COLLECTION, embeddings=embeddings,
 )
 print("   ✓ Vector database connected")
 
