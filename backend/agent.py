@@ -39,7 +39,7 @@ _AGENT = None
 _CHECKPOINTER_CM = None  # context manager object
 _CHECKPOINTER = None     # entered saver instance
 
-MAX_TOOL_OUTPUT_CHARS = int(os.getenv("MAX_TOOL_OUTPUT_CHARS", "6000"))
+MAX_TOOL_OUTPUT_CHARS = int(os.getenv("MAX_TOOL_OUTPUT_CHARS", "12000"))
 MAX_FIELD_MATCHES_PER_TARGET = int(os.getenv("MAX_FIELD_MATCHES_PER_TARGET", "5"))
 EXTRACTION_TIMEOUT_SECS = int(os.getenv("EXTRACTION_TIMEOUT_SECS", "5"))
 
@@ -192,6 +192,20 @@ def _extract_response_fields(payload: Any, targets: List[str]) -> Dict[str, Any]
     }
 
 
+def _paginate_result(items: List[Any], offset: int, limit: int) -> Dict[str, Any]:
+    total = len(items)
+    page = items[offset: offset + limit]
+    has_more = (offset + limit) < total
+    return {
+        "items": page,
+        "total": total,
+        "offset": offset,
+        "limit": limit,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    }
+
+
 # ----------------------------------------------------------------------------
 # Tools
 # ----------------------------------------------------------------------------
@@ -272,6 +286,20 @@ class ApiInput(BaseModel):
             "Prefer this over response_fields for nested or conditional extraction."
         ),
     )
+    list_offset: Optional[int] = Field(
+        default=None,
+        description=(
+            "For list responses: zero-based index of the first item to return. "
+            "Use with list_limit to page through results. Defaults to 0."
+        ),
+    )
+    list_limit: Optional[int] = Field(
+        default=None,
+        description=(
+            "For list responses: maximum number of items to return per page. "
+            "Always set this (recommended: 20) when the response is a list of records."
+        ),
+    )
 
 
 @tool(args_schema=ApiInput)
@@ -283,6 +311,8 @@ def api_call(
     params: Optional[Dict[str, Any]] = None,
     response_fields: Optional[List[str]] = None,
     extraction_script: Optional[str] = None,
+    list_offset: Optional[int] = None,
+    list_limit: Optional[int] = None,
 ) -> str:
     """Make an HTTP API call and return the response.
     Use this ONLY after you have collected all required parameters from the user.
@@ -312,9 +342,22 @@ def api_call(
         try:
             data = response.json()
 
+            print(f"API call to {url} succeeded. Status code: {response.status_code}.")
+            with open("api_response_debug.json", "w", encoding="utf-8") as _f:
+                json.dump(data, _f, indent=2, ensure_ascii=False)
+
             # extraction_script takes priority — model-written Python snippet
             if extraction_script:
                 extracted = _run_extraction_script(data, extraction_script)
+                if list_limit is not None:
+                    try:
+                        extracted_data = json.loads(extracted)
+                        if isinstance(extracted_data, list):
+                            paged = _paginate_result(extracted_data, list_offset or 0, list_limit)
+                            serialized = json.dumps(paged, ensure_ascii=True, default=str)
+                            return f"Success ({response.status_code}) [extracted+paged]: {_truncate_text(serialized)}"
+                    except (ValueError, TypeError):
+                        pass
                 return f"Success ({response.status_code}) [extracted]: {_truncate_text(extracted)}"
 
             # response_fields — simple key/path matching
@@ -325,6 +368,12 @@ def api_call(
                     filtered["top_level_keys"] = sorted(data.keys())
                 serialized = json.dumps(filtered, ensure_ascii=True, default=str)
                 return f"Success ({response.status_code}) [filtered]: {_truncate_text(serialized)}"
+
+            # Client-side list pagination
+            if list_limit is not None and isinstance(data, list):
+                paged = _paginate_result(data, list_offset or 0, list_limit)
+                serialized = json.dumps(paged, ensure_ascii=True, default=str)
+                return f"Success ({response.status_code}) [paged]: {_truncate_text(serialized)}"
 
             serialized = json.dumps(data, ensure_ascii=True, default=str)
             return f"Success ({response.status_code}): {_truncate_text(serialized)}"
@@ -398,6 +447,10 @@ knowledge chunks, then call api_call().
     extraction_script="result = response.get('data', {}).get('user', {}).get('address')"
   Use extraction_script for nested or conditional logic.
   Use response_fields only for simple top-level key matching.
+- For endpoints that return a list of records, always set list_limit=20 and
+  list_offset=0 on the first call. Combine with an extraction_script that maps
+  each item to only its needed fields before paging.
+  The tool returns: items (the current page), total, has_more, and next_offset.
 
 ### Step 4 — Present the results
 Present the API response in a clear, readable format:
@@ -407,8 +460,9 @@ Present the API response in a clear, readable format:
   as a clickable link so the user can download their report.
 - If the response indicates an error, explain it in plain language and suggest
   what the user can do next.
-- For paginated responses, show the current page clearly and ask whether the
-    user wants the next page. Continue page-by-page in follow-up turns.
+- For paged list responses, show the current batch clearly (e.g. "Showing 1–20
+  of 630"). If has_more is true, ask if the user wants to see more. On follow-up,
+  call the same API again with list_offset=next_offset and the same list_limit.
 
 ## Hard rules
 - NEVER guess an endpoint URL, parameter name, or payload field.
