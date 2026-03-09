@@ -703,3 +703,737 @@ Error response shapes:
 { "status": 404, "message": "No data found for the given query", "data": {} }
 ```
 ---
+---
+title: Location Reference — Regions
+tags: topic:lookup, applies_to:all, entity:region
+content:
+Use these region IDs for regionFilter in any report API.
+Format: id | name
+  1 | Dhaka South
+  2 | Dhaka North
+  3 | Chittagong
+  4 | Sylhet
+  5 | Khulna
+  6 | Barishal
+  7 | Rajshahi
+---
+
+---
+title: Location Reference — Areas
+tags: topic:lookup, applies_to:all, entity:area
+content:
+Use these area IDs for areaFilter in any report API.
+Format: id | name | region_id
+  1 | Dhaka Central | region_id:1
+  2 | Dhaka East | region_id:1
+  3 | Dhaka South | region_id:1
+  4 | Dhaka North | region_id:2
+  5 | Dhaka West | region_id:2
+  6 | CTG North | region_id:3
+  7 | CTG South | region_id:3
+  8 | Cumilla | region_id:3
+  9 | Feni | region_id:3
+  10 | B. Baria | region_id:4
+  11 | Mymensingh | region_id:4
+  12 | Narsingdi | region_id:4
+  13 | Sylhet | region_id:4
+  14 | Khulna | region_id:5
+  15 | Kushtia | region_id:5
+  16 | Barishal | region_id:6
+  17 | Faridpur | region_id:6
+  18 | Bogura | region_id:7
+  19 | Dinajpur | region_id:7
+  20 | Rajshahi | region_id:7
+  21 | Rangpur | region_id:7
+---
+
+---
+title: Location Reference — Sub-Channels
+tags: topic:lookup, applies_to:query_manager_report, entity:sub_channel
+content:
+Use these sub-channel IDs for subChannelFilter in the Query Manager Report API.
+Format: id | name
+  1 | BCC
+  2 | RCC
+  3 | TRC
+  4 | GT
+  5 | Gold
+  6 | Platinum
+  7 | Silver
+  8 | C&C
+---
+
+---
+title: Location Reference — Territories
+tags: topic:lookup, applies_to:all, entity:territory
+content:
+Use these territory IDs for territoryFilter in any report API.
+Format: id | name | area_id | region_id
+  1 | Gulshan | area_id:1 | region_id:1
+  2 | Mirpur | area_id:1 | region_id:1
+  3 | Mogbazar | area_id:1 | region_id:1
+  4 | Matuail | area_id:1 | region_id:1
+  5 | Motijheel | area_id:1 | region_id:1
+  6 | Jurain | area_id:2 | region_id:1
+  7 | Munshiganj | area_id:2 | region_id:1
+  8 | Narayanganj | area_id:2 | region_id:1
+  9 | Kotwali (DHK) | area_id:3 | region_id:1
+  10 | Sreenagar | area_id:3 | region_id:1
+  11 | Sutrapur | area_id:3 | region_id:1
+  12 | Dhanmondi | area_id:3 | region_id:1
+  13 | DEPZ | area_id:4 | region_id:2
+  14 | Manikganj | area_id:4 | region_id:2
+  15 | Savar | area_id:4 | region_id:2
+  16 | Madhupur | area_id:4 | region_id:2
+  17 | Tangail | area_id:4 | region_id:2
+  18 | Tongi | area_id:5 | region_id:2
+  19 | Uttara | area_id:5 | region_id:2
+  20 | Joydebpur | area_id:5 | region_id:2
+  21 | Mawna | area_id:5 | region_id:2
+  22 | Shafipur | area_id:5 | region_id:2
+  23 | Bayezid | area_id:6 | region_id:3
+  24 | CTG Port | area_id:6 | region_id:3
+  25 | Khagrachhari | area_id:6 | region_id:3
+  26 | Rangamati | area_id:6 | region_id:3
+  27 | Sitakunda | area_id:6 | region_id:3
+  28 | Cox's Bazar-1 | area_id:7 | region_id:3
+  29 | Cox's Bazar-2 | area_id:7 | region_id:3
+  30 | Kotwali (CTG) | area_id:7 | region_id:3
+  31 | Patiya | area_id:7 | region_id:3
+  32 | Chandpur | area_id:8 | region_id:3
+  33 | Cumilla-1 | area_id:8 | region_id:3
+  34 | Cumilla-2 | area_id:8 | region_id:3
+  35 | Cumilla-2 | area_id:8 | region_id:3
+  36 | Daudkandi | area_id:8 | region_id:3
+  37 | Feni-1 | area_id:9 | region_id:3
+  38 | Feni-2 | area_id:9 | region_id:3
+  39 | Laksam | area_id:9 | region_id:3
+  40 | Laxmipur | area_id:9 | region_id:3
+  41 | Maijdee | area_id:9 | region_id:3
+  42 | B. Baria | area_id:10 | region_id:4
+  43 | Habiganj | area_id:10 | region_id:4
+  44 | Moulvibazar | area_id:10 | region_id:4
+  45 | Jamalpur | area_id:11 | region_id:4
+  46 | Mymensingh 1 | area_id:11 | region_id:4
+  47 | Mymensingh 2 | area_id:11 | region_id:4
+  48 | Netrokona | area_id:11 | region_id:4
+  49 | Sherpur | area_id:11 | region_id:4
+  50 | Bhairab | area_id:12 | region_id:4
+  51 | Kishoreganj | area_id:12 | region_id:4
+  52 | Narsingdi 1 | area_id:12 | region_id:4
+  53 | Narsingdi 2 | area_id:12 | region_id:4
+  54 | Sunamganj | area_id:13 | region_id:4
+  55 | Sylhet Metro 1 | area_id:13 | region_id:4
+  56 | Sylhet Metro 2 | area_id:13 | region_id:4
+  57 | Jashore-1 | area_id:14 | region_id:5
+  58 | Jashore-2 | area_id:14 | region_id:5
+  59 | Khulna Metro-1 | area_id:14 | region_id:5
+  60 | Khulna Metro-2 | area_id:14 | region_id:5
+  61 | Satkhira | area_id:14 | region_id:5
+  62 | Chuadanga | area_id:15 | region_id:5
+  63 | Jhenaidah | area_id:15 | region_id:5
+  64 | Kushtia | area_id:15 | region_id:5
+  65 | Magura | area_id:15 | region_id:5
+  66 | Meherpur | area_id:15 | region_id:5
+  67 | Meherpur | area_id:15 | region_id:5
+  68 | Barguna | area_id:16 | region_id:6
+  69 | Barishal-1 | area_id:16 | region_id:6
+  70 | Barishal-2 | area_id:16 | region_id:6
+  71 | Bhola | area_id:16 | region_id:6
+  72 | Patuakhali | area_id:16 | region_id:6
+  73 | Faridpur | area_id:17 | region_id:6
+  74 | Madaripur | area_id:17 | region_id:6
+  75 | Madaripur | area_id:17 | region_id:6
+  76 | Rajbari | area_id:17 | region_id:6
+  77 | Shariatpur | area_id:17 | region_id:6
+  78 | Bogura-1 | area_id:18 | region_id:7
+  79 | Bogura-2 | area_id:18 | region_id:7
+  80 | Ishwardi | area_id:18 | region_id:7
+  81 | Pabna | area_id:18 | region_id:7
+  82 | Sirajganj | area_id:18 | region_id:7
+  83 | Dinajpur | area_id:19 | region_id:7
+  84 | Gaibandha | area_id:19 | region_id:7
+  85 | Joypurhat | area_id:19 | region_id:7
+  86 | Thakurgaon | area_id:19 | region_id:7
+  87 | Chapai | area_id:20 | region_id:7
+  88 | Naogaon | area_id:20 | region_id:7
+  89 | Natore | area_id:20 | region_id:7
+  90 | Rajshahi 1 | area_id:20 | region_id:7
+  91 | Rajshahi 2 | area_id:20 | region_id:7
+  92 | Rajshahi 2 | area_id:20 | region_id:7
+  93 | Kurigram | area_id:21 | region_id:7
+  94 | Lalmonirhat | area_id:21 | region_id:7
+  95 | Rangpur | area_id:21 | region_id:7
+  96 | Saidpur | area_id:21 | region_id:7
+  97 | Test Territory | area_id:22 | region_id:8
+  98 | Matuail Inventory | area_id:3 | region_id:1
+  99 | SPS Sutrapur Inventory | area_id:3 | region_id:1
+  100 | SPS Keranigonj Inventory | area_id:3 | region_id:1
+---
+
+---
+title: Location Reference — Distributors
+tags: topic:lookup, applies_to:all, entity:distributor
+content:
+Use these distributor IDs for distributorFilter in any report API.
+Format: id | name | area_id | region_id
+  1 | Agrani Trading Corporation, Gulshan | area_id:1 | region_id:1
+  2 | Agrani Trading Corporation, Mirpur | area_id:1 | region_id:1
+  3 | Agrani Trading Corporation, Mogbazar | area_id:1 | region_id:1
+  4 | Alam Corporation Ltd. | area_id:3 | region_id:1
+  5 | Sales Promotion Service | area_id:3 | region_id:1
+  6 | The Jamal & Co - Dhanmondi | area_id:3 | region_id:1
+  7 | The Jamal & Co - Narayanganj | area_id:2 | region_id:1
+  8 | Agrani Trading Company Ltd, Savar | area_id:4 | region_id:2
+  9 | Agrani Trading Company Ltd, Tangail | area_id:4 | region_id:2
+  10 | Azahar Trading Ltd. | area_id:5 | region_id:2
+  11 | M/S. A.M.I & Company | area_id:5 | region_id:2
+  12 | Abdul Latif Chowdhury | area_id:8 | region_id:3
+  13 | Arafa Store | area_id:6 | region_id:3
+  14 | M/S Al-Amin Store | area_id:7 | region_id:3
+  15 | M/S Rupali Traders | area_id:8 | region_id:3
+  16 | M/S Sanjib Mazumder | area_id:9 | region_id:3
+  17 | M/S. Abdul Latif Chowdhury, Chandpur | area_id:8 | region_id:3
+  18 | M/S. Momin Store | area_id:9 | region_id:3
+  19 | MAQ Distribution | area_id:7 | region_id:3
+  20 | Rokeya & Sons | area_id:9 | region_id:3
+  21 | Zawad Enterprise | area_id:6 | region_id:3
+  22 | ADL B.BARIA | area_id:10 | region_id:4
+  23 | ADL Habiganj | area_id:10 | region_id:4
+  24 | Amin Distribution Company Ltd. | area_id:11 | region_id:4
+  25 | J R Corporation Limited, Bhairab | area_id:12 | region_id:4
+  26 | J R Corporation Limited, Narsingdi | area_id:12 | region_id:4
+  27 | M. Islam Trade Co. Ltd. | area_id:12 | region_id:4
+  28 | MBKB Ltd (Moulvibazar) | area_id:10 | region_id:4
+  29 | Moula Baksh Karim Boksh | area_id:13 | region_id:4
+  30 | Moula Baksh Karim Boksh Ltd. | area_id:13 | region_id:4
+  31 | Noor Sons | area_id:11 | region_id:4
+  32 | Shashi Mohan Roy | area_id:11 | region_id:4
+  33 | Akram Enterprise | area_id:15 | region_id:5
+  34 | Desh Trade Link | area_id:15 | region_id:5
+  35 | Joarder Traders | area_id:15 | region_id:5
+  36 | M/S Azizur Rahman | area_id:14 | region_id:5
+  37 | M/S Sheikh Brothers | area_id:14 | region_id:5
+  38 | Rafiq Enterprise | area_id:14 | region_id:5
+  39 | Sanaullah Traders | area_id:15 | region_id:5
+  40 | A. Rahman & Sons | area_id:16 | region_id:6
+  41 | AKHTER ENTERPRISE | area_id:17 | region_id:6
+  42 | Hajee & Sons | area_id:16 | region_id:6
+  43 | Hajee & Sons, Barguna | area_id:16 | region_id:6
+  44 | Kazi Sayed Ali | area_id:17 | region_id:6
+  45 | M/S BARISHAL J AHMED & CO. | area_id:16 | region_id:6
+  46 | M/S Tarik Ahmed Dipu (Madaripur) | area_id:17 | region_id:6
+  47 | M/S Tarik Ahmed Dipu (Rajbari) | area_id:17 | region_id:6
+  48 | SPS Shariatpur | area_id:17 | region_id:6
+  49 | Asiatic Distributions Limited, Lalmonirhat | area_id:21 | region_id:7
+  50 | Asiatic Distributions Limited, Kurigram | area_id:21 | region_id:7
+  51 | Channa & Brothers | area_id:20 | region_id:7
+  52 | Daffodils | area_id:18 | region_id:7
+  53 | M/S Abul Hossain | area_id:20 | region_id:7
+  54 | M/S Haque & Co. | area_id:20 | region_id:7
+  55 | Spectrum Trading Corporation | area_id:19 | region_id:7
+  56 | Moulovi Brothers | area_id:19 | region_id:7
+  57 | Mr Brothers | area_id:18 | region_id:7
+  58 | Sales Connect Limited | area_id:18 | region_id:7
+  59 | Shaireen Enterprise, Nilphamary | area_id:21 | region_id:7
+  60 | Shaireen Enterprise, Rangpur | area_id:21 | region_id:7
+  61 | Sumon Trading Corporation | area_id:20 | region_id:7
+  64 | Agrani Trading Corporation Ltd. (Matuail) | area_id:3 | region_id:1
+  65 | SPS Sutrapur | area_id:3 | region_id:1
+  66 | SPS Keranigonj | area_id:3 | region_id:1
+  67 | Agrani Trading Company Ltd, Jamalpur | area_id:11 | region_id:4
+---
+
+---
+title: Location Reference — Points (part 1, IDs 1–100)
+tags: topic:lookup, applies_to:all, entity:point
+content:
+Use these point IDs for pointFilter in any report API.
+Format: id | name | territory_id | area_id | region_id
+  1 | Badda | territory_id:1 | area_id:1 | region_id:1
+  2 | Gulshan | territory_id:1 | area_id:1 | region_id:1
+  3 | Mirpur-1 | territory_id:2 | area_id:1 | region_id:1
+  4 | Mirpur-2 | territory_id:2 | area_id:1 | region_id:1
+  5 | Banasree | territory_id:3 | area_id:1 | region_id:1
+  6 | Mogbazar | territory_id:3 | area_id:1 | region_id:1
+  7 | Bhulta | territory_id:4 | area_id:1 | region_id:1
+  8 | Matuail | territory_id:4 | area_id:1 | region_id:1
+  9 | Jatrabari | territory_id:5 | area_id:1 | region_id:1
+  10 | Motijheel | territory_id:5 | area_id:1 | region_id:1
+  11 | Adamji | territory_id:6 | area_id:2 | region_id:1
+  12 | Jurain | territory_id:6 | area_id:2 | region_id:1
+  13 | Madanpur | territory_id:7 | area_id:2 | region_id:1
+  14 | Munshiganj | territory_id:7 | area_id:2 | region_id:1
+  15 | Nabiganj (DE) | territory_id:7 | area_id:2 | region_id:1
+  16 | Fatullah | territory_id:8 | area_id:2 | region_id:1
+  17 | Narayanganj | territory_id:8 | area_id:2 | region_id:1
+  18 | Gendaria | territory_id:9 | area_id:3 | region_id:1
+  19 | Kamrangirchar | territory_id:9 | area_id:3 | region_id:1
+  20 | Kotwali | territory_id:9 | area_id:3 | region_id:1
+  21 | Nawabganj | territory_id:10 | area_id:3 | region_id:1
+  22 | Sreenagar | territory_id:10 | area_id:3 | region_id:1
+  23 | Taltola | territory_id:10 | area_id:3 | region_id:1
+  24 | Ati Bazar | territory_id:11 | area_id:3 | region_id:1
+  25 | Keraniganj | territory_id:11 | area_id:3 | region_id:1
+  26 | Moulvibazar (DHK) | territory_id:11 | area_id:3 | region_id:1
+  27 | Sutrapur | territory_id:11 | area_id:3 | region_id:1
+  28 | Dhanmondi | territory_id:12 | area_id:3 | region_id:1
+  29 | Mohammadpur | territory_id:12 | area_id:3 | region_id:1
+  30 | DEPZ | territory_id:13 | area_id:4 | region_id:2
+  31 | Dhamrai | territory_id:13 | area_id:4 | region_id:2
+  32 | Zirani | territory_id:13 | area_id:4 | region_id:2
+  33 | Jhitka | territory_id:14 | area_id:4 | region_id:2
+  34 | Manikganj | territory_id:14 | area_id:4 | region_id:2
+  35 | Mohadevpur (DW) | territory_id:14 | area_id:4 | region_id:2
+  36 | Singair | territory_id:14 | area_id:4 | region_id:2
+  37 | Hemayetpur | territory_id:15 | area_id:4 | region_id:2
+  38 | Savar | territory_id:15 | area_id:4 | region_id:2
+  39 | Zirabo | territory_id:15 | area_id:4 | region_id:2
+  40 | Bhuapur | territory_id:16 | area_id:4 | region_id:2
+  41 | Madhupur | territory_id:16 | area_id:4 | region_id:2
+  42 | Sakhipur (DN) | territory_id:16 | area_id:4 | region_id:2
+  43 | Sarishabari | territory_id:16 | area_id:4 | region_id:2
+  44 | Ghatail | territory_id:17 | area_id:4 | region_id:2
+  45 | Mirzapur | territory_id:17 | area_id:4 | region_id:2
+  46 | Nagarpur | territory_id:17 | area_id:4 | region_id:2
+  47 | Tangail | territory_id:17 | area_id:4 | region_id:2
+  48 | Board Bazar | territory_id:18 | area_id:5 | region_id:2
+  49 | Kaliganj (DW) | territory_id:18 | area_id:5 | region_id:2
+  50 | Mirer Bazar | territory_id:18 | area_id:5 | region_id:2
+  51 | Purbachal | territory_id:18 | area_id:5 | region_id:2
+  52 | Tongi | territory_id:18 | area_id:5 | region_id:2
+  53 | Khilkhet | territory_id:19 | area_id:5 | region_id:2
+  54 | Mazar Chowrasta | territory_id:19 | area_id:5 | region_id:2
+  55 | Nikunja | territory_id:19 | area_id:5 | region_id:2
+  56 | Sector-14 | territory_id:19 | area_id:5 | region_id:2
+  57 | Sector-4 | territory_id:19 | area_id:5 | region_id:2
+  58 | Bashon | territory_id:20 | area_id:5 | region_id:2
+  59 | Joydebpur | territory_id:20 | area_id:5 | region_id:2
+  60 | Bhabanipur | territory_id:21 | area_id:5 | region_id:2
+  61 | Kapasia | territory_id:21 | area_id:5 | region_id:2
+  62 | Mawna | territory_id:21 | area_id:5 | region_id:2
+  63 | Shafipur | territory_id:22 | area_id:5 | region_id:2
+  64 | Kaptai | territory_id:23 | area_id:6 | region_id:3
+  65 | Muradpur | territory_id:23 | area_id:6 | region_id:3
+  66 | Noapara (CTG) | territory_id:23 | area_id:6 | region_id:3
+  67 | EPZ | territory_id:24 | area_id:6 | region_id:3
+  68 | Halishahar | territory_id:24 | area_id:6 | region_id:3
+  69 | Dighinala | territory_id:25 | area_id:6 | region_id:3
+  70 | Khagrachhari Sadar | territory_id:25 | area_id:6 | region_id:3
+  71 | Langadu | territory_id:25 | area_id:6 | region_id:3
+  72 | Manikchhari | territory_id:25 | area_id:6 | region_id:3
+  73 | Marissha | territory_id:25 | area_id:6 | region_id:3
+  74 | Matiranga | territory_id:25 | area_id:6 | region_id:3
+  75 | Nazirhat | territory_id:25 | area_id:6 | region_id:3
+  76 | Ramgor | territory_id:25 | area_id:6 | region_id:3
+  77 | Barkal | territory_id:26 | area_id:6 | region_id:3
+  78 | Belaichhari | territory_id:26 | area_id:6 | region_id:3
+  79 | Hathazari | territory_id:26 | area_id:6 | region_id:3
+  80 | Horina | territory_id:26 | area_id:6 | region_id:3
+  81 | Juraichhari | territory_id:26 | area_id:6 | region_id:3
+  82 | Naniarchar | territory_id:26 | area_id:6 | region_id:3
+  83 | Rangamati | territory_id:26 | area_id:6 | region_id:3
+  84 | Ranirhat | territory_id:26 | area_id:6 | region_id:3
+  85 | Sitakunda | territory_id:27 | area_id:6 | region_id:3
+  86 | Anamnaher | territory_id:27 | area_id:6 | region_id:3
+  87 | Fouzderhat | territory_id:27 | area_id:6 | region_id:3
+  88 | Hadi Fakir Hat | territory_id:27 | area_id:6 | region_id:3
+  89 | Mithachora | territory_id:27 | area_id:6 | region_id:3
+  90 | Shiber Hat | territory_id:27 | area_id:6 | region_id:3
+  91 | Akbor Hat | territory_id:27 | area_id:6 | region_id:3
+  92 | Cox's Bazar | territory_id:28 | area_id:7 | region_id:3
+  93 | Hnila | territory_id:28 | area_id:7 | region_id:3
+  94 | Kalamarchara | territory_id:28 | area_id:7 | region_id:3
+  95 | Moheshkhali | territory_id:28 | area_id:7 | region_id:3
+  96 | Ramu | territory_id:28 | area_id:7 | region_id:3
+  97 | Teknaf | territory_id:28 | area_id:7 | region_id:3
+  98 | Ukhia | territory_id:28 | area_id:7 | region_id:3
+  99 | Chakaria | territory_id:29 | area_id:7 | region_id:3
+  100 | Eidgah | territory_id:29 | area_id:7 | region_id:3
+---
+
+---
+title: Location Reference — Points (part 2, IDs 101–200)
+tags: topic:lookup, applies_to:all, entity:point
+content:
+Use these point IDs for pointFilter in any report API.
+Format: id | name | territory_id | area_id | region_id
+  101 | Lama | territory_id:29 | area_id:7 | region_id:3
+  102 | Lohagara (CTG) | territory_id:29 | area_id:7 | region_id:3
+  103 | Pekua | territory_id:29 | area_id:7 | region_id:3
+  104 | Dewanhat | territory_id:30 | area_id:7 | region_id:3
+  105 | Rahattar Pul | territory_id:30 | area_id:7 | region_id:3
+  106 | Anwara | territory_id:31 | area_id:7 | region_id:3
+  107 | Bandarban (MAQ) | territory_id:31 | area_id:7 | region_id:3
+  108 | Banshkhali | territory_id:31 | area_id:7 | region_id:3
+  109 | Boalkhali | territory_id:31 | area_id:7 | region_id:3
+  110 | Chambol | territory_id:31 | area_id:7 | region_id:3
+  111 | Keranihat (MAQ) | territory_id:31 | area_id:7 | region_id:3
+  112 | Khanhat (MAQ) | territory_id:31 | area_id:7 | region_id:3
+  113 | Patiya | territory_id:31 | area_id:7 | region_id:3
+  114 | Shantirhat | territory_id:31 | area_id:7 | region_id:3
+  115 | Chandpur | territory_id:32 | area_id:8 | region_id:3
+  116 | Matlab South | territory_id:32 | area_id:8 | region_id:3
+  117 | Ramganj | territory_id:32 | area_id:8 | region_id:3
+  118 | Companiganj (CU) | territory_id:33 | area_id:8 | region_id:3
+  119 | Cumilla-1 | territory_id:33 | area_id:8 | region_id:3
+  120 | Cumilla-2 | territory_id:34 | area_id:8 | region_id:3
+  121 | Barura | territory_id:35 | area_id:8 | region_id:3
+  122 | Chauddagram | territory_id:35 | area_id:8 | region_id:3
+  123 | Shaharasti | territory_id:35 | area_id:8 | region_id:3
+  124 | Daudkandi | territory_id:36 | area_id:8 | region_id:3
+  125 | Homna | territory_id:36 | area_id:8 | region_id:3
+  126 | Matlab | territory_id:36 | area_id:8 | region_id:3
+  127 | Meghna | territory_id:36 | area_id:8 | region_id:3
+  128 | Chhagalnaiya | territory_id:37 | area_id:9 | region_id:3
+  129 | Feni | territory_id:37 | area_id:9 | region_id:3
+  130 | Fulgazi | territory_id:37 | area_id:9 | region_id:3
+  131 | Companiganj (FE) | territory_id:38 | area_id:9 | region_id:3
+  132 | Daganbhuiyan | territory_id:38 | area_id:9 | region_id:3
+  133 | Senbag | territory_id:38 | area_id:9 | region_id:3
+  134 | Sonagazi | territory_id:38 | area_id:9 | region_id:3
+  135 | Chatkhil | territory_id:39 | area_id:9 | region_id:3
+  136 | Laksham | territory_id:39 | area_id:9 | region_id:3
+  137 | Nangalkot | territory_id:39 | area_id:9 | region_id:3
+  138 | Laxmipur | territory_id:40 | area_id:9 | region_id:3
+  139 | Raipur | territory_id:40 | area_id:9 | region_id:3
+  140 | Ramgati | territory_id:40 | area_id:9 | region_id:3
+  141 | Chowmuhani | territory_id:41 | area_id:9 | region_id:3
+  142 | Hatiya | territory_id:41 | area_id:9 | region_id:3
+  143 | Maijdee | territory_id:41 | area_id:9 | region_id:3
+  144 | Suborno Char | territory_id:41 | area_id:9 | region_id:3
+  145 | Akhaura | territory_id:42 | area_id:10 | region_id:4
+  146 | B. Baria | territory_id:42 | area_id:10 | region_id:4
+  147 | Bijoynagar | territory_id:42 | area_id:10 | region_id:4
+  148 | Kashba | territory_id:42 | area_id:10 | region_id:4
+  149 | Madhabpur | territory_id:42 | area_id:10 | region_id:4
+  150 | Nabinagar | territory_id:42 | area_id:10 | region_id:4
+  151 | Nasirnagar | territory_id:42 | area_id:10 | region_id:4
+  152 | Salimganj | territory_id:42 | area_id:10 | region_id:4
+  153 | Sarail | territory_id:42 | area_id:10 | region_id:4
+  154 | Tantor | territory_id:42 | area_id:10 | region_id:4
+  155 | Ajmiriganj | territory_id:43 | area_id:10 | region_id:4
+  156 | Aushkandi | territory_id:43 | area_id:10 | region_id:4
+  157 | Bahubal | territory_id:43 | area_id:10 | region_id:4
+  158 | Baniyachong | territory_id:43 | area_id:10 | region_id:4
+  159 | Chunarughat | territory_id:43 | area_id:10 | region_id:4
+  160 | Habiganj | territory_id:43 | area_id:10 | region_id:4
+  161 | Nabiganj (SYL) | territory_id:43 | area_id:10 | region_id:4
+  162 | Sayestaganj | territory_id:43 | area_id:10 | region_id:4
+  163 | Barlekha | territory_id:44 | area_id:10 | region_id:4
+  164 | Beanibazar | territory_id:44 | area_id:10 | region_id:4
+  165 | Kulaura | territory_id:44 | area_id:10 | region_id:4
+  166 | Moulvibazar (SYL) | territory_id:44 | area_id:10 | region_id:4
+  167 | Rajnagar | territory_id:44 | area_id:10 | region_id:4
+  168 | Shamshernagar | territory_id:44 | area_id:10 | region_id:4
+  169 | Sreemangal | territory_id:44 | area_id:10 | region_id:4
+  170 | Islampur | territory_id:45 | area_id:11 | region_id:4
+  171 | Jamalpur | territory_id:45 | area_id:11 | region_id:4
+  172 | Madarganj | territory_id:45 | area_id:11 | region_id:4
+  173 | Nandina | territory_id:45 | area_id:11 | region_id:4
+  174 | Fulbaria | territory_id:46 | area_id:11 | region_id:4
+  175 | Haluaghat | territory_id:46 | area_id:11 | region_id:4
+  176 | Muktagacha | territory_id:46 | area_id:11 | region_id:4
+  177 | Mymensingh | territory_id:46 | area_id:11 | region_id:4
+  178 | Phulpur | territory_id:46 | area_id:11 | region_id:4
+  179 | Bhaluka | territory_id:47 | area_id:11 | region_id:4
+  180 | Gaffargaon | territory_id:47 | area_id:11 | region_id:4
+  181 | Masterbari | territory_id:47 | area_id:11 | region_id:4
+  182 | Shambhuganj | territory_id:47 | area_id:11 | region_id:4
+  183 | Trishal | territory_id:47 | area_id:11 | region_id:4
+  184 | Durgapur (SYL) | territory_id:48 | area_id:11 | region_id:4
+  185 | Kalmakanda | territory_id:48 | area_id:11 | region_id:4
+  186 | Kendua | territory_id:48 | area_id:11 | region_id:4
+  187 | Madan | territory_id:48 | area_id:11 | region_id:4
+  188 | Mohanganj | territory_id:48 | area_id:11 | region_id:4
+  189 | Netrokona | territory_id:48 | area_id:11 | region_id:4
+  190 | Purbadhala | territory_id:48 | area_id:11 | region_id:4
+  191 | Bakshiganj | territory_id:49 | area_id:11 | region_id:4
+  192 | Nakla | territory_id:49 | area_id:11 | region_id:4
+  193 | Nalitabari | territory_id:49 | area_id:11 | region_id:4
+  194 | Rajibpur | territory_id:49 | area_id:11 | region_id:4
+  195 | Sherpur (SYL) | territory_id:49 | area_id:11 | region_id:4
+  196 | Astagram | territory_id:50 | area_id:12 | region_id:4
+  197 | Belabo | territory_id:50 | area_id:12 | region_id:4
+  198 | Bhairab | territory_id:50 | area_id:12 | region_id:4
+  199 | Itna | territory_id:50 | area_id:12 | region_id:4
+  200 | Kuliarchar | territory_id:50 | area_id:12 | region_id:4
+---
+
+---
+title: Location Reference — Points (part 3, IDs 201–300)
+tags: topic:lookup, applies_to:all, entity:point
+content:
+Use these point IDs for pointFilter in any report API.
+Format: id | name | territory_id | area_id | region_id
+  201 | Mithamain | territory_id:50 | area_id:12 | region_id:4
+  202 | Raipura | territory_id:50 | area_id:12 | region_id:4
+  203 | Bajitpur | territory_id:51 | area_id:12 | region_id:4
+  204 | Karimganj | territory_id:51 | area_id:12 | region_id:4
+  205 | Katiadi | territory_id:51 | area_id:12 | region_id:4
+  206 | Kishoreganj (SYL) | territory_id:51 | area_id:12 | region_id:4
+  207 | Nandail | territory_id:51 | area_id:12 | region_id:4
+  208 | Pakundia | territory_id:51 | area_id:12 | region_id:4
+  209 | Araihazar | territory_id:52 | area_id:12 | region_id:4
+  210 | Madhabdi | territory_id:52 | area_id:12 | region_id:4
+  211 | Narsingdi-1 | territory_id:52 | area_id:12 | region_id:4
+  212 | Ghorashal | territory_id:53 | area_id:12 | region_id:4
+  213 | Monohardi | territory_id:53 | area_id:12 | region_id:4
+  214 | Narsingdi-2 | territory_id:53 | area_id:12 | region_id:4
+  215 | Badaghat | territory_id:54 | area_id:13 | region_id:4
+  216 | Chhatak | territory_id:54 | area_id:13 | region_id:4
+  217 | Derai | territory_id:54 | area_id:13 | region_id:4
+  218 | Jagannathpur | territory_id:54 | area_id:13 | region_id:4
+  219 | Sunamganj | territory_id:54 | area_id:13 | region_id:4
+  220 | Chandipul | territory_id:55 | area_id:13 | region_id:4
+  221 | Golapganj | territory_id:55 | area_id:13 | region_id:4
+  222 | Jaintapur | territory_id:55 | area_id:13 | region_id:4
+  223 | Kalighat | territory_id:55 | area_id:13 | region_id:4
+  224 | Kanaighat | territory_id:55 | area_id:13 | region_id:4
+  225 | Zakiganj | territory_id:55 | area_id:13 | region_id:4
+  226 | Akhalia | territory_id:56 | area_id:13 | region_id:4
+  227 | Companiganj (SYL) | territory_id:56 | area_id:13 | region_id:4
+  228 | Goala Bazar | territory_id:56 | area_id:13 | region_id:4
+  229 | Gowainghat | territory_id:56 | area_id:13 | region_id:4
+  230 | Chowgacha | territory_id:57 | area_id:14 | region_id:5
+  231 | Jashore Sadar | territory_id:57 | area_id:14 | region_id:5
+  232 | Jhikargacha | territory_id:57 | area_id:14 | region_id:5
+  233 | Khajura | territory_id:57 | area_id:14 | region_id:5
+  234 | Navaron | territory_id:57 | area_id:14 | region_id:5
+  235 | Bagarpara | territory_id:58 | area_id:14 | region_id:5
+  236 | Keshobpur | territory_id:58 | area_id:14 | region_id:5
+  237 | Monirampur | territory_id:58 | area_id:14 | region_id:5
+  238 | Noapara (KHL) | territory_id:58 | area_id:14 | region_id:5
+  239 | Dumuria | territory_id:59 | area_id:14 | region_id:5
+  240 | Khulna | territory_id:59 | area_id:14 | region_id:5
+  241 | Senerbazar | territory_id:59 | area_id:14 | region_id:5
+  242 | Bagerhat | territory_id:60 | area_id:14 | region_id:5
+  243 | Mongla | territory_id:60 | area_id:14 | region_id:5
+  244 | Kolaroya | territory_id:61 | area_id:14 | region_id:5
+  245 | Paikgacha | territory_id:61 | area_id:14 | region_id:5
+  246 | Parulia | territory_id:61 | area_id:14 | region_id:5
+  247 | Patkelghata | territory_id:61 | area_id:14 | region_id:5
+  248 | Satkhira Sadar | territory_id:61 | area_id:14 | region_id:5
+  249 | Shyamnagar | territory_id:61 | area_id:14 | region_id:5
+  250 | Alamdanga | territory_id:62 | area_id:15 | region_id:5
+  251 | Chuadanga | territory_id:62 | area_id:15 | region_id:5
+  252 | Darshana | territory_id:62 | area_id:15 | region_id:5
+  253 | Jibannagar | territory_id:62 | area_id:15 | region_id:5
+  254 | Sarajganj | territory_id:62 | area_id:15 | region_id:5
+  255 | Horinakundu | territory_id:63 | area_id:15 | region_id:5
+  256 | Jhenaidah | territory_id:63 | area_id:15 | region_id:5
+  257 | Kaliganj (KHL) | territory_id:63 | area_id:15 | region_id:5
+  258 | Kotchandpur | territory_id:63 | area_id:15 | region_id:5
+  259 | Maheshpur | territory_id:63 | area_id:15 | region_id:5
+  260 | Shailkupa | territory_id:63 | area_id:15 | region_id:5
+  261 | Sheikhpara | territory_id:63 | area_id:15 | region_id:5
+  262 | Basgram | territory_id:64 | area_id:15 | region_id:5
+  263 | Bheramara | territory_id:64 | area_id:15 | region_id:5
+  264 | Kushtia | territory_id:64 | area_id:15 | region_id:5
+  265 | Poradaha | territory_id:64 | area_id:15 | region_id:5
+  266 | Arpara | territory_id:65 | area_id:15 | region_id:5
+  267 | Binodpur | territory_id:65 | area_id:15 | region_id:5
+  268 | Kalia | territory_id:65 | area_id:15 | region_id:5
+  269 | Lohagara (KHL) | territory_id:65 | area_id:15 | region_id:5
+  270 | Magura | territory_id:65 | area_id:15 | region_id:5
+  271 | Narail | territory_id:65 | area_id:15 | region_id:5
+  272 | Sreepur | territory_id:65 | area_id:15 | region_id:5
+  273 | Bamundi | territory_id:66 | area_id:15 | region_id:5
+  274 | Meherpur | territory_id:66 | area_id:15 | region_id:5
+  275 | Mujibnagar | territory_id:66 | area_id:15 | region_id:5
+  276 | Dolotpur | territory_id:67 | area_id:15 | region_id:5
+  277 | Mirpur (KUS) | territory_id:67 | area_id:15 | region_id:5
+  278 | Amtali | territory_id:68 | area_id:16 | region_id:6
+  279 | Bamna | territory_id:68 | area_id:16 | region_id:6
+  280 | Barguna | territory_id:68 | area_id:16 | region_id:6
+  281 | Khepupara | territory_id:68 | area_id:16 | region_id:6
+  282 | Mathbaria | territory_id:68 | area_id:16 | region_id:6
+  283 | Patharghata | territory_id:68 | area_id:16 | region_id:6
+  284 | Taltali | territory_id:68 | area_id:16 | region_id:6
+  285 | Barishal | territory_id:69 | area_id:16 | region_id:6
+  286 | Swarupkathi | territory_id:70 | area_id:16 | region_id:6
+  287 | Torky | territory_id:69 | area_id:16 | region_id:6
+  288 | Bakerganj | territory_id:70 | area_id:16 | region_id:6
+  289 | Jhalakati | territory_id:70 | area_id:16 | region_id:6
+  290 | Morrelganj | territory_id:70 | area_id:16 | region_id:6
+  291 | Muladi | territory_id:69 | area_id:16 | region_id:6
+  292 | Patarhat | territory_id:69 | area_id:16 | region_id:6
+  293 | Pirojpur | territory_id:70 | area_id:16 | region_id:6
+  294 | Uzirpur | territory_id:69 | area_id:16 | region_id:6
+  295 | Vandaria | territory_id:70 | area_id:16 | region_id:6
+  296 | Bangla Bazar | territory_id:71 | area_id:16 | region_id:6
+  297 | Bhola | territory_id:71 | area_id:16 | region_id:6
+  298 | Borhanuddin | territory_id:71 | area_id:16 | region_id:6
+  299 | Char Fasson | territory_id:71 | area_id:16 | region_id:6
+  300 | Dakhin Aicha | territory_id:71 | area_id:16 | region_id:6
+---
+
+---
+title: Location Reference — Points (part 4, IDs 301–400)
+tags: topic:lookup, applies_to:all, entity:point
+content:
+Use these point IDs for pointFilter in any report API.
+Format: id | name | territory_id | area_id | region_id
+  301 | Lalmohan | territory_id:71 | area_id:16 | region_id:6
+  302 | Tazumuddin | territory_id:71 | area_id:16 | region_id:6
+  303 | Dashmina | territory_id:72 | area_id:16 | region_id:6
+  304 | Dumki | territory_id:72 | area_id:16 | region_id:6
+  305 | Galachipa | territory_id:72 | area_id:16 | region_id:6
+  306 | Kalaya | territory_id:72 | area_id:16 | region_id:6
+  307 | Patuakhali | territory_id:72 | area_id:16 | region_id:6
+  308 | Bhanga | territory_id:73 | area_id:17 | region_id:6
+  309 | Boalmari | territory_id:73 | area_id:17 | region_id:6
+  310 | Faridpur (KHU) | territory_id:73 | area_id:17 | region_id:6
+  311 | Kanaipur | territory_id:73 | area_id:17 | region_id:6
+  312 | Madhukhali | territory_id:73 | area_id:17 | region_id:6
+  313 | Muksudpur | territory_id:73 | area_id:17 | region_id:6
+  314 | Nagarkanda | territory_id:73 | area_id:17 | region_id:6
+  315 | Sadarpur | territory_id:73 | area_id:17 | region_id:6
+  316 | Gopalganj | territory_id:74 | area_id:17 | region_id:6
+  317 | Kashiani | territory_id:74 | area_id:17 | region_id:6
+  318 | Kotalipara | territory_id:74 | area_id:17 | region_id:6
+  319 | Madaripur | territory_id:75 | area_id:17 | region_id:6
+  320 | Tekerhat | territory_id:75 | area_id:17 | region_id:6
+  321 | Vhurghata | territory_id:75 | area_id:17 | region_id:6
+  322 | Baliakandi | territory_id:76 | area_id:17 | region_id:6
+  323 | Kumarkhali | territory_id:76 | area_id:17 | region_id:6
+  324 | Pangsha | territory_id:76 | area_id:17 | region_id:6
+  325 | Rajbari | territory_id:76 | area_id:17 | region_id:6
+  326 | Damudda | territory_id:77 | area_id:17 | region_id:6
+  327 | Jajira | territory_id:77 | area_id:17 | region_id:6
+  328 | Shariatpur | territory_id:77 | area_id:17 | region_id:6
+  329 | Shibchar | territory_id:77 | area_id:17 | region_id:6
+  330 | Shokhipur | territory_id:77 | area_id:17 | region_id:6
+  331 | Bogura | territory_id:78 | area_id:18 | region_id:7
+  332 | Dupchacia | territory_id:78 | area_id:18 | region_id:7
+  333 | Dhunot | territory_id:79 | area_id:18 | region_id:7
+  334 | Nandigram | territory_id:79 | area_id:18 | region_id:7
+  335 | Sherpur (RAJ) | territory_id:79 | area_id:18 | region_id:7
+  336 | Tarash | territory_id:79 | area_id:18 | region_id:7
+  337 | Ullahpara | territory_id:79 | area_id:18 | region_id:7
+  338 | Chatmohar | territory_id:80 | area_id:18 | region_id:7
+  339 | Faridpur (RAJ) | territory_id:80 | area_id:18 | region_id:7
+  340 | Ishwardi | territory_id:80 | area_id:18 | region_id:7
+  341 | Shahzadpur | territory_id:80 | area_id:18 | region_id:7
+  342 | Akdonto | territory_id:81 | area_id:18 | region_id:7
+  343 | Ataikula | territory_id:81 | area_id:18 | region_id:7
+  344 | Bera | territory_id:81 | area_id:18 | region_id:7
+  345 | Kashinathpur | territory_id:81 | area_id:18 | region_id:7
+  346 | Pabna | territory_id:81 | area_id:18 | region_id:7
+  347 | Santhia | territory_id:81 | area_id:18 | region_id:7
+  348 | Sujanagar | territory_id:81 | area_id:18 | region_id:7
+  349 | Belkuchi | territory_id:82 | area_id:18 | region_id:7
+  350 | Hatikumrul | territory_id:82 | area_id:18 | region_id:7
+  351 | Pipulbaria | territory_id:82 | area_id:18 | region_id:7
+  352 | Sirajganj | territory_id:82 | area_id:18 | region_id:7
+  353 | Biral | territory_id:83 | area_id:19 | region_id:7
+  354 | Birampur | territory_id:83 | area_id:19 | region_id:7
+  355 | Birganj | territory_id:83 | area_id:19 | region_id:7
+  356 | Dinajpur | territory_id:83 | area_id:19 | region_id:7
+  357 | Fulbari | territory_id:83 | area_id:19 | region_id:7
+  358 | Setabganj | territory_id:83 | area_id:19 | region_id:7
+  359 | Bonarpara | territory_id:84 | area_id:19 | region_id:7
+  360 | Gaibandha | territory_id:84 | area_id:19 | region_id:7
+  361 | Palashbari | territory_id:84 | area_id:19 | region_id:7
+  362 | Pirganj (GBD) | territory_id:84 | area_id:19 | region_id:7
+  363 | Sundarganj | territory_id:84 | area_id:19 | region_id:7
+  364 | Akkelpur | territory_id:85 | area_id:19 | region_id:7
+  365 | Dhamoirhat | territory_id:85 | area_id:19 | region_id:7
+  366 | Ghoraghat | territory_id:85 | area_id:19 | region_id:7
+  367 | Gobindaganj | territory_id:85 | area_id:19 | region_id:7
+  368 | Joypurhat | territory_id:85 | area_id:19 | region_id:7
+  369 | Mokamtola | territory_id:85 | area_id:19 | region_id:7
+  370 | Panchbibi | territory_id:85 | area_id:19 | region_id:7
+  371 | Baliadangi | territory_id:86 | area_id:19 | region_id:7
+  372 | Panchagarh | territory_id:86 | area_id:19 | region_id:7
+  373 | Panchagarh 2 | territory_id:86 | area_id:19 | region_id:7
+  374 | Pirganj (TKG) | territory_id:86 | area_id:19 | region_id:7
+  375 | Ranisankail | territory_id:86 | area_id:19 | region_id:7
+  376 | Tetulia | territory_id:86 | area_id:19 | region_id:7
+  377 | Thakurgaon | territory_id:86 | area_id:19 | region_id:7
+  378 | Bholahat | territory_id:87 | area_id:20 | region_id:7
+  379 | Chapai Nawabganj | territory_id:87 | area_id:20 | region_id:7
+  380 | Hayat More | territory_id:87 | area_id:20 | region_id:7
+  381 | Nachol | territory_id:87 | area_id:20 | region_id:7
+  382 | Rohanpur | territory_id:87 | area_id:20 | region_id:7
+  383 | Shibganj | territory_id:87 | area_id:20 | region_id:7
+  384 | Zero Point | territory_id:87 | area_id:20 | region_id:7
+  385 | Adamdighi | territory_id:88 | area_id:20 | region_id:7
+  386 | Atrai | territory_id:88 | area_id:20 | region_id:7
+  387 | Badalgachhi | territory_id:88 | area_id:20 | region_id:7
+  388 | Manda | territory_id:88 | area_id:20 | region_id:7
+  389 | Mohadevpur (RAJ) | territory_id:88 | area_id:20 | region_id:7
+  390 | Naogaon | territory_id:88 | area_id:20 | region_id:7
+  391 | Nazipur | territory_id:88 | area_id:20 | region_id:7
+  392 | Niamatpur | territory_id:88 | area_id:20 | region_id:7
+  393 | Raninagar | territory_id:88 | area_id:20 | region_id:7
+  394 | Sapahar | territory_id:88 | area_id:20 | region_id:7
+  395 | Baraigram | territory_id:89 | area_id:20 | region_id:7
+  396 | Dayarampur | territory_id:89 | area_id:20 | region_id:7
+  397 | Gurudaspur | territory_id:89 | area_id:20 | region_id:7
+  398 | Natore | territory_id:89 | area_id:20 | region_id:7
+  399 | Singra | territory_id:89 | area_id:20 | region_id:7
+  400 | Godagari | territory_id:90 | area_id:20 | region_id:7
+---
+
+---
+title: Location Reference — Points (part 5, IDs 401–469)
+tags: topic:lookup, applies_to:all, entity:point
+content:
+Use these point IDs for pointFilter in any report API.
+Format: id | name | territory_id | area_id | region_id
+  401 | Kakon | territory_id:90 | area_id:20 | region_id:7
+  402 | Kesore | territory_id:90 | area_id:20 | region_id:7
+  403 | Madariganj | territory_id:90 | area_id:20 | region_id:7
+  404 | Rajshahi-1 | territory_id:90 | area_id:20 | region_id:7
+  405 | Tanore | territory_id:90 | area_id:20 | region_id:7
+  406 | Bagha | territory_id:91 | area_id:20 | region_id:7
+  407 | Charghat | territory_id:91 | area_id:20 | region_id:7
+  408 | Rajshahi-2 | territory_id:91 | area_id:20 | region_id:7
+  409 | Bhabaniganj | territory_id:92 | area_id:20 | region_id:7
+  410 | Durgapur | territory_id:92 | area_id:20 | region_id:7
+  411 | Puthia | territory_id:92 | area_id:20 | region_id:7
+  412 | Taherpur | territory_id:92 | area_id:20 | region_id:7
+  413 | Bhurungamari | territory_id:93 | area_id:21 | region_id:7
+  414 | Chilmari | territory_id:93 | area_id:21 | region_id:7
+  415 | Kochakata | territory_id:93 | area_id:21 | region_id:7
+  416 | Kurigram | territory_id:93 | area_id:21 | region_id:7
+  417 | Nageswari | territory_id:93 | area_id:21 | region_id:7
+  418 | Rajarhat | territory_id:93 | area_id:21 | region_id:7
+  419 | Ulipur | territory_id:93 | area_id:21 | region_id:7
+  420 | Aditmari | territory_id:94 | area_id:21 | region_id:7
+  421 | Borobari | territory_id:94 | area_id:21 | region_id:7
+  422 | Borokhata | territory_id:94 | area_id:21 | region_id:7
+  423 | Hatibandha | territory_id:94 | area_id:21 | region_id:7
+  424 | Kaliganj (RAJ) | territory_id:94 | area_id:21 | region_id:7
+  425 | Lalmonirhat | territory_id:94 | area_id:21 | region_id:7
+  426 | Patgram | territory_id:94 | area_id:21 | region_id:7
+  427 | Phulbari | territory_id:94 | area_id:21 | region_id:7
+  428 | Badarganj | territory_id:95 | area_id:21 | region_id:7
+  429 | Choran | territory_id:95 | area_id:21 | region_id:7
+  430 | Dhap | territory_id:95 | area_id:21 | region_id:7
+  431 | Gangachara | territory_id:95 | area_id:21 | region_id:7
+  432 | Haragach | territory_id:95 | area_id:21 | region_id:7
+  433 | Jaigir | territory_id:95 | area_id:21 | region_id:7
+  434 | Kaunia | territory_id:95 | area_id:21 | region_id:7
+  435 | Parkmore | territory_id:95 | area_id:21 | region_id:7
+  436 | Pirgachha | territory_id:95 | area_id:21 | region_id:7
+  437 | Rangpur | territory_id:95 | area_id:21 | region_id:7
+  438 | Shotibari | territory_id:95 | area_id:21 | region_id:7
+  439 | Taraganj | territory_id:95 | area_id:21 | region_id:7
+  440 | Vendabari | territory_id:95 | area_id:21 | region_id:7
+  441 | Debiganj | territory_id:96 | area_id:21 | region_id:7
+  442 | Dimla | territory_id:96 | area_id:21 | region_id:7
+  443 | Domar | territory_id:96 | area_id:21 | region_id:7
+  444 | Jaldhaka | territory_id:96 | area_id:21 | region_id:7
+  445 | Kishoreganj (RAJ) | territory_id:96 | area_id:21 | region_id:7
+  446 | Nilphamari | territory_id:96 | area_id:21 | region_id:7
+  447 | Parbatipur | territory_id:96 | area_id:21 | region_id:7
+  448 | Ranir Bandar | territory_id:96 | area_id:21 | region_id:7
+  449 | Saidpur | territory_id:96 | area_id:21 | region_id:7
+  450 | Matuail Shipment | territory_id:98 | area_id:3 | region_id:1
+  451 | SPS Sutrapur Shipment | territory_id:99 | area_id:3 | region_id:1
+  452 | SPS Keranigonj Shipment | territory_id:100 | area_id:3 | region_id:1
+  466 | Lakhai | territory_id:43 | area_id:10 | region_id:4
+  469 | Cumilla | territory_id:33 | area_id:8 | region_id:3
+---
