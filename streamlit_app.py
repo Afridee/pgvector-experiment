@@ -135,7 +135,7 @@ with st.sidebar:
     st.markdown(
         """
 **Example questions**
-- Generate a sales report for Dhaka region for January 2025
+- Generate an SSS report for 2026-01-15, ffType 2, point Dhanmondi
 - Show me the SKU-level report for territory X last month
 - Download the memo summary for February 2025
 - Give me a report for all channels in Q1 2025
