@@ -256,8 +256,6 @@ def semantic_search_tool(query: str):
             chunk_index = meta.get("chunk_index", "N/A")
 
             preview = " ".join((doc.page_content or "").split())
-            if len(preview) > 400:
-                preview = preview[:400].rstrip() + "..."
 
             results.append(
                 f"{i}. {title}\n"
