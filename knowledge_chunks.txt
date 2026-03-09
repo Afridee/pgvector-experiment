@@ -19,7 +19,7 @@ tags: topic:endpoint, applies_to:sss_report, api_template
 content:
 To generate an SSS (Sales Summary Sheet) report, make a GET request to:
 
-  {BASE_URL}/api/v1/reports/sss-report
+  {BASE_URL}/reports/sss-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -28,7 +28,7 @@ Content-Type is not required for GET requests.
 
 Example request URL:
 
-  GET {BASE_URL}/api/v1/reports/sss-report?date=2025-06-15&ffType=2&pointFilter[]=1&pointFilter[]=2
+  GET {BASE_URL}/reports/sss-report?date=2025-06-15&ffType=2&pointFilter[]=1&pointFilter[]=2
 ---
 
 ---
@@ -80,7 +80,7 @@ tags: topic:endpoint, applies_to:query_manager_report, api_template
 content:
 To generate a Query Manager Report (QMR), make a POST request to:
 
-  {BASE_URL}/api/v1/reports/query-manager-report
+  {BASE_URL}/reports/query-manager-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -178,7 +178,7 @@ tags: topic:endpoint, applies_to:route_wise_stt_report, api_template
 content:
 To generate a Route Wise STT (Secondary Through Trade) report, make a POST request to:
 
-  {BASE_URL}/api/v1/reports/route-wise-stt-report
+  {BASE_URL}/reports/route-wise-stt-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -272,7 +272,7 @@ tags: topic:endpoint, applies_to:route_wise_memo_report, api_template
 content:
 To generate a Route Wise Memo report, make a POST request to:
 
-  {BASE_URL}/api/v1/reports/route-wise-memo-report
+  {BASE_URL}/reports/route-wise-memo-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -366,7 +366,7 @@ tags: topic:endpoint, applies_to:survey_report, api_template
 content:
 To generate a Survey Report, make a POST request to:
 
-  {BASE_URL}/api/v1/reports/survey-report
+  {BASE_URL}/reports/survey-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -454,7 +454,7 @@ tags: topic:endpoint, applies_to:stt_report, api_template
 content:
 To generate a STT (Secondary Through Trade) Report, make a POST request to:
 
-  {BASE_URL}/api/v1/reports/stt-report
+  {BASE_URL}/reports/stt-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -546,7 +546,7 @@ tags: topic:endpoint, applies_to:memo_report, api_template
 content:
 To generate a Memo Report (order memo / invoice count report), make a POST request to:
 
-  {BASE_URL}/api/v1/reports/memo-report
+  {BASE_URL}/reports/memo-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.
@@ -638,7 +638,7 @@ tags: topic:endpoint, applies_to:iris_gift_report, api_template
 content:
 To generate an IRIS Gift Requisition Report, make a POST request to:
 
-  {BASE_URL}/api/v1/reports/iris-gift-report
+  {BASE_URL}/reports/iris-gift-report
 
 The base URL is environment-specific. Read it from the BASE_URL environment variable.
 Do NOT hard-code the base URL.

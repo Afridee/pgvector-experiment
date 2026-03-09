@@ -69,16 +69,16 @@ def _do_login(username: str, password: str) -> dict:
     """
     base_url = os.getenv("BASE_URL", "")
     resp = requests.post(
-        f"{base_url}/api/v1/auth/login",
-        json={"username": username, "password": password},
+        f"{base_url}/auth/login",
+        json={"identifier": username, "password": password, "platform": "prism"},
         timeout=30,
     )
     resp.raise_for_status()
     data = resp.json().get("data", {})
     return {
-        "access_token": data["access_token"],
-        "refresh_token": data["refresh_token"],
-        "validate_token": data["validate_token"],
+        "access_token": data["accessToken"],
+        "refresh_token": data["refreshToken"],
+        "validate_token": data["validateToken"],
     }
 
 
