@@ -74,11 +74,11 @@ def _do_login(username: str, password: str) -> dict:
         timeout=30,
     )
     resp.raise_for_status()
-    data = resp.json().get("data", {})
+    prism_tokens = resp.json()["data"]["data"]["tokens"]["prism"]
     return {
-        "access_token": data["accessToken"],
-        "refresh_token": data["refreshToken"],
-        "validate_token": data["validateToken"],
+        "access_token": prism_tokens["tokenId"],
+        "refresh_token": prism_tokens["refreshTokenId"],
+        "validate_token": prism_tokens["userUid"],
     }
 
 
