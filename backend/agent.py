@@ -7,6 +7,7 @@ Hybrid API-calling + RAG agent for answering questions and generating reports.
 import json
 import os
 import threading
+import contextvars
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -34,6 +35,13 @@ if not CHECKPOINT_DB_URL:
     raise ValueError("CHECKPOINT_DB_URL is not set (check your .env).")
 if not BASE_URL:
     raise ValueError("BASE_URL is not set (check your .env).")
+
+# ----------------------------------------------------------------------------
+# Per-request auth token context (set by ask_agent, read by api_call)
+# ----------------------------------------------------------------------------
+_auth_tokens: contextvars.ContextVar[Dict[str, str]] = contextvars.ContextVar(
+    "_auth_tokens", default={}
+)
 
 # ----------------------------------------------------------------------------
 # Globals (singleton agent + open context manager)
@@ -342,11 +350,23 @@ def api_call(
     If the response contains a download URL or file URL, preserve it so it can be
     shown to the user.
     """
-    # Inject auth token from env if the caller did not supply an Authorization header
-    api_token = os.getenv("API_TOKEN")
-    if api_token:
+    # Inject auth headers from per-request ContextVar
+    tokens = _auth_tokens.get()
+    if tokens:
         headers = headers or {}
-        headers.setdefault("Authorization", f"Bearer {api_token}")
+        if access_token := tokens.get("access_token"):
+            headers.setdefault("Authorization", f"Bearer {access_token}")
+        if refresh_token := tokens.get("refresh_token"):
+            headers.setdefault("x-refresh-token", refresh_token)
+        if validate_token := tokens.get("validate_token"):
+            headers.setdefault("x-validate-token", validate_token)
+
+    # Fallback: inject API_TOKEN from env if still no Authorization header
+    if not (headers or {}).get("Authorization"):
+        api_token = os.getenv("API_TOKEN")
+        if api_token:
+            headers = headers or {}
+            headers["Authorization"] = f"Bearer {api_token}"
 
     try:
         response = requests.request(
@@ -571,9 +591,15 @@ def _serialize_docs(docs: List[Any]) -> List[Dict[str, Any]]:
     return serialized
 
 
-def ask_agent(question: str, thread_id: str) -> Dict[str, Any]:
+def ask_agent(question: str, thread_id: str, auth_tokens: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     """
     Public entry point called by the Streamlit app (and tests).
+
+    Args:
+        question:    The user's message.
+        thread_id:   LangGraph conversation thread ID.
+        auth_tokens: Dict with keys: access_token, refresh_token, validate_token.
+                     If provided, injected into every api_call made during this turn.
 
     Returns:
         {
@@ -587,10 +613,15 @@ def ask_agent(question: str, thread_id: str) -> Dict[str, Any]:
     """
     agent = get_agent()
 
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": question}]},
-        config={"configurable": {"thread_id": thread_id}},
-    )
+    # Set tokens for this request; reset when done (ContextVar is per-thread/task)
+    ctx_token = _auth_tokens.set(auth_tokens or {})
+    try:
+        result = agent.invoke(
+            {"messages": [{"role": "user", "content": question}]},
+            config={"configurable": {"thread_id": thread_id}},
+        )
+    finally:
+        _auth_tokens.reset(ctx_token)
 
     answer = result["messages"][-1].content
 

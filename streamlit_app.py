@@ -8,6 +8,7 @@ import json
 import os
 import uuid
 
+import requests
 import streamlit as st
 
 from backend.agent import ask_agent
@@ -58,6 +59,54 @@ st.set_page_config(
 st.title("Report Assistant")
 
 # ----------------------------------------------------------------------------
+# Auth — Login gate
+# Tokens are stored in session_state after a successful login.
+# ----------------------------------------------------------------------------
+def _do_login(username: str, password: str) -> dict:
+    """
+    Call your login endpoint and return the three auth tokens.
+    Adjust the URL and payload shape to match your actual login API.
+    """
+    base_url = os.getenv("BASE_URL", "")
+    resp = requests.post(
+        f"{base_url}/api/v1/auth/login",
+        json={"username": username, "password": password},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    data = resp.json().get("data", {})
+    return {
+        "access_token": data["access_token"],
+        "refresh_token": data["refresh_token"],
+        "validate_token": data["validate_token"],
+    }
+
+
+if "auth_tokens" not in st.session_state:
+    st.session_state.auth_tokens = None
+
+if st.session_state.auth_tokens is None:
+    st.subheader("Please log in")
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submitted = st.form_submit_button("Log in")
+
+    if submitted:
+        if not username or not password:
+            st.error("Please enter both username and password.")
+        else:
+            try:
+                tokens = _do_login(username, password)
+                st.session_state.auth_tokens = tokens
+                st.rerun()
+            except requests.exceptions.HTTPError as e:
+                st.error(f"Login failed: {e.response.status_code} — {e.response.text}")
+            except Exception as e:
+                st.error(f"Login error: {e}")
+    st.stop()  # Don't render the rest of the app until logged in
+
+# ----------------------------------------------------------------------------
 # Sidebar
 # ----------------------------------------------------------------------------
 with st.sidebar:
@@ -66,11 +115,18 @@ with st.sidebar:
     show_debug = st.toggle("Show debug / raw response", value=False)
     st.divider()
 
+    if st.button("Log out"):
+        st.session_state.auth_tokens = None
+        st.session_state.messages = []
+        st.session_state.pop("thread_id", None)
+        st.rerun()
+    st.divider()
+
     st.subheader("Environment")
     st.write(
         {
             "DATABASE_URL set": bool(os.getenv("DATABASE_URL")),
-            "API_TOKEN set": bool(os.getenv("API_TOKEN")),
+            "Logged in": bool(st.session_state.auth_tokens),
             "VECTOR_COLLECTION": os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks"),
         }
     )
@@ -123,7 +179,11 @@ if prompt:
     with st.chat_message("assistant"):
         with st.spinner("Thinking…"):
             try:
-                result = ask_agent(prompt, thread_id=st.session_state.thread_id)
+                result = ask_agent(
+                        prompt,
+                        thread_id=st.session_state.thread_id,
+                        auth_tokens=st.session_state.auth_tokens,
+                    )
 
                 if isinstance(result, dict):
                     answer = result.get("answer") or result.get("content") or ""
