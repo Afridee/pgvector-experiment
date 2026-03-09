@@ -26,11 +26,14 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
 CHECKPOINT_DB_URL = os.getenv("CHECKPOINT_DB_URL", DATABASE_URL)
+BASE_URL = os.getenv("BASE_URL")
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set (check your .env).")
 if not CHECKPOINT_DB_URL:
     raise ValueError("CHECKPOINT_DB_URL is not set (check your .env).")
+if not BASE_URL:
+    raise ValueError("BASE_URL is not set (check your .env).")
 
 # ----------------------------------------------------------------------------
 # Globals (singleton agent + open context manager)
@@ -300,7 +303,7 @@ class ApiInput(BaseModel):
             "Optional Python snippet to run against the parsed JSON response. "
             "The script receives 'response' (the full parsed JSON) and MUST assign "
             "to 'result'. Only safe builtins are available — no imports. "
-            "Example: \"result = response.get('data', {}).get('user', {}).get('address')\". "
+            "Example: \"result = response.get('data', {{}}).get('user', {{}}).get('address')\". "
             "Prefer this over response_fields for nested or conditional extraction."
         ),
     )
@@ -436,7 +439,7 @@ all_tools = [semantic_search_tool, api_call]
 # ----------------------------------------------------------------------------
 # System Prompt
 # ----------------------------------------------------------------------------
-system_prompt = """
+system_prompt = f"""
 You are a helpful report assistant that answers user questions by calling APIs.
 
 ## Your workflow
@@ -464,7 +467,7 @@ knowledge chunks, then call api_call().
   pass an extraction_script to pull exactly what is needed from the response.
   The script receives `response` (the full parsed JSON) and MUST assign to `result`.
   Example:
-    extraction_script="result = response.get('data', {}).get('user', {}).get('address')"
+    extraction_script="result = response.get('data', {{}}).get('user', {{}}).get('address')"
   Use extraction_script for nested or conditional logic.
   Use response_fields only for simple top-level key matching.
 - For endpoints that return a list of records, always set list_limit=20 and
@@ -483,6 +486,10 @@ Present the API response in a clear, readable format:
 - For paged list responses, show the current batch clearly (e.g. "Showing 1–20
   of 630"). If has_more is true, ask if the user wants to see more. On follow-up,
   call the same API again with list_offset=next_offset and the same list_limit.
+
+## Base URL
+The base URL for all API calls is: {BASE_URL}
+Always use this exact value when constructing endpoint URLs — never hard-code or guess it.
 
 ## Hard rules
 - NEVER guess an endpoint URL, parameter name, or payload field.

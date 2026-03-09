@@ -1,1202 +1,705 @@
 ---
-title: Enrolment Departments API — Endpoint and Method
-tags: topic:endpoint, applies_to:enrolment_departments, api_template
+title: Authentication — Required Headers for All Endpoints
+tags: topic:auth, applies_to:all
 content:
-Purpose:
-- Returns the full list of staff departments available in the system.
+Every request to every report endpoint MUST include the following three headers.
+You MUST inject these from the session/environment — do NOT ask the user for them.
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/departments
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
 
-Payload/Headers:
-- No request body required.
-- No query parameters required.
+If any of these tokens are missing from the session context, inform the user that they need to log in first.
+Do NOT use placeholder values. Do NOT hard-code any token values.
 ---
 
 ---
-title: Enrolment Departments API — Response
-tags: topic:response, applies_to:enrolment_departments
+title: SSS Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:sss_report, api_template
 content:
-A successful response (HTTP 200) returns a JSON array of department objects.
+To generate an SSS (Sales Summary Sheet) report, make a GET request to:
 
-Response structure:
-```json
-[
-  {
-    "id": 1,
-    "name": "Kitchen"
-  },
-  {
-    "id": 2,
-    "name": "Bar"
-  }
-]
-```
+  {BASE_URL}/api/v1/reports/sss-report
 
-Important field paths:
-- [*].id   — integer, unique department ID
-- [*].name — string, department name
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include the authentication headers described in "Authentication — Required Headers for All Endpoints".
+Content-Type is not required for GET requests.
 
-If the array is empty, inform the user that no departments are currently available.
+Example request URL:
+
+  GET {BASE_URL}/api/v1/reports/sss-report?date=2025-06-15&ffType=2&pointFilter[]=1&pointFilter[]=2
 ---
 
 ---
-title: Clocking Sites API — Endpoint and Method
-tags: topic:endpoint, applies_to:clocking_sites, api_template
+title: SSS Report API — Required Parameters
+tags: topic:parameters, applies_to:sss_report, business_rule
 content:
-Purpose:
-- Returns all clocking sites (physical locations with GPS coordinates and allowed radius).
+Before calling the SSS Report API, you MUST collect ALL of the following from the user:
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/sites
+- date : string in YYYY-MM-DD format — the specific date for the report
+- ffType : integer — the field force role type ID (e.g. 2)
+- pointFilter[] : array of integers — one or more point IDs to filter by
 
-Payload/Headers:
-- No request body required.
-- No query parameters required.
----
-
----
-title: Clocking Sites API — Response
-tags: topic:response, applies_to:clocking_sites
-content:
-A successful response (HTTP 200) returns a JSON array of site objects.
-
-Response structure:
-```json
-[
-  {
-    "id": 1,
-    "site": "Main Office",
-    "latitude": -33.8688,
-    "longitude": 151.2093,
-    "radius": 100.0
-  }
-]
-```
-
-Important field paths:
-- [*].id        — integer, unique site ID
-- [*].site      — string, site name
-- [*].latitude  — double, GPS latitude
-- [*].longitude — double, GPS longitude
-- [*].radius    — double, allowed check-in radius in metres
-
-If the array is empty, inform the user that no clocking sites are configured.
----
-
----
-title: Clocking Paginated Records API — Endpoint and Method
-tags: topic:endpoint, applies_to:clocking_records_paginated, api_template
-content:
-Purpose:
-- Returns paginated clocking records for a specific staff member, grouped by week.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/record/paginated
-- Query params: staffId, page
----
-
----
-title: Clocking Paginated Records API — Required Parameters
-tags: topic:parameters, applies_to:clocking_records_paginated, business_rule
-content:
-Before calling this endpoint, you MUST have both of the following values:
-
-- staffId : integer — the ID of the staff member whose records are requested
-- page    : integer — the page number to fetch (1-based)
-
-If either value is missing, ask the user before making the call.
+All three parameters are required. If ANY are missing, ask the user before calling the API.
 Do NOT use placeholder or default values.
 
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/clocking/record/paginated?staffId=54&page=1
+These are sent as query string parameters. Because pointFilter is an array, repeat the key for each value:
+  ?date=2025-06-15&ffType=2&pointFilter[]=1&pointFilter[]=2
 ---
 
 ---
-title: Clocking Paginated Records API — Response
-tags: topic:response, applies_to:clocking_records_paginated
+title: SSS Report API — Response Format
+tags: topic:response, applies_to:sss_report
 content:
-A successful response (HTTP 200) returns a JSON array where each element represents one week's clocking data.
+A successful SSS Report API response (HTTP 200) looks like:
 
-Response structure:
-```json
-[
-  {
-    "startDate": "2025-01-06",
-    "endDate": "2025-01-12",
-    "totalWorkDurationInWeek": "38:00",
-    "totalApprovedWorkDurationInWeek": "36:00",
-    "totalUnapprovedWorkDurationInWeek": "02:00",
-    "clockingRecords": [
-      {
-        "id": 101,
-        "date": "2025-01-06",
-        "clockInTime": "09:00",
-        "clockOutTime": "17:00",
-        "clockInDateTime": "2025-01-06T09:00:00",
-        "clockOutDateTime": "2025-01-06T17:00:00",
-        "approvedClockInDateTime": "2025-01-06T09:00:00",
-        "approvedClockOutDateTime": "2025-01-06T17:00:00",
-        "approvedWorkDuration": "08:00",
-        "recordApproved": true,
-        "deleted": false,
-        "approvedBreakTime": 30,
-        "workDuration": "08:00",
-        "clockOutType": "MANUAL",
-        "breakTime": 30,
-        "clockedOut": true,
-        "clockInSite": { "id": 1, "site": "Main Office", "latitude": -33.8688, "longitude": 151.2093, "radius": 100.0 },
-        "clockOutSite": null,
-        "clockInImageUrl": "https://...",
-        "clockOutImageUrl": null,
-        "clockInSource": "APP",
-        "clockOutSource": null,
-        "staff2": { "id": 54, "firstName": "John", "lastName": "Doe", ... }
-      }
-    ]
-  }
-]
-```
-
-Important field paths:
-- [*].startDate
-- [*].endDate
-- [*].totalWorkDurationInWeek
-- [*].totalApprovedWorkDurationInWeek
-- [*].totalUnapprovedWorkDurationInWeek
-- [*].clockingRecords[*].id
-- [*].clockingRecords[*].date
-- [*].clockingRecords[*].clockInDateTime
-- [*].clockingRecords[*].clockOutDateTime
-- [*].clockingRecords[*].workDuration
-- [*].clockingRecords[*].recordApproved
-- [*].clockingRecords[*].clockedOut
----
-
----
-title: Clocking Check Status API — Endpoint and Method
-tags: topic:endpoint, applies_to:clocking_check_status, api_template
-content:
-Purpose:
-- Checks whether a staff member currently has an active (running) clock-in session.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/record/checkClockingStatus
-- Query params: staffId
----
-
----
-title: Clocking Check Status API — Required Parameters
-tags: topic:parameters, applies_to:clocking_check_status, business_rule
-content:
-Before calling this endpoint, you MUST have the following value:
-
-- staffId : string — the ID of the staff member to check
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/clocking/record/checkClockingStatus?staffId=54
----
-
----
-title: Clocking Check Status API — Response
-tags: topic:response, applies_to:clocking_check_status
-content:
-A successful response (HTTP 200) returns a JSON object.
-
-When the staff member is NOT currently clocked in:
 ```json
 {
-  "RESPONSE": "CLOCK_IN_NOT_RUNNING"
+  "status": 200,
+  "message": "SSS report generated successfully",
+  "data": {
+    "primaryData": [...],
+    "retailerTarget": [...],
+    "webEntryData": [...],
+    "productData": [...],
+    "fmcMemoCountData": [...]
+  }
 }
 ```
 
-When the staff member IS currently clocked in:
+This endpoint returns structured JSON data directly — it does NOT generate a downloadable file.
+Present the data to the user in a readable format.
+
+If status is not 200, or if "data" is empty or missing, inform the user that no data was found for the given filters.
+---
+
+---
+title: Query Manager Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:query_manager_report, api_template
+content:
+To generate a Query Manager Report (QMR), make a POST request to:
+
+  {BASE_URL}/api/v1/reports/query-manager-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
 ```json
 {
-  "RESPONSE": "CLOCK_IN_RUNNING",
-  "CLOCKING_RECORD_ID": 101,
-  "WORK_DURATION": "03:45",
-  "CLOCK_IN_TIME": "09:00",
-  "CLOCK_IN_DATE": "2025-01-06"
+  "startDate": "2026-01-08",
+  "endDate": "2026-01-08",
+  "regionFilter": [1, 2, 3],
+  "subChannelFilter": [1, 2, 3],
+  "productFilter": [1, 2, 14],
+  "productType": "total",
+  "reportType": ["stt", "memo"],
+  "activeStatus": ["current"],
+  "sttCriteria": { "sign": ">", "number": 0 },
+  "memoCriteria": { "sign": ">", "number": 0 }
+}
+```
+---
+
+---
+title: Query Manager Report API — Required Parameters
+tags: topic:parameters, applies_to:query_manager_report, business_rule
+content:
+Before calling the Query Manager Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- regionFilter : array of integers — one or more region IDs
+- subChannelFilter : array of integers — one or more sub-channel IDs
+- productFilter : array of integers — one or more product IDs
+- productType : string — one of: "total", "sku", "brand", "family", "segment"
+- reportType : array of strings — one or both of: "stt", "memo"
+
+If ANY of these are missing, ask the user before calling the API.
+Do NOT use placeholder or default values.
+---
+
+---
+title: Query Manager Report API — Optional Parameters
+tags: topic:parameters, applies_to:query_manager_report
+content:
+The following fields are optional for the Query Manager Report API:
+
+- activeStatus : array of strings — filter by retailer active status. Use ["current"] for active retailers, ["inactive"] for inactive, or omit to include all.
+- sttCriteria : object — filter rows by STT value. Shape: { "sign": ">"|"<"|">="|"<="|"=", "number": <integer> }. Default behaviour is no filter.
+- memoCriteria : object — filter rows by memo count. Shape: { "sign": ">"|"<"|">="|"<="|"=", "number": <integer> }. Default behaviour is no filter.
+- requestId : string — a UUID to track the report request; used for email notification. Can be omitted for direct calls.
+---
+
+---
+title: Query Manager Report API — Response and Download Link
+tags: topic:response, applies_to:query_manager_report
+content:
+A successful Query Manager Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "QMR report generated successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
+  }
 }
 ```
 
-Important field paths:
-- RESPONSE            — string, either "CLOCK_IN_NOT_RUNNING" or another value indicating active session
-- CLOCKING_RECORD_ID  — integer, present only when clock-in is active
-- WORK_DURATION       — string (HH:mm), present only when clock-in is active
-- CLOCK_IN_TIME       — string, present only when clock-in is active
-- CLOCK_IN_DATE       — string (YYYY-MM-DD), present only when clock-in is active
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
 
-If RESPONSE == "CLOCK_IN_NOT_RUNNING", the staff member is not currently clocked in.
-Otherwise, a session is active and the fields above will be populated.
----
+  📥 Your report is ready: [Download Report](<fileUrl>)
 
----
-title: Checklist Venues API — Endpoint and Method
-tags: topic:endpoint, applies_to:checklist_venues, api_template
-content:
-Purpose:
-- Returns the list of all venues available for checklist and audit operations.
-- This same endpoint is also used by the TempLog and Audit modules to fetch venues.
+If "status" is not 200, or "data" is missing/empty, inform the user that the report could not be generated
+and show the error message from the response.
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/venues
-
-Payload/Headers:
-- No request body required.
-- No query parameters required.
----
-
----
-title: Checklist Venues API — Response
-tags: topic:response, applies_to:checklist_venues
-content:
-A successful response (HTTP 200) returns a JSON array of venue objects.
-
-Response structure:
+Error response shape:
 ```json
-[
-  {
-    "id": 1,
-    "venueName": "Bistro",
-    "venueInitial": "B",
-    "site": "Main Site"
+{
+  "status": 404,
+  "message": "No data found for the given query",
+  "data": {}
+}
+```
+---
+
+---
+title: Route Wise STT Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:route_wise_stt_report, api_template
+content:
+To generate a Route Wise STT (Secondary Through Trade) report, make a POST request to:
+
+  {BASE_URL}/api/v1/reports/route-wise-stt-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2026-02-25",
+  "endDate": "2026-02-25",
+  "type": "SKU",
+  "location": "route",
+  "pointFilter": [1],
+  "productFilter": [1, 2, 14, 11]
+}
+```
+---
+
+---
+title: Route Wise STT Report API — Required Parameters
+tags: topic:parameters, applies_to:route_wise_stt_report, business_rule
+content:
+Before calling the Route Wise STT Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- type : string — product grouping type. One of: "SKU", "Brand", "Family", "Segment"
+
+At least one location filter is also required:
+- pointFilter : array of integers — point IDs (most specific)
+
+If startDate, endDate, or type are missing, ask the user before calling the API.
+---
+
+---
+title: Route Wise STT Report API — Optional Parameters
+tags: topic:parameters, applies_to:route_wise_stt_report
+content:
+The following fields are optional for the Route Wise STT Report API:
+
+- regionFilter : array of integers — filter by region IDs
+- areaFilter : array of integers — filter by area IDs
+- distributorFilter : array of integers — filter by distributor/house IDs
+- territoryFilter : array of integers — filter by territory IDs
+- pointFilter : array of integers — filter by point IDs (if not provided as required filter)
+- productFilter : array of integers — filter by product IDs matching the chosen "type"
+- location : string — granularity of the report rows. One of: "route", "section". Defaults to route-level if omitted.
+---
+
+---
+title: Route Wise STT Report API — Response and Download Link
+tags: topic:response, applies_to:route_wise_stt_report
+content:
+A successful Route Wise STT Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "Route Wise STT Report Generated Successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
   }
-]
+}
 ```
 
-Important field paths:
-- [*].id           — integer, unique venue ID
-- [*].venueName    — string, human-readable venue name
-- [*].venueInitial — string or null, short abbreviation for the venue
-- [*].site         — string, name of the site this venue belongs to
----
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
 
----
-title: Checklist Types API — Endpoint and Method
-tags: topic:endpoint, applies_to:checklist_types, api_template
-content:
-Purpose:
-- Returns all available checklist types (e.g. Opening, Closing, Cleaning).
+  📥 Your report is ready: [Download Report](<fileUrl>)
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/type/all
+If "status" is not 200, or "data" is missing, inform the user that no data was found.
 
-Payload/Headers:
-- No request body required.
-- No query parameters required.
----
-
----
-title: Checklist Types API — Response
-tags: topic:response, applies_to:checklist_types
-content:
-A successful response (HTTP 200) returns a JSON array of checklist type objects.
-
-Response structure:
+Error response shape:
 ```json
-[
-  {
-    "id": 1,
-    "type": "Opening Checklist",
-    "hasGroups": false
+{
+  "status": 404,
+  "message": "No data found for the given query",
+  "data": {}
+}
+```
+---
+
+---
+title: Route Wise Memo Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:route_wise_memo_report, api_template
+content:
+To generate a Route Wise Memo report, make a POST request to:
+
+  {BASE_URL}/api/v1/reports/route-wise-memo-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2026-02-25",
+  "endDate": "2026-02-25",
+  "type": "SKU",
+  "location": "route",
+  "regionFilter": [1],
+  "productFilter": [1, 2, 14, 11]
+}
+```
+---
+
+---
+title: Route Wise Memo Report API — Required Parameters
+tags: topic:parameters, applies_to:route_wise_memo_report, business_rule
+content:
+Before calling the Route Wise Memo Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- type : string — product grouping type. One of: "SKU", "Brand", "Family", "Segment"
+
+At least one geographic filter should also be provided (regionFilter is most common):
+- regionFilter : array of integers — region IDs
+
+If startDate, endDate, or type are missing, ask the user before calling the API.
+---
+
+---
+title: Route Wise Memo Report API — Optional Parameters
+tags: topic:parameters, applies_to:route_wise_memo_report
+content:
+The following fields are optional for the Route Wise Memo Report API:
+
+- regionFilter : array of integers — filter by region IDs
+- areaFilter : array of integers — filter by area IDs
+- distributorFilter : array of integers — filter by distributor/house IDs
+- territoryFilter : array of integers — filter by territory IDs
+- pointFilter : array of integers — filter by point IDs
+- productFilter : array of integers — filter by product IDs matching the chosen "type"
+- location : string — granularity of the report rows. One of: "route", "section". Defaults to route-level if omitted.
+---
+
+---
+title: Route Wise Memo Report API — Response and Download Link
+tags: topic:response, applies_to:route_wise_memo_report
+content:
+A successful Route Wise Memo Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "Route wise Memo report generated successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
   }
-]
+}
 ```
 
-Important field paths:
-- [*].id        — integer, unique type ID
-- [*].type      — string, name of the checklist type
-- [*].hasGroups — boolean, whether this checklist type organises criteria into groups
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
+
+  📥 Your report is ready: [Download Report](<fileUrl>)
+
+If "status" is not 200, or "data" is missing, inform the user that no data was found.
+
+Error response shape:
+```json
+{
+  "status": 404,
+  "message": "No data found for the given query",
+  "data": {}
+}
+```
 ---
 
 ---
-title: Checklist Record API — Endpoint and Method
-tags: topic:endpoint, applies_to:checklist_record, api_template
+title: Survey Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:survey_report, api_template
 content:
-Purpose:
-- Fetches an existing checklist record for a specific date, checklist type, and venue.
+To generate a Survey Report, make a POST request to:
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/record
-- Query params: date, typeId, venueId
+  {BASE_URL}/api/v1/reports/survey-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2025-06-01",
+  "endDate": "2025-06-30",
+  "surveyId": 5,
+  "regionFilter": [1, 2],
+  "pointFilter": [10, 11]
+}
+```
 ---
 
 ---
-title: Checklist Record API — Required Parameters
-tags: topic:parameters, applies_to:checklist_record, business_rule
+title: Survey Report API — Required Parameters
+tags: topic:parameters, applies_to:survey_report, business_rule
 content:
-Before calling this endpoint, you MUST have ALL of the following:
+Before calling the Survey Report API, you MUST collect ALL of the following from the user:
 
-- date    : string in YYYY-MM-DD format — the date of the checklist
-- typeId  : integer — the checklist type ID (from /api/e360/checklist/type/all)
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
+- startDate : string in YYYY-MM-DD format — start of the survey reporting period
+- endDate : string in YYYY-MM-DD format — end of the survey reporting period (inclusive)
+- surveyId : integer — the ID of the survey to report on
 
-If ANY of these are missing, ask the user before calling.
+If ANY of these are missing, ask the user before calling the API.
+Do NOT use placeholder or default values.
+---
+
+---
+title: Survey Report API — Optional Parameters
+tags: topic:parameters, applies_to:survey_report
+content:
+The following fields are optional for the Survey Report API:
+
+- regionFilter : array of integers — filter by region IDs
+- areaFilter : array of integers — filter by area IDs
+- distributorFilter : array of integers — filter by distributor/house IDs
+- territoryFilter : array of integers — filter by territory IDs
+- pointFilter : array of integers — filter by point IDs
+
+If none of the location filters are provided, the report covers all locations the issuer has access to.
+---
+
+---
+title: Survey Report API — Response and Download Link
+tags: topic:response, applies_to:survey_report
+content:
+A successful Survey Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "Survey report generated successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
+  }
+}
+```
+
+If the response contains a "fileUrl" in "data", present it to the user as a clickable download link:
+
+  📥 Your report is ready: [Download Report](<fileUrl>)
+
+If "status" is 404 or "data" is empty, inform the user that no survey data was found.
+
+Error response shapes:
+```json
+{ "status": 404, "message": "No survey data found for the given query", "data": {} }
+{ "status": 404, "message": "No data found for the given query", "data": {} }
+```
+---
+
+---
+title: STT Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:stt_report, api_template
+content:
+To generate a STT (Secondary Through Trade) Report, make a POST request to:
+
+  {BASE_URL}/api/v1/reports/stt-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2025-08-01",
+  "endDate": "2025-08-31",
+  "productType": "sku",
+  "dateGrouping": "month",
+  "locationType": "area",
+  "classificationType": "subchannel",
+  "regionFilter": [1, 2],
+  "productFilter": [1, 2, 14]
+}
+```
+---
+
+---
+title: STT Report API — Required Parameters
+tags: topic:parameters, applies_to:stt_report, business_rule
+content:
+Before calling the STT Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- productType : string — product grouping type. One of: "sku", "brand", "family", "segment"
+
+If ANY of these are missing, ask the user before calling the API.
+Do NOT use placeholder or default values.
+---
+
+---
+title: STT Report API — Optional Parameters
+tags: topic:parameters, applies_to:stt_report
+content:
+The following fields are optional for the STT Report API:
+
+- dateGrouping : string — how to group date columns. One of: "day", "week", "month", "year", "total". Defaults to "daily" if omitted.
+- locationType : string — geographic hierarchy level for rows. One of: "region", "area", "distributor", "territory", "point". Defaults to point-level if omitted.
+- classificationType : string — column classification. One of: "total", "channel", "subchannel". Defaults to total if omitted.
+- regionFilter : array of integers — filter by region IDs
+- areaFilter : array of integers — filter by area IDs
+- distributorFilter : array of integers — filter by distributor/house IDs
+- territoryFilter : array of integers — filter by territory IDs
+- pointFilter : array of integers — filter by point IDs
+- productFilter : array of integers — filter by product IDs (matching the chosen productType)
+---
+
+---
+title: STT Report API — Response and Download Link
+tags: topic:response, applies_to:stt_report
+content:
+A successful STT Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "STT Report Generated Successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
+  }
+}
+```
+
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
+
+  📥 Your report is ready: [Download Report](<fileUrl>)
+
+If "status" is 404 or "data" is empty, inform the user that no data was found.
+
+Error response shape:
+```json
+{ "status": 404, "message": "No data found", "data": {} }
+```
+---
+
+---
+title: Memo Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:memo_report, api_template
+content:
+To generate a Memo Report (order memo / invoice count report), make a POST request to:
+
+  {BASE_URL}/api/v1/reports/memo-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2025-08-01",
+  "endDate": "2025-08-31",
+  "productType": "sku",
+  "dateGrouping": "month",
+  "locationType": "area",
+  "classificationType": "total",
+  "regionFilter": [1, 2],
+  "productFilter": [1, 2, 14]
+}
+```
+---
+
+---
+title: Memo Report API — Required Parameters
+tags: topic:parameters, applies_to:memo_report, business_rule
+content:
+Before calling the Memo Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+- productType : string — product grouping type. One of: "sku", "brand", "family", "segment"
+
+If ANY of these are missing, ask the user before calling the API.
+Do NOT use placeholder or default values.
+---
+
+---
+title: Memo Report API — Optional Parameters
+tags: topic:parameters, applies_to:memo_report
+content:
+The following fields are optional for the Memo Report API:
+
+- dateGrouping : string — how to group date columns. One of: "day", "week", "month", "year", "total". Defaults to "daily" if omitted.
+- locationType : string — geographic hierarchy level for rows. One of: "region", "area", "distributor", "territory", "point". Defaults to point-level if omitted.
+- classificationType : string — column classification. One of: "total", "channel", "subchannel". Defaults to total if omitted.
+- regionFilter : array of integers — filter by region IDs
+- areaFilter : array of integers — filter by area IDs
+- distributorFilter : array of integers — filter by distributor/house IDs
+- territoryFilter : array of integers — filter by territory IDs
+- pointFilter : array of integers — filter by point IDs
+- productFilter : array of integers — filter by product IDs (matching the chosen productType)
+---
+
+---
+title: Memo Report API — Response and Download Link
+tags: topic:response, applies_to:memo_report
+content:
+A successful Memo Report API response (HTTP 200) looks like:
+
+```json
+{
+  "status": 200,
+  "message": "Memo Report Generated Successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/<requestId>/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
+  }
+}
+```
+
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
+
+  📥 Your report is ready: [Download Report](<fileUrl>)
+
+If "status" is 404 or "data" is empty, inform the user that no data was found.
+
+Error response shape:
+```json
+{ "status": 404, "message": "No data found", "data": {} }
+```
+---
+
+---
+title: IRIS Gift Requisition Report API — Endpoint and Method
+tags: topic:endpoint, applies_to:iris_gift_report, api_template
+content:
+To generate an IRIS Gift Requisition Report, make a POST request to:
+
+  {BASE_URL}/api/v1/reports/iris-gift-report
+
+The base URL is environment-specific. Read it from the BASE_URL environment variable.
+Do NOT hard-code the base URL.
+You MUST include:
+  Content-Type: application/json
+  Authorization: Bearer {access_token}
+  x-refresh-token: {refresh_token}
+  x-validate-token: {validate_token}
+
+Example request:
+
+```json
+{
+  "startDate": "2025-01-01",
+  "endDate": "2025-01-31"
+}
+```
+---
+
+---
+title: IRIS Gift Requisition Report API — Required Parameters
+tags: topic:parameters, applies_to:iris_gift_report, business_rule
+content:
+Before calling the IRIS Gift Requisition Report API, you MUST collect ALL of the following from the user:
+
+- startDate : string in YYYY-MM-DD format — start of the reporting period (filters by submit_time)
+- endDate : string in YYYY-MM-DD format — end of the reporting period (inclusive)
+
+If ANY of these are missing, ask the user before calling the API.
 Do NOT use placeholder or default values.
 
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/record?date=2025-01-06&typeId=1&venueId=2
+This report covers gift requisitions with statuses: NO_REQUISITION, INITIAL_REQUISITION,
+PENDING_REQUEST_FOR_CHANGE, CHANGE_APPROVED, CONFIRMED.
 ---
 
 ---
-title: Checklist Record API — Response
-tags: topic:response, applies_to:checklist_record
+title: IRIS Gift Requisition Report API — Response and Download Link
+tags: topic:response, applies_to:iris_gift_report
 content:
-A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
+A successful IRIS Gift Requisition Report API response (HTTP 200) looks like:
 
-When a record EXISTS:
 ```json
 {
-  "RESPONSE": "CHECKLIST_RECORD_FOUND",
-  "RECORD": {
-    "id": 10,
-    "date": "2025-01-06",
-    "submissionDateTime": "2025-01-06T10:30:00",
-    "checklistType": { "id": 1, "type": "Opening Checklist", "hasGroups": false },
-    "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" },
-    "submitted": true,
-    "checklistReadings": [
-      {
-        "id": 100,
-        "checked": true,
-        "na": false,
-        "comment": null,
-        "checklistCriteria": { "id": 5, "sn": 1, "name": "Floors cleaned", "checklistType": {...}, "checklistGroup": null }
-      }
-    ],
-    "submittedBy": { "id": 54, "firstName": "John", ... }
+  "status": 200,
+  "message": "Iris Gifts report generated successfully",
+  "data": {
+    "fileUrl": "https://<azure-blob-url>/reports/iris-gift-report/<filename>.xlsx",
+    "filename": "<filename>.xlsx"
   }
 }
 ```
 
-When NO record is found, RESPONSE will NOT equal "CHECKLIST_RECORD_FOUND" and RECORD will be absent. In this case inform the user that no checklist record exists for the given date, type, and venue.
+If the response contains a "fileUrl" field, present it to the user as a clickable download link:
 
-Important field paths:
-- RESPONSE
-- RECORD.id
-- RECORD.date
-- RECORD.submitted
-- RECORD.submissionDateTime
-- RECORD.checklistType.id
-- RECORD.checklistType.type
-- RECORD.elementsVenue.id
-- RECORD.elementsVenue.venueName
-- RECORD.checklistReadings[*].checked
-- RECORD.checklistReadings[*].na
-- RECORD.checklistReadings[*].checklistCriteria.name
-- RECORD.submittedBy.firstName
----
+  📥 Your report is ready: [Download Report](<fileUrl>)
 
----
-title: Checklist Criteria by Type API — Endpoint and Method
-tags: topic:endpoint, applies_to:checklist_criteria_type, api_template
-content:
-Purpose:
-- Returns all checklist criteria items for a given checklist type. Used when creating a new checklist record.
+If "status" is 404, inform the user that no gift requisitions were found for the given date range.
 
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/criteria/type
-- Query params: typeId
----
-
----
-title: Checklist Criteria by Type API — Required Parameters
-tags: topic:parameters, applies_to:checklist_criteria_type, business_rule
-content:
-Before calling this endpoint, you MUST have:
-
-- typeId : integer — the checklist type ID (from /api/e360/checklist/type/all)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/criteria/type?typeId=1
----
-
----
-title: Checklist Criteria by Type API — Response
-tags: topic:response, applies_to:checklist_criteria_type
-content:
-A successful response (HTTP 200) returns a JSON array of checklist criteria objects.
-
-Response structure:
+Error response shapes:
 ```json
-[
-  {
-    "id": 5,
-    "sn": 1,
-    "name": "Floors cleaned",
-    "checklistType": { "id": 1, "type": "Opening Checklist", "hasGroups": false },
-    "checklistGroup": null
-  }
-]
+{ "status": 404, "message": "No Gift Requisition found for this year", "data": {} }
+{ "status": 404, "message": "No data found for the given query", "data": {} }
 ```
-
-Important field paths:
-- [*].id                    — integer, unique criteria ID
-- [*].sn                    — integer, serial/display order number
-- [*].name                  — string, description of the criteria item
-- [*].checklistType.id
-- [*].checklistType.type
-- [*].checklistGroup        — object or null; present when the checklist type hasGroups == true
-- [*].checklistGroup.id
-- [*].checklistGroup.name
----
-
----
-title: TempLog Record API — Endpoint and Method
-tags: topic:endpoint, applies_to:templog_record, api_template
-content:
-Purpose:
-- Fetches an existing temperature log record for a specific date and venue.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/templog/record
-- Query params: date, venueId
----
-
----
-title: TempLog Record API — Required Parameters
-tags: topic:parameters, applies_to:templog_record, business_rule
-content:
-Before calling this endpoint, you MUST have ALL of the following:
-
-- date    : string in YYYY-MM-DD format — the date of the temperature log
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/templog/record?date=2025-01-06&venueId=2
----
-
----
-title: TempLog Record API — Response
-tags: topic:response, applies_to:templog_record
-content:
-A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
-
-When NO record is found:
-```json
-{
-  "RESPONSE": "TEMP_LOG_RECORD_NOT_FOUND"
-}
-```
-
-When a record EXISTS:
-```json
-{
-  "RESPONSE": "TEMP_LOG_RECORD_FOUND",
-  "RECORD": {
-    "id": 20,
-    "date": "2025-01-06",
-    "submissionDateTime": "2025-01-06T11:00:00",
-    "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" },
-    "submitted": true,
-    "submittedBy": { "id": 54, "firstName": "John", ... },
-    "tempLogReadings": [
-      {
-        "id": 200,
-        "recordedValue": 4.5,
-        "acceptable": true,
-        "na": false,
-        "comment": null,
-        "tempLogCriteria": {
-          "id": 10,
-          "name": "Cool Room 1",
-          "unitCode": "°C",
-          "unit": "Celsius",
-          "acceptableLowerValue": 1.0,
-          "acceptableUpperValue": 5.0,
-          "tempLogGroup": { "id": 1, "name": "Refrigeration" },
-          "elementsVenue": { "id": 2, ... }
-        }
-      }
-    ]
-  }
-}
-```
-
-If RESPONSE == "TEMP_LOG_RECORD_NOT_FOUND", inform the user that no temperature log exists for the given date and venue.
-
-Important field paths:
-- RESPONSE
-- RECORD.id
-- RECORD.date
-- RECORD.submitted
-- RECORD.submissionDateTime
-- RECORD.elementsVenue.venueName
-- RECORD.tempLogReadings[*].recordedValue
-- RECORD.tempLogReadings[*].acceptable
-- RECORD.tempLogReadings[*].na
-- RECORD.tempLogReadings[*].tempLogCriteria.name
-- RECORD.tempLogReadings[*].tempLogCriteria.acceptableLowerValue
-- RECORD.tempLogReadings[*].tempLogCriteria.acceptableUpperValue
-- RECORD.tempLogReadings[*].tempLogCriteria.unitCode
----
-
----
-title: TempLog Criteria by Venue API — Endpoint and Method
-tags: topic:endpoint, applies_to:templog_criteria_venue, api_template
-content:
-Purpose:
-- Returns all temperature log criteria (measurement points) configured for a specific venue. Used when creating a new temp log record.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/templog/criteria/venue
-- Query params: venueId
----
-
----
-title: TempLog Criteria by Venue API — Required Parameters
-tags: topic:parameters, applies_to:templog_criteria_venue, business_rule
-content:
-Before calling this endpoint, you MUST have:
-
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/templog/criteria/venue?venueId=2
----
-
----
-title: TempLog Criteria by Venue API — Response
-tags: topic:response, applies_to:templog_criteria_venue
-content:
-A successful response (HTTP 200) returns a JSON array of temperature log criteria objects.
-
-Response structure:
-```json
-[
-  {
-    "id": 10,
-    "name": "Cool Room 1",
-    "unitCode": "°C",
-    "unit": "Celsius",
-    "acceptableLowerValue": 1.0,
-    "acceptableUpperValue": 5.0,
-    "tempLogGroup": {
-      "id": 1,
-      "name": "Refrigeration"
-    },
-    "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" }
-  }
-]
-```
-
-Important field paths:
-- [*].id
-- [*].name
-- [*].unitCode                — string or null (e.g. "°C")
-- [*].unit                    — string or null (e.g. "Celsius")
-- [*].acceptableLowerValue    — double, minimum acceptable reading
-- [*].acceptableUpperValue    — double, maximum acceptable reading
-- [*].tempLogGroup.id
-- [*].tempLogGroup.name
-- [*].elementsVenue.id
----
-
----
-title: Audit Record API — Endpoint and Method
-tags: topic:endpoint, applies_to:audit_record, api_template
-content:
-Purpose:
-- Fetches an existing audit record for a specific date, venue, and audit type.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/record
-- Query params: date, venueId, auditTypeId
----
-
----
-title: Audit Record API — Required Parameters
-tags: topic:parameters, applies_to:audit_record, business_rule
-content:
-Before calling this endpoint, you MUST have ALL of the following:
-
-- date        : string in YYYY-MM-DD format — the date of the audit
-- venueId     : integer — the venue ID (from /api/e360/checklist/venues)
-- auditTypeId : integer — the audit type ID (from /api/e360/audit/auditType/all)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/audit/record?date=2025-01-06&venueId=2&auditTypeId=1
----
-
----
-title: Audit Record API — Response
-tags: topic:response, applies_to:audit_record
-content:
-A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
-
-When a record EXISTS:
-```json
-{
-  "RESPONSE": "AUDIT_RECORD_FOUND",
-  "RECORD": {
-    "id": 30,
-    "date": "2025-01-06",
-    "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" },
-    "submitted": true,
-    "submissionDateTime": "2025-01-06T14:00:00",
-    "totalScore": 480,
-    "scorePercentage": 96.0,
-    "auditPassed": true,
-    "auditor": { "id": 54, "firstName": "John", ... },
-    "auditReadings": [
-      {
-        "id": 300,
-        "checked": true,
-        "na": false,
-        "comment": null,
-        "auditCriteria": {
-          "id": 15,
-          "sn": 1,
-          "name": "Fire exits clear",
-          "critical": true,
-          "allocatedPoint": 10,
-          "auditGroup": { "id": 1, "sn": 1, "name": "Safety" },
-          "auditType": { "id": 1, "type": "Internal Audit" }
-        },
-        "auditReadingAttachedFiles": []
-      }
-    ],
-    "auditType": { "id": 1, "type": "Internal Audit" }
-  }
-}
-```
-
-When NO record is found, RESPONSE will NOT equal "AUDIT_RECORD_FOUND" and RECORD will be absent. Inform the user that no audit record exists for the given parameters.
-
-Important field paths:
-- RESPONSE
-- RECORD.id
-- RECORD.date
-- RECORD.submitted
-- RECORD.submissionDateTime
-- RECORD.totalScore
-- RECORD.scorePercentage
-- RECORD.auditPassed
-- RECORD.auditor.firstName
-- RECORD.auditType.type
-- RECORD.elementsVenue.venueName
-- RECORD.auditReadings[*].checked
-- RECORD.auditReadings[*].na
-- RECORD.auditReadings[*].auditCriteria.name
-- RECORD.auditReadings[*].auditCriteria.critical
-- RECORD.auditReadings[*].auditCriteria.allocatedPoint
----
-
----
-title: Audit Types API — Endpoint and Method
-tags: topic:endpoint, applies_to:audit_types, api_template
-content:
-Purpose:
-- Returns all available audit types (e.g. Internal Audit, Short Audit).
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/auditType/all
-
-Payload/Headers:
-- No request body required.
-- No query parameters required.
----
-
----
-title: Audit Types API — Response
-tags: topic:response, applies_to:audit_types
-content:
-A successful response (HTTP 200) returns a JSON array of audit type objects.
-
-Response structure:
-```json
-[
-  { "id": 1, "type": "Internal Audit" },
-  { "id": 2, "type": "Short Audit" }
-]
-```
-
-Important field paths:
-- [*].id   — integer, unique audit type ID
-- [*].type — string, audit type label
-
-Note: Access to specific audit types may be restricted by staff permissions in the app. The API itself returns all types regardless.
----
-
----
-title: Audit Criteria API — Endpoint and Method
-tags: topic:endpoint, applies_to:audit_criteria, api_template
-content:
-Purpose:
-- Returns all audit criteria (checklist items) for a given audit type. Used when creating a new audit record.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/criteria/all
-- Query params: auditTypeId
----
-
----
-title: Audit Criteria API — Required Parameters
-tags: topic:parameters, applies_to:audit_criteria, business_rule
-content:
-Before calling this endpoint, you MUST have:
-
-- auditTypeId : integer — the audit type ID (from /api/e360/audit/auditType/all)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/audit/criteria/all?auditTypeId=1
----
-
----
-title: Audit Criteria API — Response
-tags: topic:response, applies_to:audit_criteria
-content:
-A successful response (HTTP 200) returns a JSON array of audit criteria objects.
-
-Response structure:
-```json
-[
-  {
-    "id": 15,
-    "sn": 1,
-    "name": "Fire exits clear",
-    "critical": true,
-    "allocatedPoint": 10,
-    "auditGroup": { "id": 1, "sn": 1, "name": "Safety" },
-    "auditType": { "id": 1, "type": "Internal Audit" }
-  }
-]
-```
-
-Important field paths:
-- [*].id
-- [*].sn                — integer, display order
-- [*].name              — string, criteria description
-- [*].critical          — boolean, whether this is a critical item
-- [*].allocatedPoint    — integer or null, maximum points for this item
-- [*].auditGroup        — object or null; groups criteria into sections
-- [*].auditGroup.id
-- [*].auditGroup.sn
-- [*].auditGroup.name
-- [*].auditType.id
-- [*].auditType.type
----
-
----
-title: Enrolment All Staffs API — Endpoint and Method
-tags: topic:endpoint, applies_to:enrolment_staffs, api_template
-content:
-Purpose:
-- Returns a lightweight list of all staff members (mini profile). Used for staff selection in training and other modules.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffs
-
-Payload/Headers:
-- No request body required.
-- No query parameters required.
----
-
----
-title: Enrolment All Staffs API — Response
-tags: topic:response, applies_to:enrolment_staffs
-content:
-A successful response (HTTP 200) returns a JSON array of staff mini objects.
-
-Response structure:
-```json
-[
-  {
-    "id": 54,
-    "firstName": "John",
-    "middleName": "",
-    "lastName": "Doe",
-    "terminated": false
-  }
-]
-```
-
-Important field paths:
-- [*].id         — integer, unique staff ID
-- [*].firstName  — string
-- [*].middleName — string
-- [*].lastName   — string
-- [*].terminated — boolean; active staff have terminated == false
-
-Note: The app filters out terminated staff (terminated == true) before displaying the list. You should do the same when presenting results to the user.
----
-
----
-title: Enrolment Staffs by Department API — Endpoint and Method
-tags: topic:endpoint, applies_to:enrolment_staffs_by_department, api_template
-content:
-Purpose:
-- Returns a lightweight list of staff members belonging to a specific department.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffsByDepartment
-- Query params: departmentId
----
-
----
-title: Enrolment Staffs by Department API — Required Parameters
-tags: topic:parameters, applies_to:enrolment_staffs_by_department, business_rule
-content:
-Before calling this endpoint, you MUST have:
-
-- departmentId : integer — the department ID (from /api/e360/enrolment/departments)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffsByDepartment?departmentId=3
----
-
----
-title: Enrolment Staffs by Department API — Response
-tags: topic:response, applies_to:enrolment_staffs_by_department
-content:
-A successful response (HTTP 200) returns a JSON array of staff mini objects (same shape as /api/e360/enrolment/staffs).
-
-Response structure:
-```json
-[
-  {
-    "id": 54,
-    "firstName": "John",
-    "middleName": "",
-    "lastName": "Doe",
-    "terminated": false
-  }
-]
-```
-
-Important field paths:
-- [*].id
-- [*].firstName
-- [*].middleName
-- [*].lastName
-- [*].terminated
----
-
----
-title: Training Criteria List API — Endpoint and Method
-tags: topic:endpoint, applies_to:training_criteria_list, api_template
-content:
-Purpose:
-- Returns the list of training criteria (assessment items) for a specific training subject.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingCriteriaList
-- Query params: trainingSubjectId
----
-
----
-title: Training Criteria List API — Required Parameters
-tags: topic:parameters, applies_to:training_criteria_list, business_rule
-content:
-Before calling this endpoint, you MUST have:
-
-- trainingSubjectId : integer — the training subject ID (from /api/e360/training/trainingSubject)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingCriteriaList?trainingSubjectId=5
----
-
----
-title: Training Criteria List API — Response
-tags: topic:response, applies_to:training_criteria_list
-content:
-A successful response (HTTP 200) returns a JSON array of training criteria objects.
-
-Response structure:
-```json
-[
-  {
-    "id": 20,
-    "name": "Can operate the espresso machine safely",
-    "description": "Demonstrates correct tamping and extraction technique",
-    "criteriaGroup": { "id": 1, "name": "Equipment Operation" },
-    "criteriaSubGroup": null,
-    "trainingSubject": {
-      "id": 5,
-      "trainingType": "INITIAL_TRAINING",
-      "trainingStation": { "id": 2, "name": "Coffee Bar" }
-    }
-  }
-]
-```
-
-Important field paths:
-- [*].id
-- [*].name              — string, assessment criteria description
-- [*].description       — string or null
-- [*].criteriaGroup     — object or null
-- [*].criteriaGroup.name
-- [*].criteriaSubGroup  — object or null
-- [*].trainingSubject.id
-- [*].trainingSubject.trainingType
-- [*].trainingSubject.trainingStation.name
----
-
----
-title: Training Subject API — Endpoint and Method
-tags: topic:endpoint, applies_to:training_subject, api_template
-content:
-Purpose:
-- Returns the training subject record for a given training station and training type combination. A training subject links a station to a specific type of training programme.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingSubject
-- Query params: stationId, trainingType
----
-
----
-title: Training Subject API — Required Parameters
-tags: topic:parameters, applies_to:training_subject, business_rule
-content:
-Before calling this endpoint, you MUST have BOTH of the following:
-
-- stationId    : integer — the training station ID
-- trainingType : string  — the type of training programme. Known values used in the app:
-    "INITIAL_TRAINING"      — first-time training for a new staff member at a station
-    "TRAINING_VERIFICATION" — follow-up verification of previously completed training
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingSubject?stationId=2&trainingType=INITIAL_TRAINING
-
-If either value is missing, ask the user before calling.
----
-
----
-title: Training Subject API — Response
-tags: topic:response, applies_to:training_subject
-content:
-A successful response (HTTP 200) returns a single JSON object representing the training subject.
-
-Response structure:
-```json
-{
-  "id": 5,
-  "trainingType": "INITIAL_TRAINING",
-  "trainingStation": {
-    "id": 2,
-    "name": "Coffee Bar"
-  }
-}
-```
-
-Important field paths:
-- id                        — integer, unique training subject ID (use this as trainingSubjectId for the criteria list API)
-- trainingType              — string
-- trainingStation.id
-- trainingStation.name
-
-If the response is null or empty, inform the user that no training subject exists for the given station and training type combination.
----
-
----
-title: Breakage Report by Venue and Date API — Endpoint and Method
-tags: topic:endpoint, applies_to:breakage_report, api_template
-content:
-Purpose:
-- Fetches an existing breakage/glassware report for a specific date and venue.
-
-Endpoint:
-- Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/breakageReport/reportByVenueAndDate
-- Query params: date, venue
----
-
----
-title: Breakage Report by Venue and Date API — Required Parameters
-tags: topic:parameters, applies_to:breakage_report, business_rule
-content:
-Before calling this endpoint, you MUST have BOTH of the following:
-
-- date  : string in YYYY-MM-DD format — the date of the report
-- venue : string — the venue name (NOT the venue ID; this is the venue name string)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/breakageReport/reportByVenueAndDate?date=2025-01-06&venue=Bistro
-
-If either is missing, ask the user before calling.
----
-
----
-title: Breakage Report by Venue and Date API — Response
-tags: topic:response, applies_to:breakage_report
-content:
-A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
-
-When a report EXISTS:
-```json
-{
-  "RESPONSE": "REPORT_EXISTS",
-  "REPORT": {
-    "id": 40,
-    "venue": "Bistro",
-    "date": "2025-01-06",
-    "day": "Monday",
-    "submittedByStaff": { "id": 54, "firstName": "John", ... },
-    "finalized": true,
-    "netSales": 5200.00,
-    "totalBreakageCost": 45.50,
-    "totalBreakagePercentage": 0.87,
-    "breakageDetails": [
-      {
-        "id": 500,
-        "qty": 2,
-        "totalCost": 15.00,
-        "reason": "Accidental drop",
-        "glasswareItem": {
-          "id": 8,
-          "name": "Wine Glass",
-          "size": "250ml",
-          "type": "Glass",
-          "unitCost": 7.50,
-          "imageUrl": "https://..."
-        }
-      }
-    ]
-  }
-}
-```
-
-When NO report is found, RESPONSE will NOT equal "REPORT_EXISTS" and REPORT will be absent. Inform the user that no breakage report exists for the given date and venue.
-
-Important field paths:
-- RESPONSE
-- REPORT.id
-- REPORT.venue
-- REPORT.date
-- REPORT.day
-- REPORT.finalized                    — boolean; a finalised report cannot be edited
-- REPORT.netSales                     — double
-- REPORT.totalBreakageCost            — double
-- REPORT.totalBreakagePercentage      — double
-- REPORT.submittedByStaff.firstName
-- REPORT.breakageDetails[*].qty
-- REPORT.breakageDetails[*].totalCost
-- REPORT.breakageDetails[*].reason
-- REPORT.breakageDetails[*].glasswareItem.name
-- REPORT.breakageDetails[*].glasswareItem.unitCost
----
----
-title: Get All Enrolments API — Endpoint and Method
-tags: topic:endpoint, applies_to:get_all_enrolments, api_template
-content:
-To retrieve all staff enrolments, make a GET request to:
-
-  https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/getAllEnrolments
-
-HTTP Method: GET
-No request body is required.
-No query parameters are required.
-
-The response is a JSON array. Each element is a staff enrolment object.
-Use the staff.id field from each enrolment when calling the clock-in or clock-out APIs.
----
----
-title: Get All Enrolments API — Parameters
-tags: topic:parameters, applies_to:get_all_enrolments
-content:
-This endpoint requires NO parameters — no query params, no path params, no request body.
-
-Do NOT ask the user for any input before calling this endpoint.
-Call it directly when the user asks to fetch, list, or refresh all staff enrolments.
----
----
-title: Get All Enrolments API — Response Structure
-tags: topic:response, applies_to:get_all_enrolments
-content:
-A successful response (HTTP 200) is a JSON array of staff enrolment objects.
-
-Example (single element shown):
-
-```json
-[
-  {
-    "id": 42,
-    "givenNames": "Jane",
-    "surname": "Doe",
-    "dob": "1990-05-15",
-    "address": "12 Main Street",
-    "postCode": "2000",
-    "homePhoneNumber": "0291234567",
-    "mobileNumber": "0412345678",
-    "email": "jane.doe@example.com",
-    "nextOfKinName": "John Doe",
-    "nextOfKinPhone": "0411111111",
-    "defaultSite": {
-      "id": 3,
-      "name": "Sydney HQ"
-    },
-    "personalPhotoFiles": [
-      { "id": 101, "url": "https://..." }
-    ],
-    "staff": {
-      "id": 7,
-      "firstName": "Jane",
-      "middleName": null,
-      "lastName": "Doe",
-      "dob": "1990-05-15",
-      "address": "12 Main Street",
-      "postCode": "2000",
-      "suburb": "Sydney",
-      "phoneNumber": "0412345678",
-      "enrolmentSubmitted": true,
-      "enrolmentCompleted": true,
-      "accessProhibited": false,
-      "terminated": false,
-      "authUser": {
-        "id": 55,
-        "username": "jane.doe"
-      },
-      "staffPermissions": []
-    },
-    "staffDepartment": {
-      "id": 2,
-      "name": "Front of House"
-    }
-  }
-]
-```
-
-Important field paths (per array element):
-- [*].id                          — enrolment record ID
-- [*].givenNames                  — staff given/first name(s)
-- [*].surname                     — staff surname
-- [*].dob                         — date of birth (string)
-- [*].email                       — staff email
-- [*].mobileNumber                — mobile phone number
-- [*].defaultSite.id              — default site ID (use as siteId in clock-in/out calls)
-- [*].defaultSite.name            — default site name
-- [*].personalPhotoFiles[0].url   — URL of the staff's profile photo
-- [*].staff.id                    — staff ID (REQUIRED for clock-in, clock-out, image upload, access code APIs)
-- [*].staff.firstName             — staff first name (from staff sub-object)
-- [*].staff.lastName              — staff last name
-- [*].staff.enrolmentSubmitted    — boolean; whether enrolment has been submitted
-- [*].staff.enrolmentCompleted    — boolean; whether enrolment is fully completed
-- [*].staff.accessProhibited      — boolean; if true, staff cannot clock in
-- [*].staff.terminated            — boolean; if true, staff is no longer active
-- [*].staff.authUser.id           — auth user ID
-- [*].staff.authUser.username     — login username
-- [*].staffDepartment.id          — department ID
-- [*].staffDepartment.name        — department name
-
-If the array is empty, inform the user that no enrolments were found.
-If the request fails (non-200), show the HTTP status code and any error message returned.
 ---
