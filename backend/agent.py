@@ -385,7 +385,16 @@ def api_call(
 
             print(f"API call to {url} succeeded. Status code: {response.status_code}.")
             with open("api_response_debug.json", "w", encoding="utf-8") as _f:
-                json.dump(data, _f, indent=2, ensure_ascii=False)
+                json.dump(
+                    {
+                        "status_code": response.status_code,
+                        "headers": dict(response.headers),
+                        "body": data,
+                    },
+                    _f,
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
             # extraction_script takes priority — model-written Python snippet
             if extraction_script:

@@ -56,7 +56,129 @@ st.set_page_config(
     page_title="Report Assistant", page_icon="📊", layout="wide",
 )
 
-st.title("Report Assistant")
+st.markdown("""
+<style>
+/* ── Global ── */
+[data-testid="stAppViewContainer"] { background: #0f1117; }
+[data-testid="stSidebar"] { background: #161b27; border-right: 1px solid #2a2f3e; }
+[data-testid="stSidebar"] * { color: #d4d8e8 !important; }
+
+/* ── Page title ── */
+.app-title {
+    font-size: 1.6rem; font-weight: 700; color: #e8eaf6;
+    display: flex; align-items: center; gap: 10px;
+    padding: 0.4rem 0 1.2rem;
+    border-bottom: 1px solid #2a2f3e; margin-bottom: 1rem;
+}
+
+/* ── Profile card ── */
+.profile-card {
+    background: linear-gradient(135deg, #1e2540 0%, #252d47 100%);
+    border: 1px solid #3a4060;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+.profile-name {
+    font-size: 1.05rem; font-weight: 700;
+    color: #e8eaf6 !important; margin-bottom: 6px;
+}
+.profile-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8rem; color: #8892b0 !important; margin: 3px 0;
+}
+.role-badge {
+    display: inline-block;
+    background: #1a3a2a; color: #4ade80 !important;
+    border: 1px solid #2d6a4f;
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 0.72rem; font-weight: 600; margin-top: 8px;
+}
+.status-badge {
+    display: inline-block;
+    background: #1a2a3a; color: #60a5fa !important;
+    border: 1px solid #2d4a6a;
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 0.72rem; font-weight: 600; margin-top: 8px; margin-left: 6px;
+}
+
+/* ── Sidebar section headers ── */
+.sidebar-section {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+    color: #5a6480 !important; text-transform: uppercase; margin: 14px 0 6px;
+}
+
+/* ── Example questions ── */
+.example-q {
+    background: #1c2135; border-left: 3px solid #3d5afe;
+    border-radius: 0 8px 8px 0;
+    padding: 7px 12px; margin: 5px 0;
+    font-size: 0.8rem; color: #b0b8d8 !important;
+    cursor: default;
+}
+
+/* ── Chat messages ── */
+[data-testid="stChatMessage"] {
+    background: #161b27;
+    border: 1px solid #2a2f3e;
+    border-radius: 12px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+}
+
+/* ── Chat input ── */
+[data-testid="stChatInput"] {
+    background: #1c2135 !important;
+    border: 1px solid #3a4060 !important;
+    border-radius: 14px !important;
+    padding: 4px 8px !important;
+    box-shadow: 0 0 0 0 transparent !important;
+    transition: border-color 0.2s ease !important;
+}
+[data-testid="stChatInput"]:focus-within {
+    border-color: #5c6bc0 !important;
+    box-shadow: 0 0 0 3px rgba(92,107,192,0.18) !important;
+}
+[data-testid="stChatInput"] textarea {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #e8eaf6 !important;
+    font-size: 0.95rem !important;
+    caret-color: #7c8cf8 !important;
+}
+[data-testid="stChatInput"] textarea::placeholder {
+    color: #4a5270 !important;
+}
+[data-testid="stChatInput"] button {
+    background: #3d5afe !important;
+    border-radius: 10px !important;
+    border: none !important;
+    color: #fff !important;
+}
+[data-testid="stChatInput"] button:hover {
+    background: #5c6bc0 !important;
+}
+/* bottom bar that Streamlit renders around chat input */
+[data-testid="stBottom"] > div {
+    background: #0f1117 !important;
+    border-top: 1px solid #1e2235 !important;
+    padding: 10px 0 !important;
+}
+
+/* ── Env info ── */
+.env-row {
+    display: flex; justify-content: space-between;
+    font-size: 0.78rem; padding: 4px 0;
+    border-bottom: 1px solid #2a2f3e; color: #8892b0 !important;
+}
+.env-val-true  { color: #4ade80 !important; font-weight: 600; }
+.env-val-false { color: #f87171 !important; font-weight: 600; }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<div class="app-title">📊 Report Assistant</div>', unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------
 # Auth — Login gate
@@ -74,11 +196,21 @@ def _do_login(username: str, password: str) -> dict:
         timeout=30,
     )
     resp.raise_for_status()
-    prism_tokens = resp.json()["data"]["data"]["tokens"]["prism"]
+    payload = resp.json()["data"]["data"]
+    prism_tokens = payload["tokens"]["prism"]
+    user = payload.get("user", {})
     return {
         "access_token": prism_tokens["tokenId"],
         "refresh_token": prism_tokens["refreshTokenId"],
         "validate_token": prism_tokens["userUid"],
+        "user_info": {
+            "name": user.get("name", ""),
+            "email": user.get("email", ""),
+            "phone": user.get("phone", ""),
+            "uid": user.get("uid", ""),
+            "role": user.get("roleInfo", {}).get("role", ""),
+            "status": user.get("status", ""),
+        },
     }
 
 
@@ -86,62 +218,100 @@ if "auth_tokens" not in st.session_state:
     st.session_state.auth_tokens = None
 
 if st.session_state.auth_tokens is None:
-    st.subheader("Please log in")
-    with st.form("login_form"):
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        submitted = st.form_submit_button("Log in")
+    col_l, col_m, col_r = st.columns([1, 1.2, 1])
+    with col_m:
+        st.markdown("""
+<div style="background:#161b27;border:1px solid #2a2f3e;border-radius:16px;padding:32px 28px 24px;margin-top:60px;">
+  <div style="text-align:center;margin-bottom:24px;">
+    <span style="font-size:2.4rem;">📊</span>
+    <div style="font-size:1.3rem;font-weight:700;color:#e8eaf6;margin-top:8px;">Report Assistant</div>
+    <div style="font-size:0.85rem;color:#5a6480;margin-top:4px;">Sign in to continue</div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
+        with st.form("login_form"):
+            username = st.text_input("Username / Email", placeholder="e.g. abir@manush.tech")
+            password = st.text_input("Password", type="password", placeholder="••••••••")
+            submitted = st.form_submit_button("Sign in →", use_container_width=True)
 
-    if submitted:
-        if not username or not password:
-            st.error("Please enter both username and password.")
-        else:
-            try:
-                tokens = _do_login(username, password)
-                st.session_state.auth_tokens = tokens
-                st.rerun()
-            except requests.exceptions.HTTPError as e:
-                st.error(f"Login failed: {e.response.status_code} — {e.response.text}")
-            except Exception as e:
-                st.error(f"Login error: {e}")
+        if submitted:
+            if not username or not password:
+                st.error("Please enter both username and password.")
+            else:
+                try:
+                    tokens = _do_login(username, password)
+                    st.session_state.auth_tokens = tokens
+                    st.rerun()
+                except requests.exceptions.HTTPError as e:
+                    st.error(f"Login failed: {e.response.status_code} — {e.response.text}")
+                except Exception as e:
+                    st.error(f"Login error: {e}")
     st.stop()  # Don't render the rest of the app until logged in
 
 # ----------------------------------------------------------------------------
 # Sidebar
 # ----------------------------------------------------------------------------
 with st.sidebar:
-    st.header("Settings")
+    # ── Profile card ──
+    user_info = (st.session_state.auth_tokens or {}).get("user_info", {})
+    if user_info:
+        st.markdown(f"""
+<div class="profile-card">
+  <div class="profile-name">👤 {user_info['name']}</div>
+  <div class="profile-row">📧 {user_info['email']}</div>
+  <div class="profile-row">📞 {user_info['phone']}</div>
+  <div class="profile-row">🆔 {user_info['uid']}</div>
+  <div style="margin-top:8px;">
+    <span class="role-badge">{user_info['role']}</span>
+    <span class="status-badge">{user_info['status']}</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
+    # ── Controls ──
+    st.markdown('<div class="sidebar-section">Controls</div>', unsafe_allow_html=True)
     show_debug = st.toggle("Show debug / raw response", value=False)
-    st.divider()
 
-    if st.button("Log out"):
-        st.session_state.auth_tokens = None
-        st.session_state.messages = []
-        st.session_state.pop("thread_id", None)
-        st.rerun()
-    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🚪 Log out", use_container_width=True):
+            st.session_state.auth_tokens = None
+            st.session_state.messages = []
+            st.session_state.pop("thread_id", None)
+            st.rerun()
+    with col2:
+        if st.button("🗑️ Clear chat", use_container_width=True):
+            st.session_state.messages = []
+            st.session_state.pop("thread_id", None)
+            st.rerun()
 
-    st.subheader("Environment")
-    st.write(
-        {
-            "DATABASE_URL set": bool(os.getenv("DATABASE_URL")),
-            "Logged in": bool(st.session_state.auth_tokens),
-            "VECTOR_COLLECTION": os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks"),
-        }
-    )
-    st.divider()
+    # ── Environment ──
+    st.markdown('<div class="sidebar-section">Environment</div>', unsafe_allow_html=True)
+    db_set  = bool(os.getenv("DATABASE_URL"))
+    vc_name = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
+    st.markdown(f"""
+<div class="env-row"><span>DATABASE_URL</span>
+  <span class="{'env-val-true' if db_set else 'env-val-false'}">{'✔ set' if db_set else '✘ not set'}</span>
+</div>
+<div class="env-row"><span>Logged in</span>
+  <span class="env-val-true">✔ yes</span>
+</div>
+<div class="env-row" style="border:none"><span>Vector collection</span>
+  <span style="color:#93c5fd !important;font-size:0.75rem">{vc_name}</span>
+</div>
+""", unsafe_allow_html=True)
 
-    st.markdown(
-        """
-**Example questions**
-- Generate an SSS report for 2026-01-15, ffType 2, point Dhanmondi ✅
-- Generate a Query Manager Report for January 2026, Dhaka South region, sub-channels BCC and RCC, product IDs 1 and 2, productType SKU, reportType stt and memo
-- Generate a Route Wise STT report from 2026-01-01 to 2026-02-01, type SKU, for Dhanmondi point ✅
-- Generate a Route Wise Memo report from 2026-01-01 to 2026-01-31, type SKU, for Dhanmondi point ✅
-- Generate a Survey report for survey ID 1, from 2026-01-01 to 2026-01-31, Dhaka South region ✅
-"""
-    )
+    # ── Example questions ──
+    st.markdown('<div class="sidebar-section" style="margin-top:16px">Example prompts</div>', unsafe_allow_html=True)
+    examples = [
+        "SSS report for 2026-01-15, ffType 2, point Dhanmondi",
+        "Query Manager Report for Jan 2026, Dhaka South, sub-channels BCC & RCC",
+        "Route Wise STT report 2026-01-01 to 2026-02-01, SKU, Dhanmondi",
+        "Route Wise Memo report 2026-01-01 to 2026-01-31, SKU, Dhanmondi",
+        "Survey report ID 1, 2026-01-01 to 2026-01-31, Dhaka South",
+    ]
+    for ex in examples:
+        st.markdown(f'<div class="example-q">💬 {ex}</div>', unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------------
 # Chat history
