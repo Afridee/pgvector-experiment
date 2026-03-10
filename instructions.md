@@ -312,7 +312,6 @@ Update this table whenever you add or remove a chunk.
 | Authentication — Required Headers for All Endpoints           | auth       | all                   |
 | SSS Report API — Endpoint and Method                          | endpoint   | sss_report            |
 | SSS Report API — Required Parameters                          | parameters | sss_report            |
-| SSS Report API — Response Format                              | response   | sss_report            |
 | SSS Report API — Response Structure and Extraction Guide      | response   | sss_report            |
 | Query Manager Report API — Endpoint and Method                | endpoint   | query_manager_report  |
 | Query Manager Report API — Required Parameters                | parameters | query_manager_report  |
