@@ -476,8 +476,19 @@ relevant query to find the matching API documentation from the knowledge base.
 Read the retrieved API documentation carefully. Identify every required parameter
 that the user has NOT yet provided.
 
-Ask the user for ALL missing required parameters in a single, friendly message.
-List each missing piece clearly. Do NOT call the API until you have everything.
+**Before asking the user for missing IDs or codes:** if the user has supplied a
+human-readable name (e.g. "Dhanmondi", "Dhaka North", "John Smith") where the
+API requires a numeric ID or code, first search the knowledge base — the
+knowledge chunks may contain lookup tables or reference data that map names to
+IDs directly. Use semantic_search_tool() with a query like "Dhanmondi point ID"
+or "point list IDs" to find the mapping. If found, use it silently and proceed.
+
+Only if the knowledge base has no mapping AND there is no listing endpoint
+available should you ask the user to supply the ID.
+
+Ask the user for ALL remaining unresolvable required parameters in a single,
+friendly message. List each missing piece clearly. Do NOT call the target API
+until you have everything.
 
 ### Step 3 — Confirm and call
 Once you have all required parameters, construct the correct request

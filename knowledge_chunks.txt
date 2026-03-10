@@ -1501,4 +1501,7 @@ Choose extraction_script based on what the user wants:
 - Route/FF details → script 2
 - Sub-channel breakdown → script 3
 - STT vs Memo totals → script 4
+
+Default: if the user says "generate a report", "show the report", or similar without
+specifying a view, default to script 1 (summation) for a high-level summary.
 ---
