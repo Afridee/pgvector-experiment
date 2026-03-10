@@ -1,8 +1,8 @@
 {
   "status": 200,
-  "message": "Route Wise STT Report Generated Successfully",
+  "message": "Route wise Memo report generated successfully",
   "data": {
-    "fileUrl": "https://prismstorageproduction.blob.core.windows.net/report-files/20260310065808572282/Route_Wise_STT_Report_2026-01-01_to_2026-02-01.xlsx?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2125-06-16T23%3A33%3A16Z&st=2025-06-16T15%3A33%3A16Z&spr=https%2Chttp&sig=WKJfHfv5gej5UHUPnXYeu5a%2BKFgSdY4LvfzluP5Tykc%3D",
-    "filename": "Route_Wise_STT_Report_2026-01-01_to_2026-02-01.xlsx"
+    "filename": "Route_Wise_Memo_Report_2026-01-01_to_2026-01-31.xlsx",
+    "fileUrl": "https://prismstorageproduction.blob.core.windows.net/report-files/20260310084129837319/Route_Wise_Memo_Report_2026-01-01_to_2026-01-31.xlsx?sv=2024-11-04&ss=b&srt=sco&sp=rwdlaciytfx&se=2125-06-16T23%3A33%3A16Z&st=2025-06-16T15%3A33%3A16Z&spr=https%2Chttp&sig=WKJfHfv5gej5UHUPnXYeu5a%2BKFgSdY4LvfzluP5Tykc%3D"
   }
 }
