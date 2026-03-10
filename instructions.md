@@ -330,10 +330,6 @@ Update this table whenever you add or remove a chunk.
 | Survey Report API — Required Parameters                       | parameters | survey_report         |
 | Survey Report API — Optional Parameters                       | parameters | survey_report         |
 | Survey Report API — Response and Download Link                | response   | survey_report         |
-| Memo Report API — Endpoint and Method                         | endpoint   | memo_report           |
-| Memo Report API — Required Parameters                         | parameters | memo_report           |
-| Memo Report API — Optional Parameters                         | parameters | memo_report           |
-| Memo Report API — Response and Download Link                  | response   | memo_report           |
 | IRIS Gift Requisition Report API — Endpoint and Method        | endpoint   | iris_gift_requisition |
 | IRIS Gift Requisition Report API — Required Parameters        | parameters | iris_gift_requisition |
 | IRIS Gift Requisition Report API — Response and Download Link | response   | iris_gift_requisition |

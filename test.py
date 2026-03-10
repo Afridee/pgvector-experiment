@@ -88,12 +88,6 @@ test_cases = [
         "check_semantic_docs": True,
         "check_api_called": False,  # surveyId missing
     },
-    {
-        "name": "Parameter collection — Memo Report missing region",
-        "question": "Generate a Memo report from 2026-01-01 to 2026-01-31",
-        "check_semantic_docs": True,
-        "check_api_called": False,  # regionId / productType missing
-    },
 ]
 
 # ============================================================================
