@@ -38,7 +38,7 @@ content:
 Before calling the SSS Report API, you MUST collect ALL of the following from the user:
 
 - date : string in YYYY-MM-DD format — the specific date for the report
-- ffType : integer — the field force role type ID (e.g. 2)
+- ffType : integer — the field force role type ID. Valid values: 2 (SR), 3 (SS), 4 (SM)
 - pointFilter[] : array of integers — one or more point IDs to filter by
 
 All three parameters are required. If ANY are missing, ask the user before calling the API.
