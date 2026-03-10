@@ -307,8 +307,45 @@ Before saving the file, verify:
 
 Update this table whenever you add or remove a chunk.
 
-| Title                    | Topic | Applies To |
-| ------------------------ | ----- | ---------- |
-| _(add your chunks here)_ |       |            |
+| Title                                                         | Topic      | Applies To            |
+| ------------------------------------------------------------- | ---------- | --------------------- |
+| Authentication — Required Headers for All Endpoints           | auth       | all                   |
+| SSS Report API — Endpoint and Method                          | endpoint   | sss_report            |
+| SSS Report API — Required Parameters                          | parameters | sss_report            |
+| SSS Report API — Response Format                              | response   | sss_report            |
+| SSS Report API — Response Structure and Extraction Guide      | response   | sss_report            |
+| Query Manager Report API — Endpoint and Method                | endpoint   | query_manager_report  |
+| Query Manager Report API — Required Parameters                | parameters | query_manager_report  |
+| Query Manager Report API — Optional Parameters                | parameters | query_manager_report  |
+| Query Manager Report API — Response and Download Link         | response   | query_manager_report  |
+| Route Wise STT Report API — Endpoint and Method               | endpoint   | route_wise_stt        |
+| Route Wise STT Report API — Required Parameters               | parameters | route_wise_stt        |
+| Route Wise STT Report API — Optional Parameters               | parameters | route_wise_stt        |
+| Route Wise STT Report API — Response and Download Link        | response   | route_wise_stt        |
+| Route Wise Memo Report API — Endpoint and Method              | endpoint   | route_wise_memo       |
+| Route Wise Memo Report API — Required Parameters              | parameters | route_wise_memo       |
+| Route Wise Memo Report API — Optional Parameters              | parameters | route_wise_memo       |
+| Route Wise Memo Report API — Response and Download Link       | response   | route_wise_memo       |
+| Survey Report API — Endpoint and Method                       | endpoint   | survey_report         |
+| Survey Report API — Required Parameters                       | parameters | survey_report         |
+| Survey Report API — Optional Parameters                       | parameters | survey_report         |
+| Survey Report API — Response and Download Link                | response   | survey_report         |
+| Memo Report API — Endpoint and Method                         | endpoint   | memo_report           |
+| Memo Report API — Required Parameters                         | parameters | memo_report           |
+| Memo Report API — Optional Parameters                         | parameters | memo_report           |
+| Memo Report API — Response and Download Link                  | response   | memo_report           |
+| IRIS Gift Requisition Report API — Endpoint and Method        | endpoint   | iris_gift_requisition |
+| IRIS Gift Requisition Report API — Required Parameters        | parameters | iris_gift_requisition |
+| IRIS Gift Requisition Report API — Response and Download Link | response   | iris_gift_requisition |
+| Location Reference — Regions                                  | reference  | all                   |
+| Location Reference — Areas                                    | reference  | all                   |
+| Location Reference — Sub-Channels                             | reference  | all                   |
+| Location Reference — Territories                              | reference  | all                   |
+| Location Reference — Distributors                             | reference  | all                   |
+| Location Reference — Points (part 1, IDs 1–100)               | reference  | all                   |
+| Location Reference — Points (part 2, IDs 101–200)             | reference  | all                   |
+| Location Reference — Points (part 3, IDs 201–300)             | reference  | all                   |
+| Location Reference — Points (part 4, IDs 301–400)             | reference  | all                   |
+| Location Reference — Points (part 5, IDs 401–469)             | reference  | all                   |
 
 > **Tip:** Group rows by endpoint name for readability.

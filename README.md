@@ -172,6 +172,9 @@ cat > .env << 'EOF'
 # OpenAI
 OPENAI_API_KEY=sk-your-actual-openai-key-here
 
+# Base URL for all external API calls (required)
+BASE_URL=https://api.example.com
+
 # PostgreSQL — used for pgvector embeddings and LangGraph checkpoints
 DATABASE_URL=postgresql://localhost:5432/qmrdb
 
@@ -184,12 +187,12 @@ VECTOR_COLLECTION=qmr_knowledge_chunks
 # Path to API knowledge chunks file
 CHUNKS_FILE=knowledge_chunks.txt
 
-# Bearer token injected automatically into every API call
+# Fallback bearer token for unauthenticated usage (Streamlit login overrides this)
 API_TOKEN=your-api-token-here
 EOF
 ```
 
-> **⚠️ IMPORTANT:** Replace placeholder values with your real credentials. `API_TOKEN` is injected automatically into every `api_call` — never hardcode it in knowledge chunks.
+> **⚠️ IMPORTANT:** Replace placeholder values with your real credentials. `BASE_URL` and `OPENAI_API_KEY` are required — the agent will raise an error at startup if either is missing. `API_TOKEN` is only used as a fallback when no login session is active.
 
 ---
 
@@ -299,8 +302,13 @@ The **Report Assistant** sidebar shows a toggle for debug output (raw agent resp
 from backend.agent import ask_agent
 
 result = ask_agent(
-    question="List all available clocking sites",
+    question="Generate an SSS report for 2026-01-15, ffType 2, point Dhanmondi",
     thread_id="my-session-001",
+    auth_tokens={
+        "access_token": "...",
+        "refresh_token": "...",
+        "validate_token": "...",
+    },
 )
 print(result["answer"])
 ```
@@ -324,29 +332,37 @@ Each call is tied to a `thread_id` — LangGraph persists conversation history i
 
 ## **12. USAGE EXAMPLES**
 
-### List all available venues
+### Generate an SSS report
 
 **Prompt:**
 
-> Show me all available venues
+> Generate an SSS report for 2026-01-15, ffType 2, point Dhanmondi
 
-**Agent behaviour:** Searches knowledge base for the venues endpoint, calls it (no parameters required), and presents results in a table.
+**Agent behaviour:** Searches knowledge base for the SSS Report endpoint, resolves "Dhanmondi" to its point ID using the Location Reference chunks, then calls the API and presents the structured data.
 
-### Fetch a checklist record
-
-**Prompt:**
-
-> Get the closing checklist for venue "Main Hall" on 5 January 2025
-
-**Agent behaviour:** Searches knowledge base, identifies required parameters (`date`, `typeId`, `venueId`), fetches the venue/type IDs by calling the relevant lookup endpoints, then calls the checklist record endpoint and presents the result.
-
-### Check clocking status
+### Generate a Query Manager Report
 
 **Prompt:**
 
-> Is staff member 54 currently clocked in?
+> Generate a Query Manager Report for January 2026, Dhaka South region, sub-channels BCC and RCC, product IDs 1 and 2, productType SKU, reportType stt and memo
 
-**Agent behaviour:** Looks up the check-status endpoint documentation, calls it with `staffId=54`, and reports whether a clock-in session is active along with duration if applicable.
+**Agent behaviour:** Retrieves QMR endpoint documentation, resolves the region ID, constructs the payload with all required parameters, calls the API, and presents the download link.
+
+### Generate a Route Wise report
+
+**Prompt:**
+
+> Generate a Route Wise STT report from 2026-01-01 to 2026-02-01, type SKU, for Dhanmondi point
+
+**Agent behaviour:** Searches knowledge base for Route Wise STT endpoint, resolves "Dhanmondi" to its point ID, then calls the API and surfaces the download link.
+
+### Generate a Survey report
+
+**Prompt:**
+
+> Generate a Survey report for survey ID 1, from 2026-01-01 to 2026-01-31, Dhaka South region
+
+**Agent behaviour:** Retrieves Survey Report endpoint docs, resolves the region ID, and calls the API with `surveyId`, `startDate`, `endDate`, and `regionId`.
 
 ### Debug mode
 
@@ -385,7 +401,7 @@ psql qmrdb -c "CREATE EXTENSION IF NOT EXISTS vector;"
 Ensure `.env` exists in your working directory and contains all required keys. Double-check with:
 
 ```bash
-cat .env | grep -E "DATABASE_URL|API_TOKEN|OPENAI_API_KEY"
+cat .env | grep -E "DATABASE_URL|API_TOKEN|OPENAI_API_KEY|BASE_URL"
 ```
 
 ### `No module named 'langchain'` (or any other package)

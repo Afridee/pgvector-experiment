@@ -5,16 +5,14 @@ Automated tests for the API + Knowledge Agent (Report Assistant).
 
 Tests cover:
 1. Semantic search — agent retrieves relevant API knowledge chunks
-2. Parameter collection — agent asks for missing required parameters
-3. Live API calls — endpoints with no required parameters
+2. Parameter collection — agent asks for missing required parameters before calling
 
 Usage:
     python test.py
 
 Requires:
-    - .env with DATABASE_URL, OPENAI_API_KEY
+    - .env with DATABASE_URL, OPENAI_API_KEY, BASE_URL
     - Embeddings already ingested (run ingest.py first)
-    - API_TOKEN set for live API call tests
 """
 
 import uuid
@@ -36,66 +34,65 @@ from backend.agent import ask_agent  # noqa: E402
 test_cases = [
     # --- Semantic search / knowledge retrieval ---
     {
-        "name": "Semantic search — Clocking check status parameters",
-        "question": "What parameters does the clocking check status endpoint require?",
+        "name": "Semantic search — SSS Report required parameters",
+        "question": "What parameters does the SSS report endpoint require?",
         "check_semantic_docs": True,
         "check_api_called": False,
     },
     {
-        "name": "Semantic search — Checklist record required fields",
-        "question": "What do I need to fetch a checklist record?",
+        "name": "Semantic search — Query Manager Report endpoint details",
+        "question": "How do I call the Query Manager Report API?",
         "check_semantic_docs": True,
         "check_api_called": False,
     },
     {
-        "name": "Semantic search — TempLog response fields",
-        "question": "What fields does the temperature log record response contain?",
+        "name": "Semantic search — Route Wise STT Report parameters",
+        "question": "What fields are required for the Route Wise STT report?",
         "check_semantic_docs": True,
         "check_api_called": False,
     },
-    # --- Parameter collection (agent must ask, not guess) ---
     {
-        "name": "Parameter collection — Clocking paginated records",
-        "question": "Show me clocking records",
+        "name": "Semantic search — Survey Report response fields",
+        "question": "What does the Survey Report API response look like?",
         "check_semantic_docs": True,
-        "check_api_called": False,  # staffId + page missing
+        "check_api_called": False,
     },
     {
-        "name": "Parameter collection — Checklist record by venue",
-        "question": "Get the checklist record for Main Hall",
+        "name": "Semantic search — IRIS Gift Requisition endpoint",
+        "question": "What parameters does the IRIS Gift Requisition report need?",
         "check_semantic_docs": True,
-        "check_api_called": False,  # date + typeId still missing
+        "check_api_called": False,
+    },
+    # --- Parameter collection (agent must ask, not call the API) ---
+    {
+        "name": "Parameter collection — SSS Report missing all params",
+        "question": "Generate an SSS report",
+        "check_semantic_docs": True,
+        "check_api_called": False,  # date, ffType, pointFilter[] all missing
     },
     {
-        "name": "Parameter collection — Clocking check status",
-        "question": "Is the staff member currently clocked in?",
+        "name": "Parameter collection — Query Manager Report missing dates",
+        "question": "Generate a Query Manager Report for Dhaka South region",
         "check_semantic_docs": True,
-        "check_api_called": False,  # staffId missing
-    },
-    # --- Live API calls (no required parameters) ---
-    {
-        "name": "Live API — List all departments",
-        "question": "List all available departments",
-        "check_semantic_docs": True,
-        "check_api_called": True,
+        "check_api_called": False,  # startDate, endDate, subChannels missing
     },
     {
-        "name": "Live API — List all clocking sites",
-        "question": "Show me all clocking sites",
+        "name": "Parameter collection — Route Wise STT missing date range",
+        "question": "Generate a Route Wise STT report for Dhanmondi",
         "check_semantic_docs": True,
-        "check_api_called": True,
+        "check_api_called": False,  # startDate, endDate, productType missing
     },
     {
-        "name": "Live API — List all checklist venues",
-        "question": "List all venues",
+        "name": "Parameter collection — Survey Report missing survey ID",
+        "question": "Generate a Survey report from 2026-01-01 to 2026-01-31",
         "check_semantic_docs": True,
-        "check_api_called": True,
+        "check_api_called": False,  # surveyId missing
     },
     {
-        "name": "Live API — List all checklist types",
-        "question": "What checklist types are available?",
+        "name": "Parameter collection — Memo Report missing region",
+        "question": "Generate a Memo report from 2026-01-01 to 2026-01-31",
         "check_semantic_docs": True,
-        "check_api_called": True,
+        "check_api_called": False,  # regionId / productType missing
     },
 ]
 

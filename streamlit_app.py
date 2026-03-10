@@ -139,7 +139,6 @@ with st.sidebar:
 - Generate a Query Manager Report for January 2026, Dhaka South region, sub-channels BCC and RCC, product IDs 1 and 2, productType SKU, reportType stt and memo
 - Generate a Route Wise STT report from 2026-01-01 to 2026-02-01, type SKU, for Dhanmondi point ✅
 - Generate a Route Wise Memo report from 2026-01-01 to 2026-01-31, type SKU, for Dhanmondi point ✅
-- Generate an STT report from 2026-01-01 to 2026-01-31, productType sku, for Dhaka South and Dhaka North regions
 - Generate a Memo report from 2026-01-01 to 2026-01-31, productType sku, for Dhaka South region
 - Generate an IRIS Gift Requisition report from 2026-01-01 to 2026-01-31
 - Generate a Survey report for survey ID 1, from 2026-01-01 to 2026-01-31, Dhaka South region
