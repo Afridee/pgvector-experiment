@@ -49,29 +49,71 @@ These are sent as query string parameters. Because pointFilter is an array, repe
 ---
 
 ---
-title: SSS Report API — Response Format
-tags: topic:response, applies_to:sss_report
+title: SSS Report API — Response Structure and Extraction Guide
+tags: topic:response, applies_to:sss_report, extraction
 content:
-A successful SSS Report API response (HTTP 200) looks like:
+A successful SSS Report API response (HTTP 200) has this top-level shape:
 
-```json
-{
-  "status": 200,
-  "message": "SSS report generated successfully",
-  "data": {
-    "primaryData": [...],
-    "retailerTarget": [...],
-    "webEntryData": [...],
-    "productData": [...],
-    "fmcMemoCountData": [...]
+  {
+    "status": 200,
+    "message": "SSS report fetched successfully",
+    "data": {
+      "outerData": [...],   // sub-channel summary rows
+      "innerData": [...],   // per-route/FF detail rows
+      "subChannels": [...], // list of sub-channel names present
+      "allSkus": [...],     // list of all SKU names present
+      "summation": {...}    // overall totals
+    }
   }
-}
-```
 
-This endpoint returns structured JSON data directly — it does NOT generate a downloadable file.
-Present the data to the user in a readable format.
+outerData — array of sub-channel summary objects. Each has:
+  - type : string — sub-channel name e.g. "Silver STT", "Total Memo", "total STT"
+  - data : object — keys are SKU names with numeric string values, plus "user_name", "route_name", "no_of_memo"
+  Sub-channel types: Silver STT, Platinum STT, RCC STT, Gold STT, GT STT, BCC STT, TRC STT, total STT, Total Memo
 
-If status is not 200, or if "data" is empty or missing, inform the user that no data was found for the given filters.
+innerData — array of per-route detail objects. Each row has:
+  - route_id, route_name
+  - user_name, user_id
+  - no_of_memo           : integer
+  - total_volume         : numeric string (HL)
+  - total_value          : numeric string (BDT)
+  - total_discount, net_value, unnoti_reimbursement : numeric strings
+  - targeted_outlet      : integer
+  - percentage_of_value, percentage_of_volume : numeric strings
+  - <SKU name>           : numeric string — one key per SKU (e.g. "B&H SF 20HL", "LS OG 20HL PUG")
+
+summation — overall totals:
+  - totalMemo, totalTargetedOutlet : integers
+  - totalValue, totalVolume, totalDiscount, totalNetValue, totalUnnotiReimbursement : numeric strings
+
+ALWAYS use an extraction_script when calling the SSS Report API.
+The raw response is ~60,000 chars — far above the 12,000-char tool output limit.
+Without an extraction_script, most data will be silently truncated.
+
+Example extraction scripts:
+
+1. Overall summary only:
+   result = response.get("data", {}).get("summation", {})
+
+2. Per-route table (innerData), key columns only:
+   rows = response.get("data", {}).get("innerData", [])
+   result = [{"route": r.get("route_name"), "ff": r.get("user_name"), "memos": r.get("no_of_memo"), "volume": r.get("total_volume"), "value": r.get("total_value"), "net_value": r.get("net_value"), "outlets": r.get("targeted_outlet")} for r in rows]
+
+3. Sub-channel summary (outerData):
+   result = [{"sub_channel": item.get("type"), "data": item.get("data", {})} for item in response.get("data", {}).get("outerData", [])]
+
+4. Total STT and Memo rows only:
+   outer = response.get("data", {}).get("outerData", [])
+   result = [x for x in outer if x.get("type") in ("total STT", "Total Memo")]
+
+DEFAULT EXTRACTION RULE — follow this unless told otherwise:
+Use script 1 (summation) for any general request. This includes prompts like:
+  "SSS report for <date>", "generate the report", "show the report", or any request
+  that does not explicitly mention routes, sub-channels, or STT vs Memo.
+Only use scripts 2–4 when the user explicitly asks for that level of detail.
+
+This endpoint returns structured JSON — it does NOT generate a downloadable file.
+If status is not 200, or if "data" is empty or missing, inform the user that no data was found.
 ---
 
 ---
@@ -1252,72 +1294,4 @@ Format: id | name | territory_id | area_id | region_id
   452 | SPS Keranigonj Shipment | territory_id:100 | area_id:3 | region_id:1
   466 | Lakhai | territory_id:43 | area_id:10 | region_id:4
   469 | Cumilla | territory_id:33 | area_id:8 | region_id:3
----
-
----
-title: SSS Report API — Response Structure and Extraction Guide
-tags: topic:response, applies_to:sss_report, extraction
-content:
-The SSS Report response (HTTP 200) has this top-level shape:
-
-  {
-    "status": 200,
-    "message": "SSS report fetched successfully",
-    "data": {
-      "outerData": [...],   // sub-channel summary rows
-      "innerData": [...],   // per-route/FF detail rows
-      "subChannels": [...], // list of sub-channel names present
-      "allSkus": [...],     // list of all SKU names present
-      "summation": {...}    // overall totals
-    }
-  }
-
-outerData — array of sub-channel summary objects. Each has:
-  - type : string — sub-channel name e.g. "Silver STT", "Total Memo", "total STT"
-  - data : object — keys are SKU names with numeric string values, plus "user_name", "route_name", "no_of_memo"
-  Sub-channel types: Silver STT, Platinum STT, RCC STT, Gold STT, GT STT, BCC STT, TRC STT, total STT, Total Memo
-
-innerData — array of per-route detail objects. Each row has:
-  - route_id, route_name
-  - user_name, user_id
-  - no_of_memo           : integer
-  - total_volume         : numeric string (HL)
-  - total_value          : numeric string (BDT)
-  - total_discount, net_value, unnoti_reimbursement : numeric strings
-  - targeted_outlet      : integer
-  - percentage_of_value, percentage_of_volume : numeric strings
-  - <SKU name>           : numeric string — one key per SKU (e.g. "B&H SF 20HL", "LS OG 20HL PUG")
-
-summation — overall totals:
-  - totalMemo, totalTargetedOutlet : integers
-  - totalValue, totalVolume, totalDiscount, totalNetValue, totalUnnotiReimbursement : numeric strings
-
-ALWAYS use an extraction_script when calling the SSS Report API.
-The raw response is ~60,000 chars — far above the 12,000-char tool output limit.
-Without an extraction_script, most data will be silently truncated.
-
-Example extraction scripts:
-
-1. Overall summary only:
-   result = response.get("data", {}).get("summation", {})
-
-2. Per-route table (innerData), key columns only:
-   rows = response.get("data", {}).get("innerData", [])
-   result = [{"route": r.get("route_name"), "ff": r.get("user_name"), "memos": r.get("no_of_memo"), "volume": r.get("total_volume"), "value": r.get("total_value"), "net_value": r.get("net_value"), "outlets": r.get("targeted_outlet")} for r in rows]
-
-3. Sub-channel summary (outerData):
-   result = [{"sub_channel": item.get("type"), "data": item.get("data", {})} for item in response.get("data", {}).get("outerData", [])]
-
-4. Total STT and Memo rows only:
-   outer = response.get("data", {}).get("outerData", [])
-   result = [x for x in outer if x.get("type") in ("total STT", "Total Memo")]
-
-Choose extraction_script based on what the user wants:
-- Summary/totals → script 1
-- Route/FF details → script 2
-- Sub-channel breakdown → script 3
-- STT vs Memo totals → script 4
-
-Default: if the user says "generate a report", "show the report", or similar without
-specifying a view, default to script 1 (summation) for a high-level summary.
 ---
