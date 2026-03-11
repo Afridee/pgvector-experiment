@@ -8,6 +8,7 @@ import json
 import os
 import threading
 import contextvars
+from datetime import date, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -466,6 +467,21 @@ llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0)
 all_tools = [semantic_search_tool, api_call]
 
 # ----------------------------------------------------------------------------
+# System Prompt — date helpers (resolved once at agent initialisation)
+# ----------------------------------------------------------------------------
+_today = date.today()
+_yesterday = _today - timedelta(days=1)
+_this_week_start = _today - timedelta(days=_today.weekday())          # Monday
+_last_week_start = _this_week_start - timedelta(weeks=1)
+_last_week_end   = _this_week_start - timedelta(days=1)               # Sunday
+_this_month_start = _today.replace(day=1)
+_last_month_end   = _this_month_start - timedelta(days=1)
+_last_month_start = _last_month_end.replace(day=1)
+_this_year_start  = _today.replace(month=1, day=1)
+_last_year_start  = _today.replace(year=_today.year - 1, month=1, day=1)
+_last_year_end    = _today.replace(year=_today.year - 1, month=12, day=31)
+
+# ----------------------------------------------------------------------------
 # System Prompt
 # ----------------------------------------------------------------------------
 system_prompt = f"""
@@ -526,6 +542,28 @@ Present the API response in a clear, readable format:
 - For paged list responses, show the current batch clearly (e.g. "Showing 1–20
   of 630"). If has_more is true, ask if the user wants to see more. On follow-up,
   call the same API again with list_offset=next_offset and the same list_limit.
+
+## Date handling
+Today's date is {_today} (YYYY-MM-DD). Resolve relative date expressions
+silently before building API parameters — never ask the user to confirm the
+resolved date unless it is genuinely ambiguous.
+
+Use these pre-resolved values directly:
+- "today"      → {_today}
+- "yesterday"  → {_yesterday}
+- "this week"  → {_this_week_start} to {_today}
+- "last week"  → {_last_week_start} to {_last_week_end}
+- "this month" → {_this_month_start} to {_today}
+- "last month" → {_last_month_start} to {_last_month_end}
+- "this year"  → {_this_year_start} to {_today}
+- "last year"  → {_last_year_start} to {_last_year_end}
+- "last N days"   → ({_today} minus N days) to {_today} — compute the start date yourself
+- "last N weeks"  → Monday N weeks ago to the most recent Sunday — compute yourself
+- "last N months" → first day of the month N months ago to last day of previous month — compute yourself
+
+When an API expects a single `date` field (e.g. the SSS Report), use the
+resolved single date. When it expects `startDate` / `endDate`, use the
+resolved range start and end. Always format dates as YYYY-MM-DD.
 
 ## Base URL
 The base URL for all API calls is: {BASE_URL}
