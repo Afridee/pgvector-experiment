@@ -1295,3 +1295,47 @@ Format: id | name | territory_id | area_id | region_id
   466 | Lakhai | territory_id:43 | area_id:10 | region_id:4
   469 | Cumilla | territory_id:33 | area_id:8 | region_id:3
 ---
+
+---
+title: Products API — Endpoint and Response Shape
+tags: topic:endpoint, applies_to:all, entity:product, api_template
+content:
+To fetch the full product catalogue, make a GET request to:
+
+  {BASE_URL}/mobile/products
+
+You MUST include the standard authentication headers (Bearer token, x-refresh-token, x-validate-token).
+No query parameters are required.
+
+A successful response (HTTP 200) has this shape:
+
+  {
+    "status": 200,
+    "message": { "eng": "Products fetched successfully", "ben": "..." },
+    "data": {
+      "products": [
+        {
+          "id": <integer>,           // product ID — use as productFilter value
+          "sku": "<string>",         // short SKU name, e.g. "B&H SF 20HL"
+          "title": "<string>",       // full product title
+          "productType": "FMC",
+          "packetSize": <integer>,
+          "packetUnit": "STICK",
+          "family": { "id": <integer>, "name": "<string>", "shortName": "<string>" },
+          "brand":  { "id": <integer>, "name": "<string>", "shortName": "<string>" },
+          "price": { "pack": <float>, "stick": <float>, "th": <integer>, "packDiscount": 0 }
+        },
+        ...
+      ],
+      "familyWise": [ { "brand": "<string>", "sizes": [...] }, ... ],
+      "total": <integer>
+    }
+  }
+
+The "total" field gives the count of all products (currently 55).
+Use the product "id" field as the value for productFilter[] in any report API.
+When a user asks about a product by name or SKU, call this endpoint and use an
+extraction_script to find the matching id before calling a report.
+
+Example extraction — get id for a product whose sku contains "LS OG":
+  result = next((p["id"] for p in response.get("data",{}).get("products",[]) if "LS OG" in p.get("sku","")), None)
