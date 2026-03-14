@@ -462,7 +462,7 @@ vectorstore = PGVector(
 )
 print("   ✓ Vector database connected")
 
-llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0)
+llm = init_chat_model("claude-sonnet-4-20250514", model_provider="anthropic", temperature=0)
 
 all_tools = [semantic_search_tool, api_call]
 
