@@ -7,7 +7,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/departments
+- Path: /api/e360/enrolment/departments
 
 Payload/Headers:
 - No request body required.
@@ -42,6 +42,17 @@ If the array is empty, inform the user that no departments are currently availab
 ---
 
 ---
+title: Extraction Script Pattern — Department List (Compact)
+tags: topic:extraction_script, applies_to:enrolment_departments
+content:
+When fetching departments, use this compact extraction_script:
+
+```python
+result = [{"id": d.get("id"), "name": d.get("name")} for d in (response if isinstance(response, list) else [])]
+```
+---
+
+---
 title: Clocking Sites API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_sites, api_template
 content:
@@ -50,7 +61,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/sites
+- Path: /api/clocking/sites
 
 Payload/Headers:
 - No request body required.
@@ -87,6 +98,17 @@ If the array is empty, inform the user that no clocking sites are configured.
 ---
 
 ---
+title: Extraction Script Pattern — Clocking Sites (Compact)
+tags: topic:extraction_script, applies_to:clocking_sites
+content:
+When fetching clocking sites, use this compact extraction_script:
+
+```python
+result = [{"id": s.get("id"), "name": s.get("site")} for s in (response if isinstance(response, list) else [])]
+```
+---
+
+---
 title: Clocking Paginated Records API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_records_paginated, api_template
 content:
@@ -95,7 +117,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/record/paginated
+- Path: /api/clocking/record/paginated
 - Query params: staffId, page
 ---
 
@@ -110,9 +132,6 @@ Before calling this endpoint, you MUST have both of the following values:
 
 If either value is missing, ask the user before making the call.
 Do NOT use placeholder or default values.
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/clocking/record/paginated?staffId=54&page=1
 ---
 
 ---
@@ -154,7 +173,7 @@ Response structure:
         "clockOutImageUrl": null,
         "clockInSource": "APP",
         "clockOutSource": null,
-        "staff2": { "id": 54, "firstName": "John", "lastName": "Doe", ... }
+        "staff2": { "id": 54, "firstName": "John", "lastName": "Doe" }
       }
     ]
   }
@@ -177,6 +196,30 @@ Important field paths:
 ---
 
 ---
+title: Extraction Script Pattern — Clocking Records (Summary)
+tags: topic:extraction_script, applies_to:clocking_records_paginated
+content:
+When fetching paginated clocking records, use this extraction_script to produce
+a compact summary. ALWAYS use .get() for safe access.
+
+```python
+result = [{"week": w.get("startDate", "") + " to " + w.get("endDate", ""),
+           "totalHours": w.get("totalWorkDurationInWeek"),
+           "approved": w.get("totalApprovedWorkDurationInWeek"),
+           "unapproved": w.get("totalUnapprovedWorkDurationInWeek"),
+           "records": [{"date": r2.get("date"),
+                        "clockIn": r2.get("clockInTime"),
+                        "clockOut": r2.get("clockOutTime"),
+                        "duration": r2.get("workDuration"),
+                        "approved": r2.get("recordApproved"),
+                        "break": r2.get("breakTime"),
+                        "clockedOut": r2.get("clockedOut")}
+                       for r2 in w.get("clockingRecords", [])]}
+          for w in (response if isinstance(response, list) else [])]
+```
+---
+
+---
 title: Clocking Check Status API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_check_status, api_template
 content:
@@ -185,7 +228,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/clocking/record/checkClockingStatus
+- Path: /api/clocking/record/checkClockingStatus
 - Query params: staffId
 ---
 
@@ -196,9 +239,6 @@ content:
 Before calling this endpoint, you MUST have the following value:
 
 - staffId : string — the ID of the staff member to check
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/clocking/record/checkClockingStatus?staffId=54
 ---
 
 ---
@@ -226,14 +266,11 @@ When the staff member IS currently clocked in:
 ```
 
 Important field paths:
-- RESPONSE            — string, either "CLOCK_IN_NOT_RUNNING" or another value indicating active session
+- RESPONSE            — string, either "CLOCK_IN_NOT_RUNNING" or "CLOCK_IN_RUNNING"
 - CLOCKING_RECORD_ID  — integer, present only when clock-in is active
 - WORK_DURATION       — string (HH:mm), present only when clock-in is active
 - CLOCK_IN_TIME       — string, present only when clock-in is active
 - CLOCK_IN_DATE       — string (YYYY-MM-DD), present only when clock-in is active
-
-If RESPONSE == "CLOCK_IN_NOT_RUNNING", the staff member is not currently clocked in.
-Otherwise, a session is active and the fields above will be populated.
 ---
 
 ---
@@ -246,7 +283,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/venues
+- Path: /api/e360/checklist/venues
 
 Payload/Headers:
 - No request body required.
@@ -279,6 +316,17 @@ Important field paths:
 ---
 
 ---
+title: Extraction Script Pattern — Venue List (Compact)
+tags: topic:extraction_script, applies_to:checklist_venues
+content:
+When fetching venues, use this compact extraction_script:
+
+```python
+result = [{"id": v.get("id"), "name": v.get("venueName")} for v in (response if isinstance(response, list) else [])]
+```
+---
+
+---
 title: Checklist Types API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_types, api_template
 content:
@@ -287,7 +335,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/type/all
+- Path: /api/e360/checklist/type/all
 
 Payload/Headers:
 - No request body required.
@@ -318,6 +366,17 @@ Important field paths:
 ---
 
 ---
+title: Extraction Script Pattern — Checklist Types (Compact)
+tags: topic:extraction_script, applies_to:checklist_types
+content:
+When fetching checklist types, use this compact extraction_script:
+
+```python
+result = [{"id": t.get("id"), "type": t.get("type")} for t in (response if isinstance(response, list) else [])]
+```
+---
+
+---
 title: Checklist Record API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_record, api_template
 content:
@@ -326,7 +385,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/record
+- Path: /api/e360/checklist/record
 - Query params: date, typeId, venueId
 ---
 
@@ -337,14 +396,11 @@ content:
 Before calling this endpoint, you MUST have ALL of the following:
 
 - date    : string in YYYY-MM-DD format — the date of the checklist
-- typeId  : integer — the checklist type ID (from /api/e360/checklist/type/all)
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
+- typeId  : integer — the checklist type ID (from checklist types endpoint)
+- venueId : integer — the venue ID (from venues endpoint)
 
 If ANY of these are missing, ask the user before calling.
 Do NOT use placeholder or default values.
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/record?date=2025-01-06&typeId=1&venueId=2
 ---
 
 ---
@@ -370,10 +426,10 @@ When a record EXISTS:
         "checked": true,
         "na": false,
         "comment": null,
-        "checklistCriteria": { "id": 5, "sn": 1, "name": "Floors cleaned", "checklistType": {...}, "checklistGroup": null }
+        "checklistCriteria": { "id": 5, "sn": 1, "name": "Floors cleaned", "checklistType": {}, "checklistGroup": null }
       }
     ],
-    "submittedBy": { "id": 54, "firstName": "John", ... }
+    "submittedBy": { "id": 54, "firstName": "John", "lastName": "Doe" }
   }
 }
 ```
@@ -392,8 +448,56 @@ Important field paths:
 - RECORD.elementsVenue.venueName
 - RECORD.checklistReadings[*].checked
 - RECORD.checklistReadings[*].na
+- RECORD.checklistReadings[*].comment
 - RECORD.checklistReadings[*].checklistCriteria.name
+- RECORD.checklistReadings[*].checklistCriteria.checklistGroup.name
 - RECORD.submittedBy.firstName
+- RECORD.submittedBy.lastName
+---
+
+---
+title: Extraction Script Pattern — Checklist Record (Summary-First)
+tags: topic:extraction_script, applies_to:checklist_record
+content:
+When fetching a checklist record, use this extraction_script to pre-aggregate
+readings by group for summary-first display. ALWAYS use .get() for safe access.
+
+This script produces a "groups" dict where each group has counts (done, notDone, na)
+AND an "items" array for drill-down. Present Level 1 (summary table) first. Only
+show Level 2 (item detail) when the user asks for a specific section or "show all".
+
+```python
+r = response.get("RESPONSE", "")
+record = response.get("RECORD", {})
+sb = record.get("submittedBy") or {}
+readings = record.get("checklistReadings", [])
+groups = {}
+for rd in readings:
+    cc = rd.get("checklistCriteria") or {}
+    gname = ((cc.get("checklistGroup") or {}).get("name")) or "Ungrouped"
+    if gname not in groups:
+        groups[gname] = {"done": 0, "notDone": 0, "na": 0, "items": []}
+    na = rd.get("na", False) or False
+    checked = rd.get("checked", False)
+    if na:
+        groups[gname]["na"] += 1
+        status = "na"
+    elif checked:
+        groups[gname]["done"] += 1
+        status = "done"
+    else:
+        groups[gname]["notDone"] += 1
+        status = "notDone"
+    groups[gname]["items"].append({"criteria": (cc.get("name") or "").strip(), "status": status, "comment": rd.get("comment")})
+result = {"found": r == "CHECKLIST_RECORD_FOUND",
+          "submitted": record.get("submitted"),
+          "submittedBy": (sb.get("firstName", "") + " " + sb.get("lastName", "")).strip(),
+          "submissionDateTime": record.get("submissionDateTime"),
+          "venue": (record.get("elementsVenue") or {}).get("venueName"),
+          "checklistType": (record.get("checklistType") or {}).get("type"),
+          "totalItems": len(readings),
+          "groups": {g: {"done": v["done"], "notDone": v["notDone"], "na": v["na"], "total": v["done"] + v["notDone"] + v["na"], "items": v["items"]} for g, v in groups.items()}}
+```
 ---
 
 ---
@@ -405,7 +509,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/criteria/type
+- Path: /api/e360/checklist/criteria/type
 - Query params: typeId
 ---
 
@@ -415,10 +519,7 @@ tags: topic:parameters, applies_to:checklist_criteria_type, business_rule
 content:
 Before calling this endpoint, you MUST have:
 
-- typeId : integer — the checklist type ID (from /api/e360/checklist/type/all)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/criteria/type?typeId=1
+- typeId : integer — the checklist type ID (from checklist types endpoint)
 ---
 
 ---
@@ -460,7 +561,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/templog/record
+- Path: /api/e360/templog/record
 - Query params: date, venueId
 ---
 
@@ -471,10 +572,10 @@ content:
 Before calling this endpoint, you MUST have ALL of the following:
 
 - date    : string in YYYY-MM-DD format — the date of the temperature log
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
+- venueId : integer — the venue ID (from venues endpoint)
 
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/templog/record?date=2025-01-06&venueId=2
+If ANY of these are missing, ask the user before calling.
+Do NOT use placeholder or default values.
 ---
 
 ---
@@ -500,7 +601,7 @@ When a record EXISTS:
     "submissionDateTime": "2025-01-06T11:00:00",
     "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" },
     "submitted": true,
-    "submittedBy": { "id": 54, "firstName": "John", ... },
+    "submittedBy": { "id": 54, "firstName": "John", "lastName": "Doe" },
     "tempLogReadings": [
       {
         "id": 200,
@@ -516,7 +617,7 @@ When a record EXISTS:
           "acceptableLowerValue": 1.0,
           "acceptableUpperValue": 5.0,
           "tempLogGroup": { "id": 1, "name": "Refrigeration" },
-          "elementsVenue": { "id": 2, ... }
+          "elementsVenue": { "id": 2 }
         }
       }
     ]
@@ -533,13 +634,54 @@ Important field paths:
 - RECORD.submitted
 - RECORD.submissionDateTime
 - RECORD.elementsVenue.venueName
+- RECORD.submittedBy.firstName
+- RECORD.submittedBy.lastName
 - RECORD.tempLogReadings[*].recordedValue
 - RECORD.tempLogReadings[*].acceptable
 - RECORD.tempLogReadings[*].na
+- RECORD.tempLogReadings[*].comment
 - RECORD.tempLogReadings[*].tempLogCriteria.name
 - RECORD.tempLogReadings[*].tempLogCriteria.acceptableLowerValue
 - RECORD.tempLogReadings[*].tempLogCriteria.acceptableUpperValue
 - RECORD.tempLogReadings[*].tempLogCriteria.unitCode
+- RECORD.tempLogReadings[*].tempLogCriteria.tempLogGroup.name
+---
+
+---
+title: Extraction Script Pattern — Temperature Log Record (Summary-First)
+tags: topic:extraction_script, applies_to:templog_record
+content:
+When fetching a temperature log record, use this extraction_script to pre-aggregate
+readings by group for summary-first display. ALWAYS use .get() for safe access.
+
+```python
+r = response.get("RESPONSE", "")
+record = response.get("RECORD", {})
+sb = record.get("submittedBy") or {}
+readings = record.get("tempLogReadings", [])
+groups = {}
+for rd in readings:
+    tc = rd.get("tempLogCriteria") or {}
+    gname = ((tc.get("tempLogGroup") or {}).get("name")) or "Ungrouped"
+    if gname not in groups:
+        groups[gname] = {"ok": 0, "oor": 0, "na": 0, "items": []}
+    na = rd.get("na", False) or False
+    acc = rd.get("acceptable", False)
+    if na:
+        groups[gname]["na"] += 1
+    elif acc:
+        groups[gname]["ok"] += 1
+    else:
+        groups[gname]["oor"] += 1
+    groups[gname]["items"].append({"item": tc.get("name"), "value": rd.get("recordedValue"), "unit": tc.get("unitCode", ""), "min": tc.get("acceptableLowerValue"), "max": tc.get("acceptableUpperValue"), "acceptable": acc, "na": na, "comment": rd.get("comment")})
+result = {"found": r == "TEMP_LOG_RECORD_FOUND",
+          "submitted": record.get("submitted"),
+          "submittedBy": (sb.get("firstName", "") + " " + sb.get("lastName", "")).strip(),
+          "submissionDateTime": record.get("submissionDateTime"),
+          "venue": (record.get("elementsVenue") or {}).get("venueName"),
+          "totalItems": len(readings),
+          "groups": {g: {"ok": v["ok"], "oor": v["oor"], "na": v["na"], "total": v["ok"] + v["oor"] + v["na"], "items": v["items"]} for g, v in groups.items()}}
+```
 ---
 
 ---
@@ -551,7 +693,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/templog/criteria/venue
+- Path: /api/e360/templog/criteria/venue
 - Query params: venueId
 ---
 
@@ -561,10 +703,7 @@ tags: topic:parameters, applies_to:templog_criteria_venue, business_rule
 content:
 Before calling this endpoint, you MUST have:
 
-- venueId : integer — the venue ID (from /api/e360/checklist/venues)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/templog/criteria/venue?venueId=2
+- venueId : integer — the venue ID (from venues endpoint)
 ---
 
 ---
@@ -613,7 +752,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/record
+- Path: /api/e360/audit/record
 - Query params: date, venueId, auditTypeId
 ---
 
@@ -624,11 +763,11 @@ content:
 Before calling this endpoint, you MUST have ALL of the following:
 
 - date        : string in YYYY-MM-DD format — the date of the audit
-- venueId     : integer — the venue ID (from /api/e360/checklist/venues)
-- auditTypeId : integer — the audit type ID (from /api/e360/audit/auditType/all)
+- venueId     : integer — the venue ID (from venues endpoint)
+- auditTypeId : integer — the audit type ID (from audit types endpoint)
 
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/audit/record?date=2025-01-06&venueId=2&auditTypeId=1
+If ANY of these are missing, ask the user before calling.
+Do NOT use placeholder or default values.
 ---
 
 ---
@@ -650,7 +789,7 @@ When a record EXISTS:
     "totalScore": 480,
     "scorePercentage": 96.0,
     "auditPassed": true,
-    "auditor": { "id": 54, "firstName": "John", ... },
+    "auditor": { "id": 54, "firstName": "John", "lastName": "Doe" },
     "auditReadings": [
       {
         "id": 300,
@@ -686,13 +825,59 @@ Important field paths:
 - RECORD.scorePercentage
 - RECORD.auditPassed
 - RECORD.auditor.firstName
+- RECORD.auditor.lastName
 - RECORD.auditType.type
 - RECORD.elementsVenue.venueName
 - RECORD.auditReadings[*].checked
 - RECORD.auditReadings[*].na
+- RECORD.auditReadings[*].comment
 - RECORD.auditReadings[*].auditCriteria.name
 - RECORD.auditReadings[*].auditCriteria.critical
 - RECORD.auditReadings[*].auditCriteria.allocatedPoint
+- RECORD.auditReadings[*].auditCriteria.auditGroup.name
+---
+
+---
+title: Extraction Script Pattern — Audit Record (Summary-First)
+tags: topic:extraction_script, applies_to:audit_record
+content:
+When fetching an audit record, use this extraction_script to pre-aggregate
+readings by group for summary-first display. ALWAYS use .get() for safe access.
+
+```python
+r = response.get("RESPONSE", "")
+record = response.get("RECORD", {})
+aud = record.get("auditor") or {}
+readings = record.get("auditReadings", [])
+groups = {}
+for rd in readings:
+    ac = rd.get("auditCriteria") or {}
+    gname = ((ac.get("auditGroup") or {}).get("name")) or "Ungrouped"
+    if gname not in groups:
+        groups[gname] = {"pass": 0, "fail": 0, "na": 0, "criticalFails": 0, "items": []}
+    na = rd.get("na", False) or False
+    checked = rd.get("checked", False)
+    critical = ac.get("critical", False)
+    if na:
+        groups[gname]["na"] += 1
+    elif checked:
+        groups[gname]["pass"] += 1
+    else:
+        groups[gname]["fail"] += 1
+        if critical:
+            groups[gname]["criticalFails"] += 1
+    groups[gname]["items"].append({"criteria": ac.get("name"), "critical": critical, "points": ac.get("allocatedPoint"), "checked": checked, "na": na, "comment": rd.get("comment")})
+result = {"found": r == "AUDIT_RECORD_FOUND",
+          "totalScore": record.get("totalScore"),
+          "scorePercentage": record.get("scorePercentage"),
+          "passed": record.get("auditPassed"),
+          "auditor": (aud.get("firstName", "") + " " + aud.get("lastName", "")).strip(),
+          "submissionDateTime": record.get("submissionDateTime"),
+          "venue": (record.get("elementsVenue") or {}).get("venueName"),
+          "auditType": (record.get("auditType") or {}).get("type"),
+          "totalItems": len(readings),
+          "groups": {g: {"pass": v["pass"], "fail": v["fail"], "na": v["na"], "criticalFails": v["criticalFails"], "total": v["pass"] + v["fail"] + v["na"], "items": v["items"]} for g, v in groups.items()}}
+```
 ---
 
 ---
@@ -704,7 +889,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/auditType/all
+- Path: /api/e360/audit/auditType/all
 
 Payload/Headers:
 - No request body required.
@@ -728,8 +913,17 @@ Response structure:
 Important field paths:
 - [*].id   — integer, unique audit type ID
 - [*].type — string, audit type label
+---
 
-Note: Access to specific audit types may be restricted by staff permissions in the app. The API itself returns all types regardless.
+---
+title: Extraction Script Pattern — Audit Types (Compact)
+tags: topic:extraction_script, applies_to:audit_types
+content:
+When fetching audit types, use this compact extraction_script:
+
+```python
+result = [{"id": t.get("id"), "type": t.get("type")} for t in (response if isinstance(response, list) else [])]
+```
 ---
 
 ---
@@ -741,7 +935,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/audit/criteria/all
+- Path: /api/e360/audit/criteria/all
 - Query params: auditTypeId
 ---
 
@@ -751,10 +945,7 @@ tags: topic:parameters, applies_to:audit_criteria, business_rule
 content:
 Before calling this endpoint, you MUST have:
 
-- auditTypeId : integer — the audit type ID (from /api/e360/audit/auditType/all)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/audit/criteria/all?auditTypeId=1
+- auditTypeId : integer — the audit type ID (from audit types endpoint)
 ---
 
 ---
@@ -801,7 +992,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffs
+- Path: /api/e360/enrolment/staffs
 
 Payload/Headers:
 - No request body required.
@@ -834,7 +1025,20 @@ Important field paths:
 - [*].lastName   — string
 - [*].terminated — boolean; active staff have terminated == false
 
-Note: The app filters out terminated staff (terminated == true) before displaying the list. You should do the same when presenting results to the user.
+Note: Filter out terminated staff (terminated == true) before displaying the list.
+---
+
+---
+title: Extraction Script Pattern — Staff Mini List (Compact)
+tags: topic:extraction_script, applies_to:enrolment_staffs
+content:
+When fetching the lightweight staff list, use this extraction_script:
+
+```python
+result = [{"id": s.get("id"), "name": ((s.get("firstName") or "") + " " + (s.get("lastName") or "")).strip()}
+          for s in (response if isinstance(response, list) else [])
+          if not s.get("terminated", False)]
+```
 ---
 
 ---
@@ -846,7 +1050,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffsByDepartment
+- Path: /api/e360/enrolment/staffsByDepartment
 - Query params: departmentId
 ---
 
@@ -856,17 +1060,14 @@ tags: topic:parameters, applies_to:enrolment_staffs_by_department, business_rule
 content:
 Before calling this endpoint, you MUST have:
 
-- departmentId : integer — the department ID (from /api/e360/enrolment/departments)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/staffsByDepartment?departmentId=3
+- departmentId : integer — the department ID (from departments endpoint)
 ---
 
 ---
 title: Enrolment Staffs by Department API — Response
 tags: topic:response, applies_to:enrolment_staffs_by_department
 content:
-A successful response (HTTP 200) returns a JSON array of staff mini objects (same shape as /api/e360/enrolment/staffs).
+A successful response (HTTP 200) returns a JSON array of staff mini objects (same shape as the all staffs endpoint).
 
 Response structure:
 ```json
@@ -898,7 +1099,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingCriteriaList
+- Path: /api/e360/training/trainingCriteriaList
 - Query params: trainingSubjectId
 ---
 
@@ -908,10 +1109,7 @@ tags: topic:parameters, applies_to:training_criteria_list, business_rule
 content:
 Before calling this endpoint, you MUST have:
 
-- trainingSubjectId : integer — the training subject ID (from /api/e360/training/trainingSubject)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingCriteriaList?trainingSubjectId=5
+- trainingSubjectId : integer — the training subject ID (from training subject endpoint)
 ---
 
 ---
@@ -955,11 +1153,11 @@ title: Training Subject API — Endpoint and Method
 tags: topic:endpoint, applies_to:training_subject, api_template
 content:
 Purpose:
-- Returns the training subject record for a given training station and training type combination. A training subject links a station to a specific type of training programme.
+- Returns the training subject record for a given training station and training type combination.
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingSubject
+- Path: /api/e360/training/trainingSubject
 - Query params: stationId, trainingType
 ---
 
@@ -970,12 +1168,9 @@ content:
 Before calling this endpoint, you MUST have BOTH of the following:
 
 - stationId    : integer — the training station ID
-- trainingType : string  — the type of training programme. Known values used in the app:
+- trainingType : string  — the type of training programme. Known values:
     "INITIAL_TRAINING"      — first-time training for a new staff member at a station
     "TRAINING_VERIFICATION" — follow-up verification of previously completed training
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/e360/training/trainingSubject?stationId=2&trainingType=INITIAL_TRAINING
 
 If either value is missing, ask the user before calling.
 ---
@@ -999,12 +1194,12 @@ Response structure:
 ```
 
 Important field paths:
-- id                        — integer, unique training subject ID (use this as trainingSubjectId for the criteria list API)
+- id                        — integer, unique training subject ID (use as trainingSubjectId for criteria list)
 - trainingType              — string
 - trainingStation.id
 - trainingStation.name
 
-If the response is null or empty, inform the user that no training subject exists for the given station and training type combination.
+If the response is null or empty, inform the user that no training subject exists for the given combination.
 ---
 
 ---
@@ -1016,7 +1211,7 @@ Purpose:
 
 Endpoint:
 - Method: GET
-- URL: https://api-ebg-erp.binarycraftbd.com/api/breakageReport/reportByVenueAndDate
+- Path: /api/breakageReport/reportByVenueAndDate
 - Query params: date, venue
 ---
 
@@ -1028,9 +1223,6 @@ Before calling this endpoint, you MUST have BOTH of the following:
 
 - date  : string in YYYY-MM-DD format — the date of the report
 - venue : string — the venue name (NOT the venue ID; this is the venue name string)
-
-Example URL:
-  https://api-ebg-erp.binarycraftbd.com/api/breakageReport/reportByVenueAndDate?date=2025-01-06&venue=Bistro
 
 If either is missing, ask the user before calling.
 ---
@@ -1050,7 +1242,7 @@ When a report EXISTS:
     "venue": "Bistro",
     "date": "2025-01-06",
     "day": "Monday",
-    "submittedByStaff": { "id": 54, "firstName": "John", ... },
+    "submittedByStaff": { "id": 54, "firstName": "John", "lastName": "Doe" },
     "finalized": true,
     "netSales": 5200.00,
     "totalBreakageCost": 45.50,
@@ -1088,27 +1280,61 @@ Important field paths:
 - REPORT.totalBreakageCost            — double
 - REPORT.totalBreakagePercentage      — double
 - REPORT.submittedByStaff.firstName
+- REPORT.submittedByStaff.lastName
 - REPORT.breakageDetails[*].qty
 - REPORT.breakageDetails[*].totalCost
 - REPORT.breakageDetails[*].reason
 - REPORT.breakageDetails[*].glasswareItem.name
+- REPORT.breakageDetails[*].glasswareItem.size
 - REPORT.breakageDetails[*].glasswareItem.unitCost
+- REPORT.breakageDetails[*].glasswareItem.imageUrl
 ---
+
+---
+title: Extraction Script Pattern — Breakage Report
+tags: topic:extraction_script, applies_to:breakage_report
+content:
+When fetching a breakage report, use this extraction_script. ALWAYS use .get().
+
+```python
+r = response.get("RESPONSE", "")
+rpt = response.get("REPORT", {})
+sb = rpt.get("submittedByStaff") or {}
+result = {"found": r == "REPORT_EXISTS",
+          "venue": rpt.get("venue"),
+          "date": rpt.get("date"),
+          "day": rpt.get("day"),
+          "finalized": rpt.get("finalized"),
+          "netSales": rpt.get("netSales"),
+          "totalCost": rpt.get("totalBreakageCost"),
+          "totalPct": rpt.get("totalBreakagePercentage"),
+          "submittedBy": (sb.get("firstName", "") + " " + sb.get("lastName", "")).strip(),
+          "details": [{"item": (d.get("glasswareItem") or {}).get("name"),
+                       "size": (d.get("glasswareItem") or {}).get("size"),
+                       "qty": d.get("qty"),
+                       "unitCost": (d.get("glasswareItem") or {}).get("unitCost"),
+                       "totalCost": d.get("totalCost"),
+                       "reason": d.get("reason"),
+                       "imageUrl": (d.get("glasswareItem") or {}).get("imageUrl")}
+                      for d in rpt.get("breakageDetails", [])]}
+```
+---
+
 ---
 title: Get All Enrolments API — Endpoint and Method
 tags: topic:endpoint, applies_to:get_all_enrolments, api_template
 content:
-To retrieve all staff enrolments, make a GET request to:
+Purpose:
+- Retrieves all staff enrolments with full profile details.
 
-  https://api-ebg-erp.binarycraftbd.com/api/e360/enrolment/getAllEnrolments
+Endpoint:
+- Method: GET
+- Path: /api/e360/enrolment/getAllEnrolments
 
-HTTP Method: GET
-No request body is required.
-No query parameters are required.
-
-The response is a JSON array. Each element is a staff enrolment object.
-Use the staff.id field from each enrolment when calling the clock-in or clock-out APIs.
+No request body or query parameters required.
+Call directly when the user asks to fetch, list, or refresh all staff enrolments.
 ---
+
 ---
 title: Get All Enrolments API — Parameters
 tags: topic:parameters, applies_to:get_all_enrolments
@@ -1116,8 +1342,8 @@ content:
 This endpoint requires NO parameters — no query params, no path params, no request body.
 
 Do NOT ask the user for any input before calling this endpoint.
-Call it directly when the user asks to fetch, list, or refresh all staff enrolments.
 ---
+
 ---
 title: Get All Enrolments API — Response Structure
 tags: topic:response, applies_to:get_all_enrolments
@@ -1179,24 +1405,41 @@ Important field paths (per array element):
 - [*].id                          — enrolment record ID
 - [*].givenNames                  — staff given/first name(s)
 - [*].surname                     — staff surname
-- [*].dob                         — date of birth (string)
+- [*].dob                         — date of birth
 - [*].email                       — staff email
 - [*].mobileNumber                — mobile phone number
-- [*].defaultSite.id              — default site ID (use as siteId in clock-in/out calls)
+- [*].defaultSite.id              — default site ID
 - [*].defaultSite.name            — default site name
-- [*].personalPhotoFiles[0].url   — URL of the staff's profile photo
-- [*].staff.id                    — staff ID (REQUIRED for clock-in, clock-out, image upload, access code APIs)
-- [*].staff.firstName             — staff first name (from staff sub-object)
+- [*].personalPhotoFiles[0].url   — URL of staff profile photo
+- [*].staff.id                    — staff ID (REQUIRED for clocking, training, etc.)
+- [*].staff.firstName             — staff first name
 - [*].staff.lastName              — staff last name
-- [*].staff.enrolmentSubmitted    — boolean; whether enrolment has been submitted
-- [*].staff.enrolmentCompleted    — boolean; whether enrolment is fully completed
-- [*].staff.accessProhibited      — boolean; if true, staff cannot clock in
+- [*].staff.enrolmentSubmitted    — boolean
+- [*].staff.enrolmentCompleted    — boolean
+- [*].staff.accessProhibited      — boolean
 - [*].staff.terminated            — boolean; if true, staff is no longer active
-- [*].staff.authUser.id           — auth user ID
 - [*].staff.authUser.username     — login username
 - [*].staffDepartment.id          — department ID
 - [*].staffDepartment.name        — department name
 
 If the array is empty, inform the user that no enrolments were found.
-If the request fails (non-200), show the HTTP status code and any error message returned.
+---
+
+---
+title: Extraction Script Pattern — Staff Enrolments (Compact)
+tags: topic:extraction_script, applies_to:get_all_enrolments
+content:
+When fetching all enrolments, use this extraction_script to filter out terminated
+staff and extract only the commonly needed fields. ALWAYS use .get() for safe access.
+
+```python
+result = [{"name": (e.get("givenNames", "") + " " + e.get("surname", "")).strip(),
+           "staffId": (e.get("staff") or {}).get("id"),
+           "email": e.get("email"),
+           "mobile": e.get("mobileNumber"),
+           "dept": (e.get("staffDepartment") or {}).get("name"),
+           "site": (e.get("defaultSite") or {}).get("name")}
+          for e in (response if isinstance(response, list) else [])
+          if not (e.get("staff") or {}).get("terminated", False)]
+```
 ---
