@@ -6,7 +6,17 @@ BASE_URL: https://api-ebg-erp.binarycraftbd.com
 
 All endpoint URLs below use {BASE_URL} as a placeholder for this base URL.
 ---
+title: Authentication — Required Headers for All Endpoints
+tags: topic:auth, applies_to:all
+content:
+All API requests require an Authorization header with a Bearer token.
 
+You MUST include the following header on every request:
+  Authorization: Bearer <token>
+
+The auth token is injected automatically from the API_TOKEN environment variable.
+Do NOT ask the user for the token.
+Do NOT hardcode any token value in your requests.
 ---
 title: Enrolment Departments API — Endpoint and Method
 tags: topic:endpoint, applies_to:enrolment_departments, api_template
@@ -21,8 +31,6 @@ Endpoint:
 Payload/Headers:
 - No request body required.
 - No query parameters required.
----
-
 ---
 title: Enrolment Departments API — Response
 tags: topic:response, applies_to:enrolment_departments
@@ -51,8 +59,6 @@ Important field paths:
 
 If the array is empty, inform the user that no departments are currently available.
 ---
-
----
 title: Clocking Sites API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_sites, api_template
 content:
@@ -66,8 +72,6 @@ Endpoint:
 Payload/Headers:
 - No request body required.
 - No query parameters required.
----
-
 ---
 title: Clocking Sites API — Response
 tags: topic:response, applies_to:clocking_sites
@@ -98,8 +102,6 @@ Important field paths:
 
 If the array is empty, inform the user that no clocking sites are configured.
 ---
-
----
 title: Clocking Paginated Records API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_records_paginated, api_template
 content:
@@ -110,8 +112,6 @@ Endpoint:
 - Method: GET
 - URL: {BASE_URL}/api/clocking/record/paginated
 - Query params: staffId, page
----
-
 ---
 title: Clocking Paginated Records API — Required Parameters
 tags: topic:parameters, applies_to:clocking_records_paginated, business_rule
@@ -126,8 +126,6 @@ Do NOT use placeholder or default values.
 
 Example URL:
   {BASE_URL}/api/clocking/record/paginated?staffId=54&page=1
----
-
 ---
 title: Clocking Paginated Records API — Response
 tags: topic:response, applies_to:clocking_records_paginated
@@ -169,7 +167,7 @@ Response structure:
         "clockOutImageUrl": null,
         "clockInSource": "APP",
         "clockOutSource": null,
-        "staff2": { "id": 54, "firstName": "John", "lastName": "Doe", ... }
+        "staff2": { "id": 54, "firstName": "John", "lastName": "Doe" }
       }
     ]
   }
@@ -190,8 +188,6 @@ Important field paths:
 - [*].clockingRecords[*].recordApproved
 - [*].clockingRecords[*].clockedOut
 ---
-
----
 title: Clocking Check Status API — Endpoint and Method
 tags: topic:endpoint, applies_to:clocking_check_status, api_template
 content:
@@ -203,8 +199,6 @@ Endpoint:
 - URL: {BASE_URL}/api/clocking/record/checkClockingStatus
 - Query params: staffId
 ---
-
----
 title: Clocking Check Status API — Required Parameters
 tags: topic:parameters, applies_to:clocking_check_status, business_rule
 content:
@@ -214,8 +208,6 @@ Before calling this endpoint, you MUST have the following value:
 
 Example URL:
   {BASE_URL}/api/clocking/record/checkClockingStatus?staffId=54
----
-
 ---
 title: Clocking Check Status API — Response
 tags: topic:response, applies_to:clocking_check_status
@@ -252,8 +244,6 @@ Important field paths:
 If RESPONSE == "CLOCK_IN_NOT_RUNNING", the staff member is not currently clocked in.
 Otherwise, a session is active and the fields above will be populated.
 ---
-
----
 title: Checklist Venues API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_venues, api_template
 content:
@@ -269,9 +259,7 @@ Payload/Headers:
 - No request body required.
 - No query parameters required.
 ---
-
----
-title: Checklist Venues API — Response
+title: Checklist Venues API �� Response
 tags: topic:response, applies_to:checklist_venues
 content:
 Endpoint: GET {BASE_URL}/api/e360/checklist/venues
@@ -296,8 +284,6 @@ Important field paths:
 - [*].venueInitial — string or null, short abbreviation for the venue
 - [*].site         — string, name of the site this venue belongs to
 ---
-
----
 title: Checklist Types API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_types, api_template
 content:
@@ -311,8 +297,6 @@ Endpoint:
 Payload/Headers:
 - No request body required.
 - No query parameters required.
----
-
 ---
 title: Checklist Types API — Response
 tags: topic:response, applies_to:checklist_types
@@ -337,8 +321,6 @@ Important field paths:
 - [*].type      — string, name of the checklist type
 - [*].hasGroups — boolean, whether this checklist type organises criteria into groups
 ---
-
----
 title: Checklist Record API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_record, api_template
 content:
@@ -349,8 +331,6 @@ Endpoint:
 - Method: GET
 - URL: {BASE_URL}/api/e360/checklist/record
 - Query params: date, typeId, venueId
----
-
 ---
 title: Checklist Record API — Required Parameters
 tags: topic:parameters, applies_to:checklist_record, business_rule
@@ -366,8 +346,6 @@ Do NOT use placeholder or default values.
 
 Example URL:
   {BASE_URL}/api/e360/checklist/record?date=2025-01-06&typeId=1&venueId=2
----
-
 ---
 title: Checklist Record API — Response
 tags: topic:response, applies_to:checklist_record
@@ -393,10 +371,10 @@ When a record EXISTS:
         "checked": true,
         "na": false,
         "comment": null,
-        "checklistCriteria": { "id": 5, "sn": 1, "name": "Floors cleaned", "checklistType": {...}, "checklistGroup": null }
+        "checklistCriteria": { "id": 5, "sn": 1, "name": "Floors cleaned", "checklistType": {}, "checklistGroup": null }
       }
     ],
-    "submittedBy": { "id": 54, "firstName": "John", ... }
+    "submittedBy": { "id": 54, "firstName": "John" }
   }
 }
 ```
@@ -418,8 +396,6 @@ Important field paths:
 - RECORD.checklistReadings[*].checklistCriteria.name
 - RECORD.submittedBy.firstName
 ---
-
----
 title: Checklist Criteria by Type API — Endpoint and Method
 tags: topic:endpoint, applies_to:checklist_criteria_type, api_template
 content:
@@ -431,8 +407,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/checklist/criteria/type
 - Query params: typeId
 ---
-
----
 title: Checklist Criteria by Type API — Required Parameters
 tags: topic:parameters, applies_to:checklist_criteria_type, business_rule
 content:
@@ -442,8 +416,6 @@ Before calling this endpoint, you MUST have:
 
 Example URL:
   {BASE_URL}/api/e360/checklist/criteria/type?typeId=1
----
-
 ---
 title: Checklist Criteria by Type API — Response
 tags: topic:response, applies_to:checklist_criteria_type
@@ -475,8 +447,6 @@ Important field paths:
 - [*].checklistGroup.id
 - [*].checklistGroup.name
 ---
-
----
 title: TempLog Record API — Endpoint and Method
 tags: topic:endpoint, applies_to:templog_record, api_template
 content:
@@ -488,8 +458,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/templog/record
 - Query params: date, venueId
 ---
-
----
 title: TempLog Record API — Required Parameters
 tags: topic:parameters, applies_to:templog_record, business_rule
 content:
@@ -500,8 +468,6 @@ Before calling this endpoint, you MUST have ALL of the following:
 
 Example URL:
   {BASE_URL}/api/e360/templog/record?date=2025-01-06&venueId=2
----
-
 ---
 title: TempLog Record API — Response
 tags: topic:response, applies_to:templog_record
@@ -527,7 +493,7 @@ When a record EXISTS:
     "submissionDateTime": "2025-01-06T11:00:00",
     "elementsVenue": { "id": 2, "venueName": "Bistro", "venueInitial": "B", "site": "Main Site" },
     "submitted": true,
-    "submittedBy": { "id": 54, "firstName": "John", ... },
+    "submittedBy": { "id": 54, "firstName": "John" },
     "tempLogReadings": [
       {
         "id": 200,
@@ -543,7 +509,7 @@ When a record EXISTS:
           "acceptableLowerValue": 1.0,
           "acceptableUpperValue": 5.0,
           "tempLogGroup": { "id": 1, "name": "Refrigeration" },
-          "elementsVenue": { "id": 2, ... }
+          "elementsVenue": { "id": 2 }
         }
       }
     ]
@@ -568,8 +534,6 @@ Important field paths:
 - RECORD.tempLogReadings[*].tempLogCriteria.acceptableUpperValue
 - RECORD.tempLogReadings[*].tempLogCriteria.unitCode
 ---
-
----
 title: TempLog Criteria by Venue API — Endpoint and Method
 tags: topic:endpoint, applies_to:templog_criteria_venue, api_template
 content:
@@ -581,8 +545,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/templog/criteria/venue
 - Query params: venueId
 ---
-
----
 title: TempLog Criteria by Venue API — Required Parameters
 tags: topic:parameters, applies_to:templog_criteria_venue, business_rule
 content:
@@ -592,8 +554,6 @@ Before calling this endpoint, you MUST have:
 
 Example URL:
   {BASE_URL}/api/e360/templog/criteria/venue?venueId=2
----
-
 ---
 title: TempLog Criteria by Venue API — Response
 tags: topic:response, applies_to:templog_criteria_venue
@@ -632,8 +592,6 @@ Important field paths:
 - [*].tempLogGroup.name
 - [*].elementsVenue.id
 ---
-
----
 title: Audit Record API — Endpoint and Method
 tags: topic:endpoint, applies_to:audit_record, api_template
 content:
@@ -644,8 +602,6 @@ Endpoint:
 - Method: GET
 - URL: {BASE_URL}/api/e360/audit/record
 - Query params: date, venueId, auditTypeId
----
-
 ---
 title: Audit Record API — Required Parameters
 tags: topic:parameters, applies_to:audit_record, business_rule
@@ -658,8 +614,6 @@ Before calling this endpoint, you MUST have ALL of the following:
 
 Example URL:
   {BASE_URL}/api/e360/audit/record?date=2025-01-06&venueId=2&auditTypeId=1
----
-
 ---
 title: Audit Record API — Response
 tags: topic:response, applies_to:audit_record
@@ -681,7 +635,7 @@ When a record EXISTS:
     "totalScore": 480,
     "scorePercentage": 96.0,
     "auditPassed": true,
-    "auditor": { "id": 54, "firstName": "John", ... },
+    "auditor": { "id": 54, "firstName": "John" },
     "auditReadings": [
       {
         "id": 300,
@@ -725,8 +679,6 @@ Important field paths:
 - RECORD.auditReadings[*].auditCriteria.critical
 - RECORD.auditReadings[*].auditCriteria.allocatedPoint
 ---
-
----
 title: Audit Types API — Endpoint and Method
 tags: topic:endpoint, applies_to:audit_types, api_template
 content:
@@ -740,8 +692,6 @@ Endpoint:
 Payload/Headers:
 - No request body required.
 - No query parameters required.
----
-
 ---
 title: Audit Types API — Response
 tags: topic:response, applies_to:audit_types
@@ -764,8 +714,6 @@ Important field paths:
 
 Note: Access to specific audit types may be restricted by staff permissions in the app. The API itself returns all types regardless.
 ---
-
----
 title: Audit Criteria API — Endpoint and Method
 tags: topic:endpoint, applies_to:audit_criteria, api_template
 content:
@@ -777,8 +725,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/audit/criteria/all
 - Query params: auditTypeId
 ---
-
----
 title: Audit Criteria API — Required Parameters
 tags: topic:parameters, applies_to:audit_criteria, business_rule
 content:
@@ -788,8 +734,6 @@ Before calling this endpoint, you MUST have:
 
 Example URL:
   {BASE_URL}/api/e360/audit/criteria/all?auditTypeId=1
----
-
 ---
 title: Audit Criteria API — Response
 tags: topic:response, applies_to:audit_criteria
@@ -826,8 +770,6 @@ Important field paths:
 - [*].auditType.id
 - [*].auditType.type
 ---
-
----
 title: Enrolment All Staffs API — Endpoint and Method
 tags: topic:endpoint, applies_to:enrolment_staffs, api_template
 content:
@@ -841,8 +783,6 @@ Endpoint:
 Payload/Headers:
 - No request body required.
 - No query parameters required.
----
-
 ---
 title: Enrolment All Staffs API — Response
 tags: topic:response, applies_to:enrolment_staffs
@@ -873,8 +813,6 @@ Important field paths:
 
 Note: The app filters out terminated staff (terminated == true) before displaying the list. You should do the same when presenting results to the user.
 ---
-
----
 title: Enrolment Staffs by Department API — Endpoint and Method
 tags: topic:endpoint, applies_to:enrolment_staffs_by_department, api_template
 content:
@@ -886,8 +824,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/enrolment/staffsByDepartment
 - Query params: departmentId
 ---
-
----
 title: Enrolment Staffs by Department API — Required Parameters
 tags: topic:parameters, applies_to:enrolment_staffs_by_department, business_rule
 content:
@@ -897,8 +833,6 @@ Before calling this endpoint, you MUST have:
 
 Example URL:
   {BASE_URL}/api/e360/enrolment/staffsByDepartment?departmentId=3
----
-
 ---
 title: Enrolment Staffs by Department API — Response
 tags: topic:response, applies_to:enrolment_staffs_by_department
@@ -927,8 +861,6 @@ Important field paths:
 - [*].lastName
 - [*].terminated
 ---
-
----
 title: Training Criteria List API — Endpoint and Method
 tags: topic:endpoint, applies_to:training_criteria_list, api_template
 content:
@@ -940,8 +872,6 @@ Endpoint:
 - URL: {BASE_URL}/api/e360/training/trainingCriteriaList
 - Query params: trainingSubjectId
 ---
-
----
 title: Training Criteria List API — Required Parameters
 tags: topic:parameters, applies_to:training_criteria_list, business_rule
 content:
@@ -951,8 +881,6 @@ Before calling this endpoint, you MUST have:
 
 Example URL:
   {BASE_URL}/api/e360/training/trainingCriteriaList?trainingSubjectId=5
----
-
 ---
 title: Training Criteria List API — Response
 tags: topic:response, applies_to:training_criteria_list
@@ -990,8 +918,6 @@ Important field paths:
 - [*].trainingSubject.trainingType
 - [*].trainingSubject.trainingStation.name
 ---
-
----
 title: Training Subject API — Endpoint and Method
 tags: topic:endpoint, applies_to:training_subject, api_template
 content:
@@ -1002,8 +928,6 @@ Endpoint:
 - Method: GET
 - URL: {BASE_URL}/api/e360/training/trainingSubject
 - Query params: stationId, trainingType
----
-
 ---
 title: Training Subject API — Required Parameters
 tags: topic:parameters, applies_to:training_subject, business_rule
@@ -1019,8 +943,6 @@ Example URL:
   {BASE_URL}/api/e360/training/trainingSubject?stationId=2&trainingType=INITIAL_TRAINING
 
 If either value is missing, ask the user before calling.
----
-
 ---
 title: Training Subject API — Response
 tags: topic:response, applies_to:training_subject
@@ -1049,8 +971,6 @@ Important field paths:
 
 If the response is null or empty, inform the user that no training subject exists for the given station and training type combination.
 ---
-
----
 title: Breakage Report by Venue and Date API — Endpoint and Method
 tags: topic:endpoint, applies_to:breakage_report, api_template
 content:
@@ -1061,8 +981,6 @@ Endpoint:
 - Method: GET
 - URL: {BASE_URL}/api/breakageReport/reportByVenueAndDate
 - Query params: date, venue
----
-
 ---
 title: Breakage Report by Venue and Date API — Required Parameters
 tags: topic:parameters, applies_to:breakage_report, business_rule
@@ -1076,8 +994,6 @@ Example URL:
   {BASE_URL}/api/breakageReport/reportByVenueAndDate?date=2025-01-06&venue=Bistro
 
 If either is missing, ask the user before calling.
----
-
 ---
 title: Breakage Report by Venue and Date API — Response
 tags: topic:response, applies_to:breakage_report
@@ -1095,7 +1011,7 @@ When a report EXISTS:
     "venue": "Bistro",
     "date": "2025-01-06",
     "day": "Monday",
-    "submittedByStaff": { "id": 54, "firstName": "John", ... },
+    "submittedByStaff": { "id": 54, "firstName": "John" },
     "finalized": true,
     "netSales": 5200.00,
     "totalBreakageCost": 45.50,
@@ -1139,23 +1055,21 @@ Important field paths:
 - REPORT.breakageDetails[*].glasswareItem.name
 - REPORT.breakageDetails[*].glasswareItem.unitCost
 ---
----
 title: Get All Enrolments API — Endpoint and Method
 tags: topic:endpoint, applies_to:get_all_enrolments, api_template
 content:
-To retrieve all staff enrolments, make a GET request to:
+Purpose:
+- Retrieves all staff enrolments. Use the staff.id field from each enrolment when calling the clock-in or clock-out APIs.
 
-  {BASE_URL}/api/e360/enrolment/getAllEnrolments
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/enrolment/getAllEnrolments
 
-HTTP Method: GET
-No request body is required.
-No query parameters are required.
-
-The response is a JSON array. Each element is a staff enrolment object.
-Use the staff.id field from each enrolment when calling the clock-in or clock-out APIs.
+Payload/Headers:
+- No request body required.
+- No query parameters required.
 ---
----
-title: Get All Enrolments API — Parameters
+title: Get All Enrolments API — Required Parameters
 tags: topic:parameters, applies_to:get_all_enrolments
 content:
 This endpoint requires NO parameters — no query params, no path params, no request body.
@@ -1163,8 +1077,7 @@ This endpoint requires NO parameters — no query params, no path params, no req
 Do NOT ask the user for any input before calling this endpoint.
 Call it directly when the user asks to fetch, list, or refresh all staff enrolments.
 ---
----
-title: Get All Enrolments API — Response Structure
+title: Get All Enrolments API — Response
 tags: topic:response, applies_to:get_all_enrolments
 content:
 Endpoint: GET {BASE_URL}/api/e360/enrolment/getAllEnrolments
