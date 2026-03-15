@@ -1,1057 +1,1081 @@
 {
-  "RESPONSE": "CHECKLIST_RECORD_FOUND",
-  "RECORD": {
-    "id": 17193,
-    "date": "2026-03-12",
-    "checklistType": {
-      "id": 1,
-      "type": "FOH Opening Checklist",
-      "hasGroups": true
-    },
-    "elementsVenue": {
-      "id": 3,
-      "venueName": "Elements Bar & Grill Haberfield",
-      "venueInitial": "HAB",
-      "site": "EBG"
-    },
-    "submitted": true,
-    "submissionDateTime": "2026-03-12 10:09 PM",
-    "submittedBy": {
-      "id": 19,
-      "name": null,
-      "enrolmentSubmitted": true,
-      "enrolmentCorrectionRequired": false,
-      "enrolmentCompleted": false,
-      "firstName": "Jenisha",
-      "middleName": "",
-      "lastName": "Shrestha",
-      "dob": "2000-01-13",
-      "phoneNumber": "0424416954",
-      "address": "9/3 seventh avenue Campsie",
-      "postCode": "2192 NSW",
-      "suburb": "campsie ",
-      "terminated": false,
-      "dateOfTermination": null,
-      "tempStaff": false,
-      "authUser": {
-        "id": 192,
-        "email": "",
-        "e360loginEmail": "znishashrestha@gmail.com",
-        "customerHashId": null,
-        "refreshToken": null,
-        "pin": null,
-        "roles": [
+  "status_code": 200,
+  "headers": {
+    "Date": "Sun, 15 Mar 2026 16:25:18 GMT",
+    "Content-Type": "application/json",
+    "Transfer-Encoding": "chunked",
+    "Connection": "keep-alive",
+    "Server": "cloudflare",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-content-type-options": "nosniff",
+    "x-xss-protection": "1; mode=block",
+    "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+    "pragma": "no-cache",
+    "expires": "0",
+    "x-frame-options": "DENY",
+    "strict-transport-security": "max-age=15768000",
+    "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "cf-cache-status": "DYNAMIC",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=jSLxoP3TxhpidzAzJJXklxJVXPkvEom5RpZwti7jPBg4aI0gMMxHP%2BMVg3h2%2BcS4L3DKbhX9jM7MelYkkQAvLS6bT7UO%2BFsYC%2F5WRNcTaMKCZT3cFcu1UXS0gIVz\"}]}",
+    "Content-Encoding": "gzip",
+    "CF-RAY": "9dccdf907a8afc55-DAC",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "body": {
+    "RESPONSE": "CHECKLIST_RECORD_FOUND",
+    "RECORD": {
+      "id": 17193,
+      "date": "2026-03-12",
+      "checklistType": {
+        "id": 1,
+        "type": "FOH Opening Checklist",
+        "hasGroups": true
+      },
+      "elementsVenue": {
+        "id": 3,
+        "venueName": "Elements Bar & Grill Haberfield",
+        "venueInitial": "HAB",
+        "site": "EBG"
+      },
+      "submitted": true,
+      "submissionDateTime": "2026-03-12 10:09 PM",
+      "submittedBy": {
+        "id": 19,
+        "name": null,
+        "enrolmentSubmitted": true,
+        "enrolmentCorrectionRequired": false,
+        "enrolmentCompleted": false,
+        "firstName": "Jenisha",
+        "middleName": "",
+        "lastName": "Shrestha",
+        "dob": "2000-01-13",
+        "phoneNumber": "0424416954",
+        "address": "9/3 seventh avenue Campsie",
+        "postCode": "2192 NSW",
+        "suburb": "campsie ",
+        "terminated": false,
+        "dateOfTermination": null,
+        "tempStaff": false,
+        "authUser": {
+          "id": 192,
+          "email": "",
+          "e360loginEmail": "znishashrestha@gmail.com",
+          "customerHashId": null,
+          "refreshToken": null,
+          "pin": null,
+          "roles": [
+            {
+              "id": 2,
+              "name": "ROLE_STAFF"
+            }
+          ],
+          "pwResetHash": null,
+          "pwResetDone": null,
+          "customer": null,
+          "clubMember": null,
+          "source": null,
+          "accessCode": "2000"
+        },
+        "staffDepartment": {
+          "id": 1,
+          "name": "Front of House"
+        },
+        "staffPermissions": [
           {
-            "id": 2,
-            "name": "ROLE_STAFF"
+            "id": 7,
+            "permission": "TEMP_LOG_SUBMISSION"
+          },
+          {
+            "id": 14,
+            "permission": "EOD_SUBMISSION"
+          },
+          {
+            "id": 15,
+            "permission": "BREAKAGE_REPORT_SUBMISSION"
+          },
+          {
+            "id": 10,
+            "permission": "MAINTENANCE_REQUEST_INITIATION"
+          },
+          {
+            "id": 6,
+            "permission": "CHECKLIST_SUBMISSION"
+          },
+          {
+            "id": 3,
+            "permission": "CLOCKING_APPROVAL"
+          },
+          {
+            "id": 17,
+            "permission": "TRAINING_READONLY"
+          },
+          {
+            "id": 21,
+            "permission": "TRAINING_SUBMISSION_FOH"
           }
         ],
-        "pwResetHash": null,
-        "pwResetDone": null,
-        "customer": null,
-        "clubMember": null,
-        "source": null,
-        "accessCode": "2000"
+        "mobileDeviceId": "2d3c0d55-077d-489e-a4e4-e28e9f3f4975",
+        "mobileDeviceOS": "IOS",
+        "appVersion": "3.1.8",
+        "accessProhibited": false,
+        "businessEntity": {
+          "id": 2,
+          "entity": "Elements Bar & Grill Haberfield Pty Ltd"
+        },
+        "employmentPeriods": []
       },
-      "staffDepartment": {
-        "id": 1,
-        "name": "Front of House"
-      },
-      "staffPermissions": [
+      "checklistReadings": [
         {
-          "id": 7,
-          "permission": "TEMP_LOG_SUBMISSION"
+          "id": 754564,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 73,
+            "name": "Turn lights on\r",
+            "sn": 10,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 14,
-          "permission": "EOD_SUBMISSION"
+          "id": 754565,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 74,
+            "name": "Turn coffee machine on\r",
+            "sn": 20,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 15,
-          "permission": "BREAKAGE_REPORT_SUBMISSION"
+          "id": 754566,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 75,
+            "name": "Do a walk-through to check last night's closing standard and to identify any potential issues.\r",
+            "sn": 30,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 10,
-          "permission": "MAINTENANCE_REQUEST_INITIATION"
+          "id": 754567,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 76,
+            "name": "Check all fridge and freezer temp (including cool rooms & freezer rooms).\r",
+            "sn": 40,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 6,
-          "permission": "CHECKLIST_SUBMISSION"
+          "id": 754568,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 77,
+            "name": "Check ice machines to see if they're functioning.\r",
+            "sn": 50,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 3,
-          "permission": "CLOCKING_APPROVAL"
+          "id": 754569,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 78,
+            "name": "Turn Air-Con on if required",
+            "sn": 60,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
         {
-          "id": 17,
-          "permission": "TRAINING_READONLY"
+          "id": 754570,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 79,
+            "name": "Ensure floor is clean.\r",
+            "sn": 70,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
         },
         {
-          "id": 21,
-          "permission": "TRAINING_SUBMISSION_FOH"
-        }
-      ],
-      "mobileDeviceId": "2d3c0d55-077d-489e-a4e4-e28e9f3f4975",
-      "mobileDeviceOS": "IOS",
-      "appVersion": "3.1.8",
-      "accessProhibited": false,
-      "businessEntity": {
-        "id": 2,
-        "entity": "Elements Bar & Grill Haberfield Pty Ltd"
-      },
-      "employmentPeriods": []
-    },
-    "checklistReadings": [
-      {
-        "id": 754564,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 73,
-          "name": "Turn lights on\r",
-          "sn": 10,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
+          "id": 754571,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 80,
+            "name": "Position chairs & tables neatly according to bookings.\r",
+            "sn": 80,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754572,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 81,
+            "name": "Ensure all chairs and tables are stable. \r",
+            "sn": 90,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754573,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 82,
+            "name": "Ensure all chairs are crumbed, wiped, and cleaned. \r",
+            "sn": 100,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754574,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 83,
+            "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
+            "sn": 110,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754575,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 84,
+            "name": "Stock every station with clean glasses, cutlery, napkins, & side  plates. \r",
+            "sn": 120,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754576,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 85,
+            "name": "Ensure water bottles are clean & refilled (In/out). \r",
+            "sn": 130,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754577,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 86,
+            "name": "Ensure steak cutting trolleys are clean and in place.\r",
+            "sn": 140,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754578,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 87,
+            "name": "Ensure all lights, fridges and other equipment are\r functioning correctly.",
+            "sn": 150,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754579,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 88,
+            "name": "All windows and decorations are clean and presentable \r",
+            "sn": 160,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754580,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 89,
+            "name": "Bar counter and stools are organised neatly. \r",
+            "sn": 170,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754581,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 90,
+            "name": "Ensure Tomahawk knives are clean and in place.\r",
+            "sn": 180,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754582,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 91,
+            "name": "Check all stocks including take-away boxes & bags. Ensure the floor is stocked up for the day.\r",
+            "sn": 190,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754583,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 92,
+            "name": "Ensure broom, dust pan, mop & mop bucket, vaccum cleaner, & chux & cloths are in place.\r",
+            "sn": 200,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754584,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 93,
+            "name": "Ensure multi-purpose and glass cleaner spray bottles are filled up and are in the designated place.",
+            "sn": 210,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754585,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 94,
+            "name": "Ensure oudoor floors are clean before setting up. \r",
+            "sn": 220,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754586,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 95,
+            "name": "Ensure chairs & tables are positioned neatly in line with reservations. \r",
+            "sn": 230,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754587,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 96,
+            "name": "Ensure that all chairs and tables are stable. \r",
+            "sn": 240,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754588,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 97,
+            "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
+            "sn": 250,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754589,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 98,
+            "name": "Ensure outdoor heaters and bollards are in place and all gas cyliders have gas. \r",
+            "sn": 260,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754590,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 99,
+            "name": "Ensure outdo0r carpets, stairs, & Entrance are clean and presentable.\r",
+            "sn": 270,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754591,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 100,
+            "name": "Ensure plants have no dead leaves.\r",
+            "sn": 280,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754592,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 101,
+            "name": "Ensure host desk and menu display are clean and  presentable.\r",
+            "sn": 290,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754593,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 102,
+            "name": "Ensure ipads & head-sets are in place.",
+            "sn": 300,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754594,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 103,
+            "name": "Check roster and ensure team members are arriving on time.\r",
+            "sn": 310,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754595,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 104,
+            "name": "Ensue all staff members are in correct & clean uniforms & are presenting themselves in line with the compnay's personal grooming and hygiene standard. \r",
+            "sn": 320,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754596,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 105,
+            "name": "Deligate responsibilities to team members & ensure they understood your directions.\r",
+            "sn": 330,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754597,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 106,
+            "name": "All staff on shift must have name badges and wearing clean and tidy uniform.\r",
+            "sn": 340,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754598,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 107,
+            "name": "Ensure as few ipads as possible are in use for lunch service.\r",
+            "sn": 350,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754599,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 108,
+            "name": "Ensure the remainder of the ipads & all table lamps are charging for dinner service.\r",
+            "sn": 360,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754600,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 109,
+            "name": "Ensure kitchen & bar opening checklists are completed and you're verbally made aware of any issues. \r",
+            "sn": 370,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754601,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 110,
+            "name": "Communicate with bar & kithcen periodically to ensure they are on track with everything.\r",
+            "sn": 380,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754602,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 111,
+            "name": "Ensure bar & kitchen have all necessary stocks in place. \r",
+            "sn": 390,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754603,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 112,
+            "name": "Ensure all hand-wash sinks (FOH & BOH) have soap and paper-towels in the dispensers.\r",
+            "sn": 400,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754604,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 113,
+            "name": "Check temperature for all fridges & freezers\r",
+            "sn": 410,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754605,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 114,
+            "name": "Check gas & syrup for the postmix system\r",
+            "sn": 420,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754606,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 115,
+            "name": "Check the beer system & ensure it's functioning\r",
+            "sn": 430,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754607,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 116,
+            "name": "Ensure all rubbish bins have fresh bin-liners and are in place.\r",
+            "sn": 440,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754608,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 117,
+            "name": "Set POS and Tyro. Ensure EFTPOS printers & POS printers have paper indside. Stock extra printer rolls.\r",
+            "sn": 450,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754609,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 118,
+            "name": "Set the till with float amount ($350). Always count -  it's the responsibility of both, open & close managers!\r",
+            "sn": 460,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754610,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 119,
+            "name": "Check with kitchen if there's anything out-of-stock.\r",
+            "sn": 470,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754611,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 120,
+            "name": "Check 7-rooms for booking number, large groups, private dining, set menus, & any special requests etc. and communicate with chefs and team members.\r",
+            "sn": 480,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754612,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 121,
+            "name": "Do staff briefing before guests start to arrive. Ensure Head Chef, Sous Chef, Bar Man, Section Waiters & other managers are present at the briefing. Remember to communicate the important \"reminders\", shift specific adjustments & shift goals to everyone.\r",
+            "sn": 490,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754613,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 122,
+            "name": "Turn music on.",
+            "sn": 500,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
           }
         }
-      },
-      {
-        "id": 754565,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 74,
-          "name": "Turn coffee machine on\r",
-          "sn": 20,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
-          }
-        }
-      },
-      {
-        "id": 754566,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 75,
-          "name": "Do a walk-through to check last night's closing standard and to identify any potential issues.\r",
-          "sn": 30,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
-          }
-        }
-      },
-      {
-        "id": 754567,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 76,
-          "name": "Check all fridge and freezer temp (including cool rooms & freezer rooms).\r",
-          "sn": 40,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
-          }
-        }
-      },
-      {
-        "id": 754568,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 77,
-          "name": "Check ice machines to see if they're functioning.\r",
-          "sn": 50,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
-          }
-        }
-      },
-      {
-        "id": 754569,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 78,
-          "name": "Turn Air-Con on if required",
-          "sn": 60,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 1,
-            "name": "Initial Tasks"
-          }
-        }
-      },
-      {
-        "id": 754570,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 79,
-          "name": "Ensure floor is clean.\r",
-          "sn": 70,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754571,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 80,
-          "name": "Position chairs & tables neatly according to bookings.\r",
-          "sn": 80,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754572,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 81,
-          "name": "Ensure all chairs and tables are stable. \r",
-          "sn": 90,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754573,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 82,
-          "name": "Ensure all chairs are crumbed, wiped, and cleaned. \r",
-          "sn": 100,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754574,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 83,
-          "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
-          "sn": 110,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754575,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 84,
-          "name": "Stock every station with clean glasses, cutlery, napkins, & side  plates. \r",
-          "sn": 120,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754576,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 85,
-          "name": "Ensure water bottles are clean & refilled (In/out). \r",
-          "sn": 130,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754577,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 86,
-          "name": "Ensure steak cutting trolleys are clean and in place.\r",
-          "sn": 140,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754578,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 87,
-          "name": "Ensure all lights, fridges and other equipment are\r functioning correctly.",
-          "sn": 150,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754579,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 88,
-          "name": "All windows and decorations are clean and presentable \r",
-          "sn": 160,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754580,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 89,
-          "name": "Bar counter and stools are organised neatly. \r",
-          "sn": 170,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754581,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 90,
-          "name": "Ensure Tomahawk knives are clean and in place.\r",
-          "sn": 180,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754582,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 91,
-          "name": "Check all stocks including take-away boxes & bags. Ensure the floor is stocked up for the day.\r",
-          "sn": 190,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754583,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 92,
-          "name": "Ensure broom, dust pan, mop & mop bucket, vaccum cleaner, & chux & cloths are in place.\r",
-          "sn": 200,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754584,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 93,
-          "name": "Ensure multi-purpose and glass cleaner spray bottles are filled up and are in the designated place.",
-          "sn": 210,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 2,
-            "name": "Indoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754585,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 94,
-          "name": "Ensure oudoor floors are clean before setting up. \r",
-          "sn": 220,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754586,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 95,
-          "name": "Ensure chairs & tables are positioned neatly in line with reservations. \r",
-          "sn": 230,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754587,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 96,
-          "name": "Ensure that all chairs and tables are stable. \r",
-          "sn": 240,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754588,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 97,
-          "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
-          "sn": 250,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754589,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 98,
-          "name": "Ensure outdoor heaters and bollards are in place and all gas cyliders have gas. \r",
-          "sn": 260,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754590,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 99,
-          "name": "Ensure outdo0r carpets, stairs, & Entrance are clean and presentable.\r",
-          "sn": 270,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754591,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 100,
-          "name": "Ensure plants have no dead leaves.\r",
-          "sn": 280,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754592,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 101,
-          "name": "Ensure host desk and menu display are clean and  presentable.\r",
-          "sn": 290,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754593,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 102,
-          "name": "Ensure ipads & head-sets are in place.",
-          "sn": 300,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 3,
-            "name": "Outdoor Dining Area"
-          }
-        }
-      },
-      {
-        "id": 754594,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 103,
-          "name": "Check roster and ensure team members are arriving on time.\r",
-          "sn": 310,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754595,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 104,
-          "name": "Ensue all staff members are in correct & clean uniforms & are presenting themselves in line with the compnay's personal grooming and hygiene standard. \r",
-          "sn": 320,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754596,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 105,
-          "name": "Deligate responsibilities to team members & ensure they understood your directions.\r",
-          "sn": 330,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754597,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 106,
-          "name": "All staff on shift must have name badges and wearing clean and tidy uniform.\r",
-          "sn": 340,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754598,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 107,
-          "name": "Ensure as few ipads as possible are in use for lunch service.\r",
-          "sn": 350,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754599,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 108,
-          "name": "Ensure the remainder of the ipads & all table lamps are charging for dinner service.\r",
-          "sn": 360,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754600,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 109,
-          "name": "Ensure kitchen & bar opening checklists are completed and you're verbally made aware of any issues. \r",
-          "sn": 370,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754601,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 110,
-          "name": "Communicate with bar & kithcen periodically to ensure they are on track with everything.\r",
-          "sn": 380,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754602,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 111,
-          "name": "Ensure bar & kitchen have all necessary stocks in place. \r",
-          "sn": 390,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754603,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 112,
-          "name": "Ensure all hand-wash sinks (FOH & BOH) have soap and paper-towels in the dispensers.\r",
-          "sn": 400,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754604,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 113,
-          "name": "Check temperature for all fridges & freezers\r",
-          "sn": 410,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754605,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 114,
-          "name": "Check gas & syrup for the postmix system\r",
-          "sn": 420,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754606,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 115,
-          "name": "Check the beer system & ensure it's functioning\r",
-          "sn": 430,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754607,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 116,
-          "name": "Ensure all rubbish bins have fresh bin-liners and are in place.\r",
-          "sn": 440,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754608,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 117,
-          "name": "Set POS and Tyro. Ensure EFTPOS printers & POS printers have paper indside. Stock extra printer rolls.\r",
-          "sn": 450,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754609,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 118,
-          "name": "Set the till with float amount ($350). Always count -  it's the responsibility of both, open & close managers!\r",
-          "sn": 460,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754610,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 119,
-          "name": "Check with kitchen if there's anything out-of-stock.\r",
-          "sn": 470,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754611,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 120,
-          "name": "Check 7-rooms for booking number, large groups, private dining, set menus, & any special requests etc. and communicate with chefs and team members.\r",
-          "sn": 480,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754612,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 121,
-          "name": "Do staff briefing before guests start to arrive. Ensure Head Chef, Sous Chef, Bar Man, Section Waiters & other managers are present at the briefing. Remember to communicate the important \"reminders\", shift specific adjustments & shift goals to everyone.\r",
-          "sn": 490,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      },
-      {
-        "id": 754613,
-        "checked": true,
-        "comment": null,
-        "checklistCriteria": {
-          "id": 122,
-          "name": "Turn music on.",
-          "sn": 500,
-          "checklistType": {
-            "id": 1,
-            "type": "FOH Opening Checklist",
-            "hasGroups": true
-          },
-          "checklistGroup": {
-            "id": 4,
-            "name": "Manager on duty "
-          }
-        }
-      }
-    ]
+      ]
+    }
   }
 }

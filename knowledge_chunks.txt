@@ -27,6 +27,8 @@ Payload/Headers:
 title: Enrolment Departments API — Response
 tags: topic:response, applies_to:enrolment_departments
 content:
+Endpoint: GET {BASE_URL}/api/e360/enrolment/departments
+
 A successful response (HTTP 200) returns a JSON array of department objects.
 
 Response structure:
@@ -70,6 +72,8 @@ Payload/Headers:
 title: Clocking Sites API — Response
 tags: topic:response, applies_to:clocking_sites
 content:
+Endpoint: GET {BASE_URL}/api/clocking/sites
+
 A successful response (HTTP 200) returns a JSON array of site objects.
 
 Response structure:
@@ -128,6 +132,8 @@ Example URL:
 title: Clocking Paginated Records API — Response
 tags: topic:response, applies_to:clocking_records_paginated
 content:
+Endpoint: GET {BASE_URL}/api/clocking/record/paginated?staffId={staffId}&page={page}
+
 A successful response (HTTP 200) returns a JSON array where each element represents one week's clocking data.
 
 Response structure:
@@ -214,6 +220,8 @@ Example URL:
 title: Clocking Check Status API — Response
 tags: topic:response, applies_to:clocking_check_status
 content:
+Endpoint: GET {BASE_URL}/api/clocking/record/checkClockingStatus?staffId={staffId}
+
 A successful response (HTTP 200) returns a JSON object.
 
 When the staff member is NOT currently clocked in:
@@ -266,6 +274,8 @@ Payload/Headers:
 title: Checklist Venues API — Response
 tags: topic:response, applies_to:checklist_venues
 content:
+Endpoint: GET {BASE_URL}/api/e360/checklist/venues
+
 A successful response (HTTP 200) returns a JSON array of venue objects.
 
 Response structure:
@@ -307,6 +317,8 @@ Payload/Headers:
 title: Checklist Types API — Response
 tags: topic:response, applies_to:checklist_types
 content:
+Endpoint: GET {BASE_URL}/api/e360/checklist/type/all
+
 A successful response (HTTP 200) returns a JSON array of checklist type objects.
 
 Response structure:
@@ -360,6 +372,8 @@ Example URL:
 title: Checklist Record API — Response
 tags: topic:response, applies_to:checklist_record
 content:
+Endpoint: GET {BASE_URL}/api/e360/checklist/record?date={date}&typeId={typeId}&venueId={venueId}
+
 A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
 
 When a record EXISTS:
@@ -434,6 +448,8 @@ Example URL:
 title: Checklist Criteria by Type API — Response
 tags: topic:response, applies_to:checklist_criteria_type
 content:
+Endpoint: GET {BASE_URL}/api/e360/checklist/criteria/type?typeId={typeId}
+
 A successful response (HTTP 200) returns a JSON array of checklist criteria objects.
 
 Response structure:
@@ -490,6 +506,8 @@ Example URL:
 title: TempLog Record API — Response
 tags: topic:response, applies_to:templog_record
 content:
+Endpoint: GET {BASE_URL}/api/e360/templog/record?date={date}&venueId={venueId}
+
 A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
 
 When NO record is found:
@@ -580,6 +598,8 @@ Example URL:
 title: TempLog Criteria by Venue API — Response
 tags: topic:response, applies_to:templog_criteria_venue
 content:
+Endpoint: GET {BASE_URL}/api/e360/templog/criteria/venue?venueId={venueId}
+
 A successful response (HTTP 200) returns a JSON array of temperature log criteria objects.
 
 Response structure:
@@ -644,6 +664,8 @@ Example URL:
 title: Audit Record API — Response
 tags: topic:response, applies_to:audit_record
 content:
+Endpoint: GET {BASE_URL}/api/e360/audit/record?date={date}&venueId={venueId}&auditTypeId={auditTypeId}
+
 A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
 
 When a record EXISTS:
@@ -724,6 +746,8 @@ Payload/Headers:
 title: Audit Types API — Response
 tags: topic:response, applies_to:audit_types
 content:
+Endpoint: GET {BASE_URL}/api/e360/audit/auditType/all
+
 A successful response (HTTP 200) returns a JSON array of audit type objects.
 
 Response structure:
@@ -770,6 +794,8 @@ Example URL:
 title: Audit Criteria API — Response
 tags: topic:response, applies_to:audit_criteria
 content:
+Endpoint: GET {BASE_URL}/api/e360/audit/criteria/all?auditTypeId={auditTypeId}
+
 A successful response (HTTP 200) returns a JSON array of audit criteria objects.
 
 Response structure:
@@ -821,6 +847,8 @@ Payload/Headers:
 title: Enrolment All Staffs API — Response
 tags: topic:response, applies_to:enrolment_staffs
 content:
+Endpoint: GET {BASE_URL}/api/e360/enrolment/staffs
+
 A successful response (HTTP 200) returns a JSON array of staff mini objects.
 
 Response structure:
@@ -875,6 +903,8 @@ Example URL:
 title: Enrolment Staffs by Department API — Response
 tags: topic:response, applies_to:enrolment_staffs_by_department
 content:
+Endpoint: GET {BASE_URL}/api/e360/enrolment/staffsByDepartment?departmentId={departmentId}
+
 A successful response (HTTP 200) returns a JSON array of staff mini objects (same shape as /api/e360/enrolment/staffs).
 
 Response structure:
@@ -927,6 +957,8 @@ Example URL:
 title: Training Criteria List API — Response
 tags: topic:response, applies_to:training_criteria_list
 content:
+Endpoint: GET {BASE_URL}/api/e360/training/trainingCriteriaList?trainingSubjectId={trainingSubjectId}
+
 A successful response (HTTP 200) returns a JSON array of training criteria objects.
 
 Response structure:
@@ -993,6 +1025,8 @@ If either value is missing, ask the user before calling.
 title: Training Subject API — Response
 tags: topic:response, applies_to:training_subject
 content:
+Endpoint: GET {BASE_URL}/api/e360/training/trainingSubject?stationId={stationId}&trainingType={trainingType}
+
 A successful response (HTTP 200) returns a single JSON object representing the training subject.
 
 Response structure:
@@ -1048,6 +1082,8 @@ If either is missing, ask the user before calling.
 title: Breakage Report by Venue and Date API — Response
 tags: topic:response, applies_to:breakage_report
 content:
+Endpoint: GET {BASE_URL}/api/breakageReport/reportByVenueAndDate?date={date}&venue={venue}
+
 A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.
 
 When a report EXISTS:
@@ -1131,6 +1167,8 @@ Call it directly when the user asks to fetch, list, or refresh all staff enrolme
 title: Get All Enrolments API — Response Structure
 tags: topic:response, applies_to:get_all_enrolments
 content:
+Endpoint: GET {BASE_URL}/api/e360/enrolment/getAllEnrolments
+
 A successful response (HTTP 200) is a JSON array of staff enrolment objects.
 
 Example (single element shown):
