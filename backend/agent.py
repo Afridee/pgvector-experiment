@@ -7,6 +7,8 @@ Hybrid API-calling + RAG agent for answering questions and generating reports.
 import json
 import os
 import threading
+import contextvars
+from datetime import date, timedelta
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -26,11 +28,21 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 VECTOR_COLLECTION = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
 CHECKPOINT_DB_URL = os.getenv("CHECKPOINT_DB_URL", DATABASE_URL)
+BASE_URL = os.getenv("BASE_URL")
 
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set (check your .env).")
 if not CHECKPOINT_DB_URL:
     raise ValueError("CHECKPOINT_DB_URL is not set (check your .env).")
+if not BASE_URL:
+    raise ValueError("BASE_URL is not set (check your .env).")
+
+# ----------------------------------------------------------------------------
+# Per-request auth token context (set by ask_agent, read by api_call)
+# ----------------------------------------------------------------------------
+_auth_tokens: contextvars.ContextVar[Dict[str, str]] = contextvars.ContextVar(
+    "_auth_tokens", default={}
+)
 
 # ----------------------------------------------------------------------------
 # Globals (singleton agent + open context manager)
@@ -300,7 +312,7 @@ class ApiInput(BaseModel):
             "Optional Python snippet to run against the parsed JSON response. "
             "The script receives 'response' (the full parsed JSON) and MUST assign "
             "to 'result'. Only safe builtins are available — no imports. "
-            "Example: \"result = response.get('data', {}).get('user', {}).get('address')\". "
+            "Example: \"result = response.get('data', {{}}).get('user', {{}}).get('address')\". "
             "Prefer this over response_fields for nested or conditional extraction."
         ),
     )
@@ -339,11 +351,23 @@ def api_call(
     If the response contains a download URL or file URL, preserve it so it can be
     shown to the user.
     """
-    # Inject auth token from env if the caller did not supply an Authorization header
-    api_token = os.getenv("API_TOKEN")
-    if api_token:
+    # Inject auth headers from per-request ContextVar
+    tokens = _auth_tokens.get()
+    if tokens:
         headers = headers or {}
-        headers.setdefault("Authorization", f"Bearer {api_token}")
+        if access_token := tokens.get("access_token"):
+            headers.setdefault("Authorization", f"Bearer {access_token}")
+        if refresh_token := tokens.get("refresh_token"):
+            headers.setdefault("x-refresh-token", refresh_token)
+        if validate_token := tokens.get("validate_token"):
+            headers.setdefault("x-validate-token", validate_token)
+
+    # Fallback: inject API_TOKEN from env if still no Authorization header
+    if not (headers or {}).get("Authorization"):
+        api_token = os.getenv("API_TOKEN")
+        if api_token:
+            headers = headers or {}
+            headers["Authorization"] = f"Bearer {api_token}"
 
     try:
         response = requests.request(
@@ -362,7 +386,16 @@ def api_call(
 
             print(f"API call to {url} succeeded. Status code: {response.status_code}.")
             with open("api_response_debug.json", "w", encoding="utf-8") as _f:
-                json.dump(data, _f, indent=2, ensure_ascii=False)
+                json.dump(
+                    {
+                        "status_code": response.status_code,
+                        "headers": dict(response.headers),
+                        "body": data,
+                    },
+                    _f,
+                    indent=2,
+                    ensure_ascii=False,
+                )
 
             # extraction_script takes priority — model-written Python snippet
             if extraction_script:
@@ -434,192 +467,81 @@ llm = init_chat_model("gpt-4o", model_provider="openai", temperature=0)
 all_tools = [semantic_search_tool, api_call]
 
 # ----------------------------------------------------------------------------
+# System Prompt — date helpers (resolved once at agent initialisation)
+# ----------------------------------------------------------------------------
+_today = date.today()
+_yesterday = _today - timedelta(days=1)
+_this_week_start = _today - timedelta(days=_today.weekday())          # Monday
+_last_week_start = _this_week_start - timedelta(weeks=1)
+_last_week_end   = _this_week_start - timedelta(days=1)               # Sunday
+_this_month_start = _today.replace(day=1)
+_last_month_end   = _this_month_start - timedelta(days=1)
+_last_month_start = _last_month_end.replace(day=1)
+_this_year_start  = _today.replace(month=1, day=1)
+_last_year_start  = _today.replace(year=_today.year - 1, month=1, day=1)
+_last_year_end    = _today.replace(year=_today.year - 1, month=12, day=31)
+
+# ----------------------------------------------------------------------------
 # System Prompt
 # ----------------------------------------------------------------------------
-from datetime import date as _date, timedelta as _timedelta
-
-BASE_URL = os.getenv("BASE_URL", "")
-
-_today_date = _date.today()
-_today = _today_date.isoformat()
-_yesterday = (_today_date - _timedelta(days=1)).isoformat()
-
-# Week: Monday = 0
-_this_week_start = (_today_date - _timedelta(days=_today_date.weekday())).isoformat()
-_last_week_end = (_today_date - _timedelta(days=_today_date.weekday() + 1)).isoformat()
-_last_week_start = (_today_date - _timedelta(days=_today_date.weekday() + 7)).isoformat()
-
-# Month
-_this_month_start = _today_date.replace(day=1).isoformat()
-_prev_month_last = _today_date.replace(day=1) - _timedelta(days=1)
-_last_month_start = _prev_month_last.replace(day=1).isoformat()
-_last_month_end = _prev_month_last.isoformat()
-
-# Year
-_this_year_start = _today_date.replace(month=1, day=1).isoformat()
-_last_year_start = _today_date.replace(year=_today_date.year - 1, month=1, day=1).isoformat()
-_last_year_end = _today_date.replace(year=_today_date.year - 1, month=12, day=31).isoformat()
-
 system_prompt = f"""
-You are the Elements 360 Assistant, a helpful report assistant that answers
-user questions by looking up data from the Elements 360 platform.
+You are a helpful report assistant that answers user questions by calling APIs.
 
 ## Your workflow
 
 ### Step 1 — Understand the request
-When a user asks for data, a report, or information, identify what they need.
-Treat "generate a report", "show me", "fetch", "pull up", "get me" all as
-data lookup requests — they all mean the same thing.
-
-Only refuse if the user explicitly asks for a downloadable file (PDF, Excel,
-CSV). In that case, explain that file exports are not available and offer to
-display the data instead.
-
-If the user greets you or starts a new conversation, respond with exactly:
-"Hi! I can look up and summarise information from Elements 360 — including
-clocking records, checklists, temperature logs, audits, training, staff
-details, and breakage reports. Just let me know what you need!"
-
-If a question is unrelated to Elements 360, say:
-"I can only help with Elements 360 related queries."
-
-### Step 2 — Find the API
-Call semantic_search_tool() with a relevant query to find the matching API
-documentation from the knowledge base. The chunks describe endpoints,
-required/optional parameters, payload structure, response shapes, and
-recommended extraction script patterns.
+When a user asks for a report or data, first call semantic_search_tool() with a
+relevant query to find the matching API documentation from the knowledge base.
+- The chunks describe available endpoints, required/optional parameters,
+  payload structure, authentication, and response shapes.
 - If the first search doesn't return enough context, search again with a
   different or more specific query.
-- If the knowledge base has no information about the requested feature,
-  say: "That feature is not currently available through me."
-- NEVER invent or guess API endpoints. Everything must come from the
-  knowledge chunks.
 
-### Step 3 — Collect missing parameters
-Read the retrieved API documentation carefully. Identify every required
-parameter the user has NOT yet provided.
+### Step 2 — Identify missing parameters
+Read the retrieved API documentation carefully. Identify every required parameter
+that the user has NOT yet provided.
 
-**Name-to-ID resolution:** If the user gave a human-readable name (e.g.
-"Haberfield", "FOH Opening", "John Smith") where the API requires a numeric
-ID, resolve it silently:
-  a) Check if the knowledge base contains a mapping.
-  b) If not, call the appropriate listing endpoint to find the ID.
-  c) Match case-insensitively. If multiple close matches, present them and
-     ask the user to pick.
-  d) Only ask the user for an ID as a last resort.
+**Before asking the user for missing IDs or codes:** if the user has supplied a
+human-readable name (e.g. "Dhanmondi", "Dhaka North", "John Smith") where the
+API requires a numeric ID or code, first search the knowledge base — the
+knowledge chunks may contain lookup tables or reference data that map names to
+IDs directly. Use semantic_search_tool() with a query like "Dhanmondi point ID"
+or "point list IDs" to find the mapping. If found, use it silently and proceed.
 
-**Presenting options — MANDATORY:**
-When you need the user to choose from a finite set of system values (venues,
-checklist types, audit types, departments, staff names, etc.):
-  a) Fetch the list from the appropriate endpoint FIRST (silently — no
-     intermediate messages like "hold on" or "let me fetch that").
-  b) Present the options as a numbered list IN THE SAME message where you
-     ask the question.
-  c) NEVER say "let me know if you need options" or "if you're unsure, I
-     can provide a list." ALWAYS show the list immediately — no conditional
-     offers.
-  d) Ask for ALL missing parameters in a single message. Minimise
-     round-trips.
+Only if the knowledge base has no mapping AND there is no listing endpoint
+available should you ask the user to supply the ID.
 
-**If no parameters are required** (e.g. "list all venues", "show me
-departments"), call the API immediately — do NOT describe the endpoint or
-ask for confirmation first.
+Ask the user for ALL remaining unresolvable required parameters in a single,
+friendly message. List each missing piece clearly. Do NOT call the target API
+until you have everything.
 
-NEVER call the target API until you have every required parameter.
+### Step 3 — Confirm and call
+Once you have all required parameters, construct the correct request
+(URL, method, headers, payload / query params) exactly as documented in the
+knowledge chunks, then call api_call().
+- If the user asked for specific attributes (e.g. address, phone, download_url),
+  pass an extraction_script to pull exactly what is needed from the response.
+  The script receives `response` (the full parsed JSON) and MUST assign to `result`.
+  Example:
+    extraction_script="result = response.get('data', {{}}).get('user', {{}}).get('address')"
+  Use extraction_script for nested or conditional logic.
+  Use response_fields only for simple top-level key matching.
+- For endpoints that return a list of records, always set list_limit=20 and
+  list_offset=0 on the first call. Combine with an extraction_script that maps
+  each item to only its needed fields before paging.
+  The tool returns: items (the current page), total, has_more, and next_offset.
 
-### Step 4 — Call the API
-Once you have all required parameters, construct the correct request (URL,
-method, query params, payload) exactly as documented in the knowledge chunks,
-then call api_call().
-
-**Extraction scripts:**
-The knowledge base contains recommended extraction_script patterns tagged
-with each endpoint (tagged topic:extraction_script). When you find one in the
-semantic search results, use it as your starting point for the api_call.
-- For endpoints that return records with many grouped readings (checklists,
-  audits, temp logs), use the summary-first extraction pattern from the
-  knowledge base — these pre-aggregate by group with counts AND item arrays.
-- For simple list endpoints (venues, departments, types, staff), use the
-  compact extraction patterns from the knowledge base.
-- If no extraction pattern is found in the knowledge base, write your own
-  following the defensive coding rules below.
-
-**Defensive coding rules for ALL extraction scripts:**
-- ALWAYS use .get() for dictionary access. NEVER use bracket notation d["key"].
-- ALWAYS guard against None before chaining: (x or {{}}).get(...)
-- Fields may be missing, null, or have unexpected types in real data.
-  Your script must handle all of these gracefully.
-
-**Pagination:**
-- For ANY endpoint that returns a JSON array, always set list_limit=20 and
-  list_offset=0 on the first call. Combine with an extraction_script that
-  maps each item to only its needed fields before paging.
-- The tool returns: items (the current page), total, has_more, and next_offset.
-
-**Self-heal on extraction errors:**
-If an extraction_script returns an error message (starting with "❌"), do NOT
-show this to the user. Instead:
-  1. Analyse the error to understand what went wrong.
-  2. Rewrite the script using safer access patterns (.get(), None guards).
-  3. Retry the API call with the fixed script — silently.
-  4. Only if the retry also fails, show the user-friendly error:
-     "I wasn't able to retrieve that information right now. Please try
-      again shortly."
-
-### Step 5 — Present the results
-Present the API response in a clear, readable format. Use tables for tabular
-data, bullet points for key metrics. Never add concluding commentary like
-"All tasks were completed successfully" or "If you need further details,
-feel free to ask!" — present the data and stop.
-
-**Summary-first for large record sets (more than 10 items):**
-When displaying records with many line items (checklists, audits, temp logs):
-
-  LEVEL 1 — Summary (always shown first):
-  Show a brief metadata header (date, venue, type, submitted by, time), then
-  a compact per-section summary table:
-
-  For checklists:
-  | Section | ✅ Done | ❌ Not Done | ➖ N/A | Total |
-
-  For audits (also show total score, percentage, and pass/fail at top):
-  | Section | ✅ Pass | ❌ Fail | ➖ N/A | Critical Issues |
-
-  For temperature logs:
-  | Group | ✅ Acceptable | ⚠️ Out of Range | ➖ N/A |
-
-  Then say: "Let me know if you'd like to see the full details for any
-  section, or type **'show all'** to see every item."
-
-  LEVEL 2 — Detail (only when the user asks):
-  Show the full item-by-item table for the requested section(s):
-  | # | Criteria | Status | Comment |
-  Use data already in conversation history — do NOT re-call the API.
-
-  EXCEPTION: If the record has 10 or fewer total items, skip the summary
-  and show the full detail table directly.
-
-**For lists** (staff, venues, departments, types):
-  Show as a numbered list or Markdown table. For paged responses, show
-  "Showing 1–20 of N". If has_more is true, ask if the user wants to see
-  more. Do NOT auto-fetch all pages unless the user explicitly asks.
-
-**For single records** (clocking status, breakage report with few items):
-  Show as bullet points or a small table.
-
-**Download/image URLs:**
-  If the response contains a download URL, image URL, or file link, display
-  it prominently as a clickable link.
-
-**RESPONSE discriminator:**
-  Many record endpoints return a RESPONSE field. Check it:
-  - "CHECKLIST_RECORD_FOUND" → record exists
-  - "TEMP_LOG_RECORD_NOT_FOUND" → no record
-  - "AUDIT_RECORD_FOUND" → record exists
-  - "REPORT_EXISTS" → breakage report exists
-  - "CLOCK_IN_RUNNING" / "CLOCK_IN_NOT_RUNNING" → clocking status
-  If the record is not found, tell the user clearly (e.g. "No checklist
-  record was found for FOH Opening Checklist at Bistro on 2026-03-04.").
+### Step 4 — Present the results
+Present the API response in a clear, readable format:
+- Use a table for tabular / list data.
+- Use bullet points or a summary for key metrics.
+- If the response contains a download URL or file link, display it prominently
+  as a clickable link so the user can download their report.
+- If the response indicates an error, explain it in plain language and suggest
+  what the user can do next.
+- For paged list responses, show the current batch clearly (e.g. "Showing 1–20
+  of 630"). If has_more is true, ask if the user wants to see more. On follow-up,
+  call the same API again with list_offset=next_offset and the same list_limit.
 
 ## Date handling
 Today's date is {_today} (YYYY-MM-DD). Resolve relative date expressions
@@ -639,15 +561,13 @@ Use these pre-resolved values directly:
 - "last N weeks"  → Monday N weeks ago to the most recent Sunday — compute yourself
 - "last N months" → first day of the month N months ago to last day of previous month — compute yourself
 
-When an API expects a single `date` field, use the resolved single date.
-When it expects `startDate` / `endDate`, use the resolved range.
-Always format dates as YYYY-MM-DD.
+When an API expects a single `date` field (e.g. the SSS Report), use the
+resolved single date. When it expects `startDate` / `endDate`, use the
+resolved range start and end. Always format dates as YYYY-MM-DD.
 
 ## Base URL
 The base URL for all API calls is: {BASE_URL}
-Always use this exact value when constructing endpoint URLs — never hard-code
-or guess it. The knowledge base documents endpoint paths (e.g. /api/e360/...).
-Prepend the base URL to construct the full URL.
+Always use this exact value when constructing endpoint URLs — never hard-code or guess it.
 
 ## Hard rules
 - NEVER guess an endpoint URL, parameter name, or payload field.
@@ -661,21 +581,17 @@ Prepend the base URL to construct the full URL.
   HTTP methods, query/path parameters, request payload shapes, response schemas,
   or anything else from the API documentation. The user should never see these.
   Just make the call and present the result naturally.
-- Filter out terminated staff (terminated == true) from results unless the user
-  explicitly asks for terminated or inactive staff.
-- Auth tokens/keys come from the system — never ask the user for them.
+- If a request can be fulfilled with no additional input from the user (e.g. "list
+  all venues" requires no parameters), call the API immediately — do NOT describe
+  the endpoint or ask for confirmation first.
+- If the knowledge base does not cover what the user is asking, say so clearly
+  and ask for clarification.
+- Auth tokens/keys come from environment variables — never ask the user for them.
 - Do not auto-fetch every page unless the user explicitly asks for all pages.
-- All multi-step lookups (resolving names to IDs, fetching option lists, etc.)
-  must happen silently. NEVER show intermediate messages like "Please hold on",
-  "Let me look that up", or "I'll fetch that for you". Your content must be
-  empty ("") when making tool calls that will be followed by more processing.
-  The user should only ever see your final consolidated response.
 
 ## Output
-Respond naturally in plain English. Be concise but complete.
-If a download link or image URL is present in the response, always show it.
-Never say "generate reports", "export files", or "create documents" — you
-look up and display data.
+Respond naturally in plain language. Be concise but complete.
+If a download link is present in the response, always show it.
 """.strip()
 
 
@@ -733,9 +649,15 @@ def _serialize_docs(docs: List[Any]) -> List[Dict[str, Any]]:
     return serialized
 
 
-def ask_agent(question: str, thread_id: str) -> Dict[str, Any]:
+def ask_agent(question: str, thread_id: str, auth_tokens: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     """
     Public entry point called by the Streamlit app (and tests).
+
+    Args:
+        question:    The user's message.
+        thread_id:   LangGraph conversation thread ID.
+        auth_tokens: Dict with keys: access_token, refresh_token, validate_token.
+                     If provided, injected into every api_call made during this turn.
 
     Returns:
         {
@@ -749,10 +671,15 @@ def ask_agent(question: str, thread_id: str) -> Dict[str, Any]:
     """
     agent = get_agent()
 
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": question}]},
-        config={"configurable": {"thread_id": thread_id}},
-    )
+    # Set tokens for this request; reset when done (ContextVar is per-thread/task)
+    ctx_token = _auth_tokens.set(auth_tokens or {})
+    try:
+        result = agent.invoke(
+            {"messages": [{"role": "user", "content": question}]},
+            config={"configurable": {"thread_id": thread_id}},
+        )
+    finally:
+        _auth_tokens.reset(ctx_token)
 
     answer = result["messages"][-1].content
 
