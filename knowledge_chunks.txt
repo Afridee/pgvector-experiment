@@ -381,6 +381,12 @@ When a record EXISTS:
 
 When NO record is found, RESPONSE will NOT equal "CHECKLIST_RECORD_FOUND" and RECORD will be absent. In this case inform the user that no checklist record exists for the given date, type, and venue.
 
+Displaying checklistReadings — ALWAYS paginate:
+- Page size is 20 readings per page.
+- Use the offset and limit pagination rules defined in your system prompt.
+- NEVER display all readings at once, even if the total count is 20 or fewer — always apply pagination.
+- After displaying a page, inform the user of the current page and total number of readings, and ask if they want to see the next page.
+
 Important field paths:
 - RESPONSE
 - RECORD.id
