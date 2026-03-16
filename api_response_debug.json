@@ -1,795 +1,1081 @@
 {
-  "messages": [
-    {
-      "content": "I need to generate a checklist report",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "human",
-      "id": "ce2f9d38-727b-48fb-a74f-a0a525476c32"
-    },
-    {
-      "content": "",
-      "additional_kwargs": {
-        "refusal": null
+  "status_code": 200,
+  "headers": {
+    "Date": "Mon, 16 Mar 2026 07:25:40 GMT",
+    "Content-Type": "application/json",
+    "Transfer-Encoding": "chunked",
+    "Connection": "keep-alive",
+    "Server": "cloudflare",
+    "vary": "Origin, Access-Control-Request-Method, Access-Control-Request-Headers",
+    "x-content-type-options": "nosniff",
+    "x-xss-protection": "1; mode=block",
+    "Cache-Control": "no-cache, no-store, max-age=0, must-revalidate",
+    "pragma": "no-cache",
+    "expires": "0",
+    "x-frame-options": "DENY",
+    "strict-transport-security": "max-age=15768000",
+    "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
+    "cf-cache-status": "DYNAMIC",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=oDdFEdrNqfmtPEuITHfOQRn3%2B59fSExpZa%2Be72xLoxLOawVKAgfMY1Sp7NWGSoCyULUSuZIaDrtEwEbmZPe12h9FycmCIJtMITSzcmmU2aqkK9DJ7PYVK158o0%2Bv\"}]}",
+    "Content-Encoding": "gzip",
+    "CF-RAY": "9dd206760e6a9cba-DAC",
+    "alt-svc": "h3=\":443\"; ma=86400"
+  },
+  "body": {
+    "RESPONSE": "CHECKLIST_RECORD_FOUND",
+    "RECORD": {
+      "id": 17193,
+      "date": "2026-03-12",
+      "checklistType": {
+        "id": 1,
+        "type": "FOH Opening Checklist",
+        "hasGroups": true
       },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 19,
-          "prompt_tokens": 1886,
-          "total_tokens": 1905,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
+      "elementsVenue": {
+        "id": 3,
+        "venueName": "Elements Bar & Grill Haberfield",
+        "venueInitial": "HAB",
+        "site": "EBG"
+      },
+      "submitted": true,
+      "submissionDateTime": "2026-03-12 10:09 PM",
+      "submittedBy": {
+        "id": 19,
+        "name": null,
+        "enrolmentSubmitted": true,
+        "enrolmentCorrectionRequired": false,
+        "enrolmentCompleted": false,
+        "firstName": "Jenisha",
+        "middleName": "",
+        "lastName": "Shrestha",
+        "dob": "2000-01-13",
+        "phoneNumber": "0424416954",
+        "address": "9/3 seventh avenue Campsie",
+        "postCode": "2192 NSW",
+        "suburb": "campsie ",
+        "terminated": false,
+        "dateOfTermination": null,
+        "tempStaff": false,
+        "authUser": {
+          "id": 192,
+          "email": "",
+          "e360loginEmail": "znishashrestha@gmail.com",
+          "customerHashId": null,
+          "refreshToken": null,
+          "pin": null,
+          "roles": [
+            {
+              "id": 2,
+              "name": "ROLE_STAFF"
+            }
+          ],
+          "pwResetHash": null,
+          "pwResetDone": null,
+          "customer": null,
+          "clubMember": null,
+          "source": null,
+          "accessCode": "2000"
+        },
+        "staffDepartment": {
+          "id": 1,
+          "name": "Front of House"
+        },
+        "staffPermissions": [
+          {
+            "id": 7,
+            "permission": "TEMP_LOG_SUBMISSION"
           },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 1792
+          {
+            "id": 14,
+            "permission": "EOD_SUBMISSION"
+          },
+          {
+            "id": 15,
+            "permission": "BREAKAGE_REPORT_SUBMISSION"
+          },
+          {
+            "id": 10,
+            "permission": "MAINTENANCE_REQUEST_INITIATION"
+          },
+          {
+            "id": 6,
+            "permission": "CHECKLIST_SUBMISSION"
+          },
+          {
+            "id": 3,
+            "permission": "CLOCKING_APPROVAL"
+          },
+          {
+            "id": 17,
+            "permission": "TRAINING_READONLY"
+          },
+          {
+            "id": 21,
+            "permission": "TRAINING_SUBMISSION_FOH"
           }
+        ],
+        "mobileDeviceId": "2d3c0d55-077d-489e-a4e4-e28e9f3f4975",
+        "mobileDeviceOS": "IOS",
+        "appVersion": "3.1.8",
+        "accessProhibited": false,
+        "businessEntity": {
+          "id": 2,
+          "entity": "Elements Bar & Grill Haberfield Pty Ltd"
         },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJku2w0DyheRY5EeF0jbzsal9leKi",
-        "service_tier": "default",
-        "finish_reason": "tool_calls",
-        "logprobs": null
+        "employmentPeriods": []
       },
-      "type": "ai",
-      "id": "lc_run--019cf2d9-fe39-7e41-93f8-fce8d9192976-0",
-      "tool_calls": [
+      "checklistReadings": [
         {
-          "name": "semantic_search_tool",
-          "args": {
-            "query": "checklist report API endpoint"
-          },
-          "id": "call_cmb7zEgorXNsBlirapBwO60L",
-          "type": "tool_call"
-        }
-      ],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 1886,
-        "output_tokens": 19,
-        "total_tokens": 1905,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 1792
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "1. Checklist Record API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_record, api_template\n   Source: knowledge_chunks.txt (chunk 17)\n   Preview: Title: Checklist Record API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_record, api_template Purpose: - Fetches an existing checklist record for a specific date, checklist type, and venue. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/record - Query params: date, typeId, venueId\n\n2. Checklist Types API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_types, api_template\n   Source: knowledge_chunks.txt (chunk 15)\n   Preview: Title: Checklist Types API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_types, api_template Purpose: - Returns all available checklist types (e.g. Opening, Closing, Cleaning). Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/type/all Payload/Headers: - No request body required. - No query parameters required.\n\n3. Checklist Criteria by Type API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_criteria_type, api_template\n   Source: knowledge_chunks.txt (chunk 20)\n   Preview: Title: Checklist Criteria by Type API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_criteria_type, api_template Purpose: - Returns all checklist criteria items for a given checklist type. Used when creating a new checklist record. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/criteria/type - Query params: typeId\n\n4. Checklist Types API — Response\n   Tags: topic:response, applies_to:checklist_types\n   Source: knowledge_chunks.txt (chunk 16)\n   Preview: Title: Checklist Types API — Response Tags: topic:response, applies_to:checklist_types Endpoint: GET {BASE_URL}/api/e360/checklist/type/all A successful response (HTTP 200) returns a JSON array of checklist type objects. Response structure: ```json [ { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false } ] ``` Important field paths: - [*].id — integer, unique type ID - [*].type — string, name of the checklist type - [*].hasGroups — boolean, whether this checklist type organises criteria into groups\n\n5. Checklist Record API — Response\n   Tags: topic:response, applies_to:checklist_record\n   Source: knowledge_chunks.txt (chunk 19)\n   Preview: Title: Checklist Record API — Response Tags: topic:response, applies_to:checklist_record Endpoint: GET {BASE_URL}/api/e360/checklist/record?date={date}&typeId={typeId}&venueId={venueId} A successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator. When a record EXISTS: ```json { \"RESPONSE\": \"CHECKLIST_RECORD_FOUND\", \"RECORD\": { \"id\": 10, \"date\": \"2025-01-06\", \"submissionDateTime\": \"2025-01-06T10:30:00\", \"checklistType\": { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false }, \"elementsVenue\": { \"id\": 2, \"venueName\": \"Bistro\", \"venueInitial\": \"B\", \"site\": \"Main Site\" }, \"submitted\": true, \"checklistReadings\": [ { \"id\": 100, \"checked\": true, \"na\": false, \"comment\": null, \"checklistCriteria\": { \"id\": 5, \"sn\": 1, \"name\": \"Floors cleaned\", \"checklistType\": {}, \"checklistGroup\": null } } ], \"submittedBy\": { \"id\": 54, \"firstName\": \"John\" } } } ``` When NO record is found, RESPONSE will NOT equal \"CHECKLIST_RECORD_FOUND\" and RECORD will be absent. In this case inform the user that no checklist record exists for the given date, type, and venue. Displaying checklistReadings — ALWAYS paginate: - Page size is 20 readings per page. - Use the offset and limit pagination rules defined in your system prompt. - NEVER display all readings at once, even if the total count is 20 or fewer — always apply pagination. - After displaying a page, inform the user of the current page and total number of readings, and ask if they want to see the next page. Important field paths: - RESPONSE - RECORD.id - RECORD.date - RECORD.submitted - RECORD.submissionDateTime - RECORD.checklistType.id - RECORD.checklistType.type - RECORD.elementsVenue.id - RECORD.elementsVenue.venueName - RECORD.checklistReadings[*].checked - RECORD.checklistReadings[*].na - RECORD.checklistReadings[*].checklistCriteria.name - RECORD.submittedBy.firstName",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "semantic_search_tool",
-      "id": "da05a276-5ae9-480e-ae87-65a97ff54e41",
-      "tool_call_id": "call_cmb7zEgorXNsBlirapBwO60L",
-      "artifact": [
-        {
-          "id": "9c042da1-1415-4c99-b7d2-9660f625617d",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_record",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Record API — Endpoint and Method",
-            "chunk_index": 17,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Record API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_record, api_template\n\nPurpose:\n- Fetches an existing checklist record for a specific date, checklist type, and venue.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/record\n- Query params: date, typeId, venueId",
-          "type": "Document"
-        },
-        {
-          "id": "4ce1a7ed-2a4e-4ae8-96af-7321feea134f",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_types",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Types API — Endpoint and Method",
-            "chunk_index": 15,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Types API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_types, api_template\n\nPurpose:\n- Returns all available checklist types (e.g. Opening, Closing, Cleaning).\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/type/all\n\nPayload/Headers:\n- No request body required.\n- No query parameters required.",
-          "type": "Document"
-        },
-        {
-          "id": "0720fc94-a3f5-419a-a1f7-cfd538d1db97",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_criteria_type",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Criteria by Type API — Endpoint and Method",
-            "chunk_index": 20,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Criteria by Type API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_criteria_type, api_template\n\nPurpose:\n- Returns all checklist criteria items for a given checklist type. Used when creating a new checklist record.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/criteria/type\n- Query params: typeId",
-          "type": "Document"
-        },
-        {
-          "id": "0adc6c41-ab57-4265-af88-edc082631452",
-          "metadata": {
-            "tags": [
-              "topic:response",
-              "applies_to:checklist_types"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Types API — Response",
-            "chunk_index": 16,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Types API — Response\nTags: topic:response, applies_to:checklist_types\n\nEndpoint: GET {BASE_URL}/api/e360/checklist/type/all\n\nA successful response (HTTP 200) returns a JSON array of checklist type objects.\n\nResponse structure:\n```json\n[\n  {\n    \"id\": 1,\n    \"type\": \"Opening Checklist\",\n    \"hasGroups\": false\n  }\n]\n```\n\nImportant field paths:\n- [*].id        — integer, unique type ID\n- [*].type      — string, name of the checklist type\n- [*].hasGroups — boolean, whether this checklist type organises criteria into groups",
-          "type": "Document"
-        },
-        {
-          "id": "56369e35-e5e2-4e85-a3a5-29aaa7ac7994",
-          "metadata": {
-            "tags": [
-              "topic:response",
-              "applies_to:checklist_record"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Record API — Response",
-            "chunk_index": 19,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Record API — Response\nTags: topic:response, applies_to:checklist_record\n\nEndpoint: GET {BASE_URL}/api/e360/checklist/record?date={date}&typeId={typeId}&venueId={venueId}\n\nA successful response (HTTP 200) returns a JSON object with a RESPONSE discriminator.\n\nWhen a record EXISTS:\n```json\n{\n  \"RESPONSE\": \"CHECKLIST_RECORD_FOUND\",\n  \"RECORD\": {\n    \"id\": 10,\n    \"date\": \"2025-01-06\",\n    \"submissionDateTime\": \"2025-01-06T10:30:00\",\n    \"checklistType\": { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false },\n    \"elementsVenue\": { \"id\": 2, \"venueName\": \"Bistro\", \"venueInitial\": \"B\", \"site\": \"Main Site\" },\n    \"submitted\": true,\n    \"checklistReadings\": [\n      {\n        \"id\": 100,\n        \"checked\": true,\n        \"na\": false,\n        \"comment\": null,\n        \"checklistCriteria\": { \"id\": 5, \"sn\": 1, \"name\": \"Floors cleaned\", \"checklistType\": {}, \"checklistGroup\": null }\n      }\n    ],\n    \"submittedBy\": { \"id\": 54, \"firstName\": \"John\" }\n  }\n}\n```\n\nWhen NO record is found, RESPONSE will NOT equal \"CHECKLIST_RECORD_FOUND\" and RECORD will be absent. In this case inform the user that no checklist record exists for the given date, type, and venue.\n\nDisplaying checklistReadings — ALWAYS paginate:\n- Page size is 20 readings per page.\n- Use the offset and limit pagination rules defined in your system prompt.\n- NEVER display all readings at once, even if the total count is 20 or fewer — always apply pagination.\n- After displaying a page, inform the user of the current page and total number of readings, and ask if they want to see the next page.\n\nImportant field paths:\n- RESPONSE\n- RECORD.id\n- RECORD.date\n- RECORD.submitted\n- RECORD.submissionDateTime\n- RECORD.checklistType.id\n- RECORD.checklistType.type\n- RECORD.elementsVenue.id\n- RECORD.elementsVenue.venueName\n- RECORD.checklistReadings[*].checked\n- RECORD.checklistReadings[*].na\n- RECORD.checklistReadings[*].checklistCriteria.name\n- RECORD.submittedBy.firstName",
-          "type": "Document"
-        }
-      ],
-      "status": "success"
-    },
-    {
-      "content": "To generate a checklist report, we need to use the Checklist Record API. This API requires the following parameters:\n\n1. **Date**: The specific date for which you want the checklist record.\n2. **Type ID**: The ID of the checklist type (e.g., Opening, Closing, Cleaning).\n3. **Venue ID**: The ID of the venue for which the checklist is applicable.\n\nLet's proceed with the following steps:\n\n1. **Checklist Type ID**: If you know the type of checklist you need (e.g., Opening Checklist), I can look up the ID for you.\n2. **Venue ID**: If you know the venue name, I can also look up the ID for you.\n\nPlease provide the date, checklist type, and venue name or IDs if you have them. If you only have names, let me know, and I'll find the corresponding IDs.",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 181,
-          "prompt_tokens": 2964,
-          "total_tokens": 3145,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 1792
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_28a167027d",
-        "id": "chatcmpl-DJku4AxaK6hVWQ25K4C7m8fj4caVI",
-        "service_tier": "default",
-        "finish_reason": "stop",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-040d-7061-87ca-7a1a2a6c3468-0",
-      "tool_calls": [],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 2964,
-        "output_tokens": 181,
-        "total_tokens": 3145,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 1792
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "Let's start by identifying the checklist type and venue IDs",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "human",
-      "id": "79485947-885c-439d-a93a-70e3b46c28c7"
-    },
-    {
-      "content": "",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 52,
-          "prompt_tokens": 3162,
-          "total_tokens": 3214,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 1792
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJkuDcF9D3RWxNnXwLowFX50UAupX",
-        "service_tier": "default",
-        "finish_reason": "tool_calls",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-25d1-7ae2-b31d-d2156be5c409-0",
-      "tool_calls": [
-        {
-          "name": "semantic_search_tool",
-          "args": {
-            "query": "checklist type ID lookup"
-          },
-          "id": "call_h04QaKTxMYggfYTXF2NXdL3m",
-          "type": "tool_call"
-        },
-        {
-          "name": "semantic_search_tool",
-          "args": {
-            "query": "venue ID lookup"
-          },
-          "id": "call_D4vnFnaPCWSRRsHrOxSFuQEP",
-          "type": "tool_call"
-        }
-      ],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 3162,
-        "output_tokens": 52,
-        "total_tokens": 3214,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 1792
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "1. Checklist Criteria by Type API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_criteria_type, api_template\n   Source: knowledge_chunks.txt (chunk 20)\n   Preview: Title: Checklist Criteria by Type API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_criteria_type, api_template Purpose: - Returns all checklist criteria items for a given checklist type. Used when creating a new checklist record. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/criteria/type - Query params: typeId\n\n2. Checklist Criteria by Type API — Required Parameters\n   Tags: topic:parameters, applies_to:checklist_criteria_type, business_rule\n   Source: knowledge_chunks.txt (chunk 21)\n   Preview: Title: Checklist Criteria by Type API — Required Parameters Tags: topic:parameters, applies_to:checklist_criteria_type, business_rule Before calling this endpoint, you MUST have: - typeId : integer — the checklist type ID (from /api/e360/checklist/type/all) Example URL: {BASE_URL}/api/e360/checklist/criteria/type?typeId=1\n\n3. Checklist Types API — Response\n   Tags: topic:response, applies_to:checklist_types\n   Source: knowledge_chunks.txt (chunk 16)\n   Preview: Title: Checklist Types API — Response Tags: topic:response, applies_to:checklist_types Endpoint: GET {BASE_URL}/api/e360/checklist/type/all A successful response (HTTP 200) returns a JSON array of checklist type objects. Response structure: ```json [ { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false } ] ``` Important field paths: - [*].id — integer, unique type ID - [*].type — string, name of the checklist type - [*].hasGroups — boolean, whether this checklist type organises criteria into groups\n\n4. Checklist Record API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_record, api_template\n   Source: knowledge_chunks.txt (chunk 17)\n   Preview: Title: Checklist Record API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_record, api_template Purpose: - Fetches an existing checklist record for a specific date, checklist type, and venue. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/record - Query params: date, typeId, venueId\n\n5. Checklist Criteria by Type API — Response\n   Tags: topic:response, applies_to:checklist_criteria_type\n   Source: knowledge_chunks.txt (chunk 22)\n   Preview: Title: Checklist Criteria by Type API — Response Tags: topic:response, applies_to:checklist_criteria_type Endpoint: GET {BASE_URL}/api/e360/checklist/criteria/type?typeId={typeId} A successful response (HTTP 200) returns a JSON array of checklist criteria objects. Response structure: ```json [ { \"id\": 5, \"sn\": 1, \"name\": \"Floors cleaned\", \"checklistType\": { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false }, \"checklistGroup\": null } ] ``` Important field paths: - [*].id — integer, unique criteria ID - [*].sn — integer, serial/display order number - [*].name — string, description of the criteria item - [*].checklistType.id - [*].checklistType.type - [*].checklistGroup — object or null; present when the checklist type hasGroups == true - [*].checklistGroup.id - [*].checklistGroup.name",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "semantic_search_tool",
-      "id": "48efcc11-4beb-43e3-b005-4dc98639b616",
-      "tool_call_id": "call_h04QaKTxMYggfYTXF2NXdL3m",
-      "artifact": [
-        {
-          "id": "0720fc94-a3f5-419a-a1f7-cfd538d1db97",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_criteria_type",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Criteria by Type API — Endpoint and Method",
-            "chunk_index": 20,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Criteria by Type API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_criteria_type, api_template\n\nPurpose:\n- Returns all checklist criteria items for a given checklist type. Used when creating a new checklist record.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/criteria/type\n- Query params: typeId",
-          "type": "Document"
-        },
-        {
-          "id": "8d4dd590-e556-4b67-a12a-eb2741fbcb69",
-          "metadata": {
-            "tags": [
-              "topic:parameters",
-              "applies_to:checklist_criteria_type",
-              "business_rule"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Criteria by Type API — Required Parameters",
-            "chunk_index": 21,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Criteria by Type API — Required Parameters\nTags: topic:parameters, applies_to:checklist_criteria_type, business_rule\n\nBefore calling this endpoint, you MUST have:\n\n- typeId : integer — the checklist type ID (from /api/e360/checklist/type/all)\n\nExample URL:\n  {BASE_URL}/api/e360/checklist/criteria/type?typeId=1",
-          "type": "Document"
-        },
-        {
-          "id": "0adc6c41-ab57-4265-af88-edc082631452",
-          "metadata": {
-            "tags": [
-              "topic:response",
-              "applies_to:checklist_types"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Types API — Response",
-            "chunk_index": 16,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Types API — Response\nTags: topic:response, applies_to:checklist_types\n\nEndpoint: GET {BASE_URL}/api/e360/checklist/type/all\n\nA successful response (HTTP 200) returns a JSON array of checklist type objects.\n\nResponse structure:\n```json\n[\n  {\n    \"id\": 1,\n    \"type\": \"Opening Checklist\",\n    \"hasGroups\": false\n  }\n]\n```\n\nImportant field paths:\n- [*].id        — integer, unique type ID\n- [*].type      — string, name of the checklist type\n- [*].hasGroups — boolean, whether this checklist type organises criteria into groups",
-          "type": "Document"
-        },
-        {
-          "id": "9c042da1-1415-4c99-b7d2-9660f625617d",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_record",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Record API — Endpoint and Method",
-            "chunk_index": 17,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Record API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_record, api_template\n\nPurpose:\n- Fetches an existing checklist record for a specific date, checklist type, and venue.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/record\n- Query params: date, typeId, venueId",
-          "type": "Document"
-        },
-        {
-          "id": "e87f33d5-99ff-4795-ba50-9ab6d761c14b",
-          "metadata": {
-            "tags": [
-              "topic:response",
-              "applies_to:checklist_criteria_type"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Criteria by Type API — Response",
-            "chunk_index": 22,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Criteria by Type API — Response\nTags: topic:response, applies_to:checklist_criteria_type\n\nEndpoint: GET {BASE_URL}/api/e360/checklist/criteria/type?typeId={typeId}\n\nA successful response (HTTP 200) returns a JSON array of checklist criteria objects.\n\nResponse structure:\n```json\n[\n  {\n    \"id\": 5,\n    \"sn\": 1,\n    \"name\": \"Floors cleaned\",\n    \"checklistType\": { \"id\": 1, \"type\": \"Opening Checklist\", \"hasGroups\": false },\n    \"checklistGroup\": null\n  }\n]\n```\n\nImportant field paths:\n- [*].id                    — integer, unique criteria ID\n- [*].sn                    — integer, serial/display order number\n- [*].name                  — string, description of the criteria item\n- [*].checklistType.id\n- [*].checklistType.type\n- [*].checklistGroup        — object or null; present when the checklist type hasGroups == true\n- [*].checklistGroup.id\n- [*].checklistGroup.name",
-          "type": "Document"
-        }
-      ],
-      "status": "success"
-    },
-    {
-      "content": "1. TempLog Criteria by Venue API — Required Parameters\n   Tags: topic:parameters, applies_to:templog_criteria_venue, business_rule\n   Source: knowledge_chunks.txt (chunk 27)\n   Preview: Title: TempLog Criteria by Venue API — Required Parameters Tags: topic:parameters, applies_to:templog_criteria_venue, business_rule Before calling this endpoint, you MUST have: - venueId : integer — the venue ID (from /api/e360/checklist/venues) Example URL: {BASE_URL}/api/e360/templog/criteria/venue?venueId=2\n\n2. Checklist Venues API �� Response\n   Tags: topic:response, applies_to:checklist_venues\n   Source: knowledge_chunks.txt (chunk 14)\n   Preview: Title: Checklist Venues API �� Response Tags: topic:response, applies_to:checklist_venues Endpoint: GET {BASE_URL}/api/e360/checklist/venues A successful response (HTTP 200) returns a JSON array of venue objects. Response structure: ```json [ { \"id\": 1, \"venueName\": \"Bistro\", \"venueInitial\": \"B\", \"site\": \"Main Site\" } ] ``` Important field paths: - [*].id — integer, unique venue ID - [*].venueName — string, human-readable venue name - [*].venueInitial — string or null, short abbreviation for the venue - [*].site — string, name of the site this venue belongs to\n\n3. TempLog Criteria by Venue API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:templog_criteria_venue, api_template\n   Source: knowledge_chunks.txt (chunk 26)\n   Preview: Title: TempLog Criteria by Venue API — Endpoint and Method Tags: topic:endpoint, applies_to:templog_criteria_venue, api_template Purpose: - Returns all temperature log criteria (measurement points) configured for a specific venue. Used when creating a new temp log record. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/templog/criteria/venue - Query params: venueId\n\n4. Checklist Venues API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_venues, api_template\n   Source: knowledge_chunks.txt (chunk 13)\n   Preview: Title: Checklist Venues API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_venues, api_template Purpose: - Returns the list of all venues available for checklist and audit operations. - This same endpoint is also used by the TempLog and Audit modules to fetch venues. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/venues Payload/Headers: - No request body required. - No query parameters required.\n\n5. Checklist Record API — Endpoint and Method\n   Tags: topic:endpoint, applies_to:checklist_record, api_template\n   Source: knowledge_chunks.txt (chunk 17)\n   Preview: Title: Checklist Record API — Endpoint and Method Tags: topic:endpoint, applies_to:checklist_record, api_template Purpose: - Fetches an existing checklist record for a specific date, checklist type, and venue. Endpoint: - Method: GET - URL: {BASE_URL}/api/e360/checklist/record - Query params: date, typeId, venueId",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "semantic_search_tool",
-      "id": "c3a7bd1a-cecf-4946-b51d-64197dc832b2",
-      "tool_call_id": "call_D4vnFnaPCWSRRsHrOxSFuQEP",
-      "artifact": [
-        {
-          "id": "6a413bae-523a-4a2b-b99a-c174ec796273",
-          "metadata": {
-            "tags": [
-              "topic:parameters",
-              "applies_to:templog_criteria_venue",
-              "business_rule"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "TempLog Criteria by Venue API — Required Parameters",
-            "chunk_index": 27,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: TempLog Criteria by Venue API — Required Parameters\nTags: topic:parameters, applies_to:templog_criteria_venue, business_rule\n\nBefore calling this endpoint, you MUST have:\n\n- venueId : integer — the venue ID (from /api/e360/checklist/venues)\n\nExample URL:\n  {BASE_URL}/api/e360/templog/criteria/venue?venueId=2",
-          "type": "Document"
-        },
-        {
-          "id": "de3a6a80-e84d-4edf-b77f-1f0b11facb21",
-          "metadata": {
-            "tags": [
-              "topic:response",
-              "applies_to:checklist_venues"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Venues API �� Response",
-            "chunk_index": 14,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Venues API �� Response\nTags: topic:response, applies_to:checklist_venues\n\nEndpoint: GET {BASE_URL}/api/e360/checklist/venues\n\nA successful response (HTTP 200) returns a JSON array of venue objects.\n\nResponse structure:\n```json\n[\n  {\n    \"id\": 1,\n    \"venueName\": \"Bistro\",\n    \"venueInitial\": \"B\",\n    \"site\": \"Main Site\"\n  }\n]\n```\n\nImportant field paths:\n- [*].id           — integer, unique venue ID\n- [*].venueName    — string, human-readable venue name\n- [*].venueInitial — string or null, short abbreviation for the venue\n- [*].site         — string, name of the site this venue belongs to",
-          "type": "Document"
-        },
-        {
-          "id": "0983c056-22c1-40a7-b56c-1e4817a8e2fc",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:templog_criteria_venue",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "TempLog Criteria by Venue API — Endpoint and Method",
-            "chunk_index": 26,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: TempLog Criteria by Venue API — Endpoint and Method\nTags: topic:endpoint, applies_to:templog_criteria_venue, api_template\n\nPurpose:\n- Returns all temperature log criteria (measurement points) configured for a specific venue. Used when creating a new temp log record.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/templog/criteria/venue\n- Query params: venueId",
-          "type": "Document"
-        },
-        {
-          "id": "a38513ed-fcc2-402c-b5a9-c50c848e4692",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_venues",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Venues API — Endpoint and Method",
-            "chunk_index": 13,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Venues API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_venues, api_template\n\nPurpose:\n- Returns the list of all venues available for checklist and audit operations.\n- This same endpoint is also used by the TempLog and Audit modules to fetch venues.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/venues\n\nPayload/Headers:\n- No request body required.\n- No query parameters required.",
-          "type": "Document"
-        },
-        {
-          "id": "9c042da1-1415-4c99-b7d2-9660f625617d",
-          "metadata": {
-            "tags": [
-              "topic:endpoint",
-              "applies_to:checklist_record",
-              "api_template"
-            ],
-            "type": "qmr_rule_chunk",
-            "title": "Checklist Record API — Endpoint and Method",
-            "chunk_index": 17,
-            "source_file": "knowledge_chunks.txt",
-            "source_path": "/Users/afridee/LangchainProjects/pgvector-experiment/knowledge_chunks.txt"
-          },
-          "page_content": "Title: Checklist Record API — Endpoint and Method\nTags: topic:endpoint, applies_to:checklist_record, api_template\n\nPurpose:\n- Fetches an existing checklist record for a specific date, checklist type, and venue.\n\nEndpoint:\n- Method: GET\n- URL: {BASE_URL}/api/e360/checklist/record\n- Query params: date, typeId, venueId",
-          "type": "Document"
-        }
-      ],
-      "status": "success"
-    },
-    {
-      "content": "",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 103,
-          "prompt_tokens": 4730,
-          "total_tokens": 4833,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 3200
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJkuF6q4HNtpnr68oe1dM5FaZAQsI",
-        "service_tier": "default",
-        "finish_reason": "tool_calls",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-2ebe-7d83-8d85-8608b546e238-0",
-      "tool_calls": [
-        {
-          "name": "api_call",
-          "args": {
-            "url": "https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/type/all",
-            "method": "GET",
-            "response_fields": [
-              "id",
-              "type"
-            ]
-          },
-          "id": "call_TJ1okoqnMPOJm6qWuEw3eEBK",
-          "type": "tool_call"
-        },
-        {
-          "name": "api_call",
-          "args": {
-            "url": "https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/venues",
-            "method": "GET",
-            "response_fields": [
-              "id",
-              "venueName"
-            ]
-          },
-          "id": "call_1MubEgENRshIVIGvXUIu4qEY",
-          "type": "tool_call"
-        }
-      ],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 4730,
-        "output_tokens": 103,
-        "total_tokens": 4833,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 3200
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "Success (200) [filtered]: {\"requested_fields\": [\"id\", \"type\"], \"matched_fields\": [{\"field\": \"id\", \"path\": \"[0].id\", \"value\": 1}, {\"field\": \"id\", \"path\": \"[1].id\", \"value\": 2}, {\"field\": \"id\", \"path\": \"[2].id\", \"value\": 3}, {\"field\": \"id\", \"path\": \"[3].id\", \"value\": 4}, {\"field\": \"id\", \"path\": \"[4].id\", \"value\": 5}, {\"field\": \"type\", \"path\": \"[0].type\", \"value\": \"FOH Opening Checklist\"}, {\"field\": \"type\", \"path\": \"[1].type\", \"value\": \"FOH Closing Checklist\"}, {\"field\": \"type\", \"path\": \"[2].type\", \"value\": \"BOH Opening Checklist\"}, {\"field\": \"type\", \"path\": \"[3].type\", \"value\": \"BOH Closing Checklist\"}, {\"field\": \"type\", \"path\": \"[4].type\", \"value\": \"BOH Daily Cleaning Checklist\"}], \"missing_fields\": [], \"status_code\": 200}",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "api_call",
-      "id": "1a71644e-456e-44aa-9c28-2f482e8e0b5e",
-      "tool_call_id": "call_TJ1okoqnMPOJm6qWuEw3eEBK",
-      "status": "success"
-    },
-    {
-      "content": "Success (200) [filtered]: {\"requested_fields\": [\"id\", \"venueName\"], \"matched_fields\": [{\"field\": \"id\", \"path\": \"[0].id\", \"value\": 1}, {\"field\": \"id\", \"path\": \"[1].id\", \"value\": 2}, {\"field\": \"id\", \"path\": \"[2].id\", \"value\": 3}, {\"field\": \"id\", \"path\": \"[3].id\", \"value\": 4}, {\"field\": \"id\", \"path\": \"[4].id\", \"value\": 5}, {\"field\": \"venueName\", \"path\": \"[0].venueName\", \"value\": \"Elements Smokehouse Darlinghurst\"}, {\"field\": \"venueName\", \"path\": \"[1].venueName\", \"value\": \"Elements Bar & Grill Pyrmont\"}, {\"field\": \"venueName\", \"path\": \"[2].venueName\", \"value\": \"Elements Bar & Grill Haberfield\"}, {\"field\": \"venueName\", \"path\": \"[3].venueName\", \"value\": \"Elements Bar & Grill Woolloomooloo\"}, {\"field\": \"venueName\", \"path\": \"[4].venueName\", \"value\": \"Elements Bar & Grill Walsh Bay\"}], \"missing_fields\": [], \"status_code\": 200}",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "api_call",
-      "id": "dcd0258f-f408-43a8-bf01-34b8ece3cc9a",
-      "tool_call_id": "call_1MubEgENRshIVIGvXUIu4qEY",
-      "status": "success"
-    },
-    {
-      "content": "Here are the available checklist types and venues:\n\n### Checklist Types\n1. **FOH Opening Checklist** (ID: 1)\n2. **FOH Closing Checklist** (ID: 2)\n3. **BOH Opening Checklist** (ID: 3)\n4. **BOH Closing Checklist** (ID: 4)\n5. **BOH Daily Cleaning Checklist** (ID: 5)\n\n### Venues\n1. **Elements Smokehouse Darlinghurst** (ID: 1)\n2. **Elements Bar & Grill Pyrmont** (ID: 2)\n3. **Elements Bar & Grill Haberfield** (ID: 3)\n4. **Elements Bar & Grill Woolloomooloo** (ID: 4)\n5. **Elements Bar & Grill Walsh Bay** (ID: 5)\n\nPlease let me know the checklist type and venue you are interested in, along with the specific date for the report.",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 193,
-          "prompt_tokens": 5421,
-          "total_tokens": 5614,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 4736
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJkuH6aSI4QeqrPalcZ3UJmkzFplv",
-        "service_tier": "default",
-        "finish_reason": "stop",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-34db-7623-9c8d-cda659138b60-0",
-      "tool_calls": [],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 5421,
-        "output_tokens": 193,
-        "total_tokens": 5614,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 4736
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "FOH Opening Checklist, Elements Bar & Grill Haberfield",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "human",
-      "id": "753e20ff-efeb-47ec-90dd-511c55ee395c"
-    },
-    {
-      "content": "Great! Now I have the following details:\n\n- **Checklist Type**: FOH Opening Checklist (ID: 1)\n- **Venue**: Elements Bar & Grill Haberfield (ID: 3)\n\nPlease provide the specific date for which you want to generate the checklist report.",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 58,
-          "prompt_tokens": 5632,
-          "total_tokens": 5690,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 3072
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_28a167027d",
-        "id": "chatcmpl-DJkuQdX24fgkz7EelmvbEUoi6ma3R",
-        "service_tier": "default",
-        "finish_reason": "stop",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-5b60-78a1-85b8-e4251e07aaa2-0",
-      "tool_calls": [],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 5632,
-        "output_tokens": 58,
-        "total_tokens": 5690,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 3072
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "12th March, 2026",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "human",
-      "id": "92f66f43-8ab6-42af-9852-675a31eeb1eb"
-    },
-    {
-      "content": "",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 300,
-          "prompt_tokens": 5704,
-          "total_tokens": 6004,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 5504
-          }
-        },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJkubdmUglxwv1AZjM3QOFFYGAkH4",
-        "service_tier": "default",
-        "finish_reason": "tool_calls",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-82ba-7ff0-89d8-be5b853cffe9-0",
-      "tool_calls": [
-        {
-          "name": "api_call",
-          "args": {
-            "url": "https://api-ebg-erp.binarycraftbd.com/api/e360/checklist/record",
-            "method": "GET",
-            "params": {
-              "date": "2026-03-12",
-              "typeId": 1,
-              "venueId": 3
+          "id": 754564,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 73,
+            "name": "Turn lights on\r",
+            "sn": 10,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
             },
-            "extraction_script": "if response.get('RESPONSE') == 'CHECKLIST_RECORD_FOUND':\n    record = response.get('RECORD', {})\n    result = {\n        'Checklist ID': record.get('id'),\n        'Date': record.get('date'),\n        'Submitted': record.get('submitted'),\n        'Submission DateTime': record.get('submissionDateTime'),\n        'Venue Name': record.get('elementsVenue', {}).get('venueName'),\n        'Submitted By': record.get('submittedBy', {}).get('firstName'),\n        'Readings': [\n            {\n                'Criteria': reading.get('checklistCriteria', {}).get('name'),\n                'Checked': reading.get('checked'),\n                'Not Applicable': reading.get('na'),\n                'Comment': reading.get('comment')\n            }\n            for reading in record.get('checklistReadings', [])\n        ]\n    }\nelse:\n    result = 'No checklist record found for the given date, type, and venue.'",
-            "list_limit": 20,
-            "list_offset": 0
-          },
-          "id": "call_Qa0ZQ6TvAd9133tMNa1wmr1y",
-          "type": "tool_call"
-        }
-      ],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 5704,
-        "output_tokens": 300,
-        "total_tokens": 6004,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 5504
-        },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
-        }
-      }
-    },
-    {
-      "content": "Success (200) [extracted]: {\"Checklist ID\": 17193, \"Date\": \"2026-03-12\", \"Submitted\": true, \"Submission DateTime\": \"2026-03-12 10:09 PM\", \"Venue Name\": \"Elements Bar & Grill Haberfield\", \"Submitted By\": \"Jenisha\", \"Readings\": [{\"Criteria\": \"Turn lights on\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Turn coffee machine on\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Do a walk-through to check last night's closing standard and to identify any potential issues.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check all fridge and freezer temp (including cool rooms & freezer rooms).\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check ice machines to see if they're functioning.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Turn Air-Con on if required\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure floor is clean.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Position chairs & tables neatly according to bookings.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure all chairs and tables are stable. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure all chairs are crumbed, wiped, and cleaned. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Stock every station with clean glasses, cutlery, napkins, & side  plates. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure water bottles are clean & refilled (In/out). \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure steak cutting trolleys are clean and in place.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure all lights, fridges and other equipment are\\r functioning correctly.\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"All windows and decorations are clean and presentable \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Bar counter and stools are organised neatly. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure Tomahawk knives are clean and in place.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check all stocks including take-away boxes & bags. Ensure the floor is stocked up for the day.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure broom, dust pan, mop & mop bucket, vaccum cleaner, & chux & cloths are in place.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure multi-purpose and glass cleaner spray bottles are filled up and are in the designated place.\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure oudoor floors are clean before setting up. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure chairs & tables are positioned neatly in line with reservations. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure that all chairs and tables are stable. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure outdoor heaters and bollards are in place and all gas cyliders have gas. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure outdo0r carpets, stairs, & Entrance are clean and presentable.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure plants have no dead leaves.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure host desk and menu display are clean and  presentable.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure ipads & head-sets are in place.\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check roster and ensure team members are arriving on time.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensue all staff members are in correct & clean uniforms & are presenting themselves in line with the compnay's personal grooming and hygiene standard. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Deligate responsibilities to team members & ensure they understood your directions.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"All staff on shift must have name badges and wearing clean and tidy uniform.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure as few ipads as possible are in use for lunch service.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure the remainder of the ipads & all table lamps are charging for dinner service.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure kitchen & bar opening checklists are completed and you're verbally made aware of any issues. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Communicate with bar & kithcen periodically to ensure they are on track with everything.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure bar & kitchen have all necessary stocks in place. \\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure all hand-wash sinks (FOH & BOH) have soap and paper-towels in the dispensers.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check temperature for all fridges & freezers\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check gas & syrup for the postmix system\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check the beer system & ensure it's functioning\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Ensure all rubbish bins have fresh bin-liners and are in place.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Set POS and Tyro. Ensure EFTPOS printers & POS printers have paper indside. Stock extra printer rolls.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Set the till with float amount ($350). Always count -  it's the responsibility of both, open & close managers!\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check with kitchen if there's anything out-of-stock.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Check 7-rooms for booking number, large groups, private dining, set menus, & any special requests etc. and communicate with chefs and team members.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Do staff briefing before guests start to arrive. Ensure Head Chef, Sous Chef, Bar Man, Section Waiters & other managers are present at the briefing. Remember to communicate the important \\\"reminders\\\", shift specific adjustments & shift goals to everyone.\\r\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}, {\"Criteria\": \"Turn music on.\", \"Checked\": true, \"Not Applicable\": null, \"Comment\": null}]}",
-      "additional_kwargs": {},
-      "response_metadata": {},
-      "type": "tool",
-      "name": "api_call",
-      "id": "3a4c71fb-6d9e-43b5-a23e-9fa27302ef3c",
-      "tool_call_id": "call_Qa0ZQ6TvAd9133tMNa1wmr1y",
-      "status": "success"
-    },
-    {
-      "content": "Here is the checklist report for the **FOH Opening Checklist** at **Elements Bar & Grill Haberfield** on **March 12, 2026**:\n\n- **Checklist ID**: 17193\n- **Date**: 2026-03-12\n- **Submitted**: Yes\n- **Submission DateTime**: 2026-03-12 10:09 PM\n- **Venue Name**: Elements Bar & Grill Haberfield\n- **Submitted By**: Jenisha\n\n### Checklist Readings\n| Criteria                                                                 | Checked | Not Applicable | Comment |\n|--------------------------------------------------------------------------|---------|----------------|---------|\n| Turn lights on                                                           | Yes     |                |         |\n| Turn coffee machine on                                                   | Yes     |                |         |\n| Do a walk-through to check last night's closing standard and to identify any potential issues. | Yes     |                |         |\n| Check all fridge and freezer temp (including cool rooms & freezer rooms).| Yes     |                |         |\n| Check ice machines to see if they're functioning.                        | Yes     |                |         |\n| Turn Air-Con on if required                                              | Yes     |                |         |\n| Ensure floor is clean.                                                   | Yes     |                |         |\n| Position chairs & tables neatly according to bookings.                   | Yes     |                |         |\n| Ensure all chairs and tables are stable.                                 | Yes     |                |         |\n| Ensure all chairs are crumbed, wiped, and cleaned.                       | Yes     |                |         |\n| Ensure tables are set up neatly with table numbers, salt & pepper. Place table lamps on tables just before dark. | Yes     |                |         |\n| Stock every station with clean glasses, cutlery, napkins, & side plates. | Yes     |                |         |\n| Ensure water bottles are clean & refilled (In/out).                      | Yes     |                |         |\n| Ensure steak cutting trolleys are clean and in place.                    | Yes     |                |         |\n| Ensure all lights, fridges and other equipment are functioning correctly.| Yes     |                |         |\n| All windows and decorations are clean and presentable                    | Yes     |                |         |\n| Bar counter and stools are organised neatly.                             | Yes     |                |         |\n| Ensure Tomahawk knives are clean and in place.                           | Yes     |                |         |\n| Check all stocks including take-away boxes & bags. Ensure the floor is stocked up for the day. | Yes     |                |         |\n| Ensure broom, dust pan, mop & mop bucket, vacuum cleaner, & chux & cloths are in place. | Yes     |                |         |\n| Ensure multi-purpose and glass cleaner spray bottles are filled up and are in the designated place. | Yes     |                |         |\n| Ensure outdoor floors are clean before setting up.                       | Yes     |                |         |\n| Ensure chairs & tables are positioned neatly in line with reservations.  | Yes     |                |         |\n| Ensure that all chairs and tables are stable.                            | Yes     |                |         |\n| Ensure tables are set up neatly with table numbers, salt & pepper. Place table lamps on tables just before dark. | Yes     |                |         |\n| Ensure outdoor heaters and bollards are in place and all gas cylinders have gas. | Yes     |                |         |\n| Ensure outdoor carpets, stairs, & Entrance are clean and presentable.    | Yes     |                |         |\n| Ensure plants have no dead leaves.                                       | Yes     |                |         |\n| Ensure host desk and menu display are clean and presentable.             | Yes     |                |         |\n| Ensure iPads & head-sets are in place.                                   | Yes     |                |         |\n| Check roster and ensure team members are arriving on time.               | Yes     |                |         |\n| Ensure all staff members are in correct & clean uniforms & are presenting themselves in line with the company's personal grooming and hygiene standard. | Yes     |                |         |\n| Delegate responsibilities to team members & ensure they understood your directions. | Yes     |                |         |\n| All staff on shift must have name badges and wearing clean and tidy uniform. | Yes     |                |         |\n| Ensure as few iPads as possible are in use for lunch service.            | Yes     |                |         |\n| Ensure the remainder of the iPads & all table lamps are charging for dinner service. | Yes     |                |         |\n| Ensure kitchen & bar opening checklists are completed and you're verbally made aware of any issues. | Yes     |                |         |\n| Communicate with bar & kitchen periodically to ensure they are on track with everything. | Yes     |                |         |\n| Ensure bar & kitchen have all necessary stocks in place.                 | Yes     |                |         |\n| Ensure all hand-wash sinks (FOH & BOH) have soap and paper-towels in the dispensers. | Yes     |                |         |\n| Check temperature for all fridges & freezers                             | Yes     |                |         |\n| Check gas & syrup for the postmix system                                 | Yes     |                |         |\n| Check the beer system & ensure it's functioning                          | Yes     |                |         |\n| Ensure all rubbish bins have fresh bin-liners and are in place.          | Yes     |                |         |\n| Set POS and Tyro. Ensure EFTPOS printers & POS printers have paper inside. Stock extra printer rolls. | Yes     |                |         |\n| Set the till with float amount ($350). Always count - it's the responsibility of both, open & close managers! | Yes     |                |         |\n| Check with kitchen if there's anything out-of-stock.                     | Yes     |                |         |\n| Check 7-rooms for booking number, large groups, private dining, set menus, & any special requests etc. and communicate with chefs and team members. | Yes     |                |         |\n| Do staff briefing before guests start to arrive. Ensure Head Chef, Sous Chef, Bar Man, Section Waiters & other managers are present at the briefing. Remember to communicate the important \"reminders\", shift specific adjustments & shift goals to everyone. | Yes     |                |         |\n| Turn music on.                                                           | Yes     |                |         |\n\nIf you need further details or another report, feel free to ask!",
-      "additional_kwargs": {
-        "refusal": null
-      },
-      "response_metadata": {
-        "token_usage": {
-          "completion_tokens": 1334,
-          "prompt_tokens": 7922,
-          "total_tokens": 9256,
-          "completion_tokens_details": {
-            "accepted_prediction_tokens": 0,
-            "audio_tokens": 0,
-            "reasoning_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "prompt_tokens_details": {
-            "audio_tokens": 0,
-            "cached_tokens": 5888
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
           }
         },
-        "model_provider": "openai",
-        "model_name": "gpt-4o-2024-08-06",
-        "system_fingerprint": "fp_f4707bdfbe",
-        "id": "chatcmpl-DJkudH1sNOHzURiEO91MTrM7dDPBp",
-        "service_tier": "default",
-        "finish_reason": "stop",
-        "logprobs": null
-      },
-      "type": "ai",
-      "id": "lc_run--019cf2da-8e55-7b41-b710-e544905c9f1b-0",
-      "tool_calls": [],
-      "invalid_tool_calls": [],
-      "usage_metadata": {
-        "input_tokens": 7922,
-        "output_tokens": 1334,
-        "total_tokens": 9256,
-        "input_token_details": {
-          "audio": 0,
-          "cache_read": 5888
+        {
+          "id": 754565,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 74,
+            "name": "Turn coffee machine on\r",
+            "sn": 20,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
         },
-        "output_token_details": {
-          "audio": 0,
-          "reasoning": 0
+        {
+          "id": 754566,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 75,
+            "name": "Do a walk-through to check last night's closing standard and to identify any potential issues.\r",
+            "sn": 30,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
+        },
+        {
+          "id": 754567,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 76,
+            "name": "Check all fridge and freezer temp (including cool rooms & freezer rooms).\r",
+            "sn": 40,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
+        },
+        {
+          "id": 754568,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 77,
+            "name": "Check ice machines to see if they're functioning.\r",
+            "sn": 50,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
+        },
+        {
+          "id": 754569,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 78,
+            "name": "Turn Air-Con on if required",
+            "sn": 60,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 1,
+              "name": "Initial Tasks"
+            }
+          }
+        },
+        {
+          "id": 754570,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 79,
+            "name": "Ensure floor is clean.\r",
+            "sn": 70,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754571,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 80,
+            "name": "Position chairs & tables neatly according to bookings.\r",
+            "sn": 80,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754572,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 81,
+            "name": "Ensure all chairs and tables are stable. \r",
+            "sn": 90,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754573,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 82,
+            "name": "Ensure all chairs are crumbed, wiped, and cleaned. \r",
+            "sn": 100,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754574,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 83,
+            "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
+            "sn": 110,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754575,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 84,
+            "name": "Stock every station with clean glasses, cutlery, napkins, & side  plates. \r",
+            "sn": 120,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754576,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 85,
+            "name": "Ensure water bottles are clean & refilled (In/out). \r",
+            "sn": 130,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754577,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 86,
+            "name": "Ensure steak cutting trolleys are clean and in place.\r",
+            "sn": 140,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754578,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 87,
+            "name": "Ensure all lights, fridges and other equipment are\r functioning correctly.",
+            "sn": 150,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754579,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 88,
+            "name": "All windows and decorations are clean and presentable \r",
+            "sn": 160,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754580,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 89,
+            "name": "Bar counter and stools are organised neatly. \r",
+            "sn": 170,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754581,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 90,
+            "name": "Ensure Tomahawk knives are clean and in place.\r",
+            "sn": 180,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754582,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 91,
+            "name": "Check all stocks including take-away boxes & bags. Ensure the floor is stocked up for the day.\r",
+            "sn": 190,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754583,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 92,
+            "name": "Ensure broom, dust pan, mop & mop bucket, vaccum cleaner, & chux & cloths are in place.\r",
+            "sn": 200,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754584,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 93,
+            "name": "Ensure multi-purpose and glass cleaner spray bottles are filled up and are in the designated place.",
+            "sn": 210,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 2,
+              "name": "Indoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754585,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 94,
+            "name": "Ensure oudoor floors are clean before setting up. \r",
+            "sn": 220,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754586,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 95,
+            "name": "Ensure chairs & tables are positioned neatly in line with reservations. \r",
+            "sn": 230,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754587,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 96,
+            "name": "Ensure that all chairs and tables are stable. \r",
+            "sn": 240,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754588,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 97,
+            "name": "Ensure tables are set up neatly with table  numbers, salt & pepper. Place table lamps on tables just before dark. \r",
+            "sn": 250,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754589,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 98,
+            "name": "Ensure outdoor heaters and bollards are in place and all gas cyliders have gas. \r",
+            "sn": 260,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754590,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 99,
+            "name": "Ensure outdo0r carpets, stairs, & Entrance are clean and presentable.\r",
+            "sn": 270,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754591,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 100,
+            "name": "Ensure plants have no dead leaves.\r",
+            "sn": 280,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754592,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 101,
+            "name": "Ensure host desk and menu display are clean and  presentable.\r",
+            "sn": 290,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754593,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 102,
+            "name": "Ensure ipads & head-sets are in place.",
+            "sn": 300,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 3,
+              "name": "Outdoor Dining Area"
+            }
+          }
+        },
+        {
+          "id": 754594,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 103,
+            "name": "Check roster and ensure team members are arriving on time.\r",
+            "sn": 310,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754595,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 104,
+            "name": "Ensue all staff members are in correct & clean uniforms & are presenting themselves in line with the compnay's personal grooming and hygiene standard. \r",
+            "sn": 320,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754596,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 105,
+            "name": "Deligate responsibilities to team members & ensure they understood your directions.\r",
+            "sn": 330,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754597,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 106,
+            "name": "All staff on shift must have name badges and wearing clean and tidy uniform.\r",
+            "sn": 340,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754598,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 107,
+            "name": "Ensure as few ipads as possible are in use for lunch service.\r",
+            "sn": 350,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754599,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 108,
+            "name": "Ensure the remainder of the ipads & all table lamps are charging for dinner service.\r",
+            "sn": 360,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754600,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 109,
+            "name": "Ensure kitchen & bar opening checklists are completed and you're verbally made aware of any issues. \r",
+            "sn": 370,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754601,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 110,
+            "name": "Communicate with bar & kithcen periodically to ensure they are on track with everything.\r",
+            "sn": 380,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754602,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 111,
+            "name": "Ensure bar & kitchen have all necessary stocks in place. \r",
+            "sn": 390,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754603,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 112,
+            "name": "Ensure all hand-wash sinks (FOH & BOH) have soap and paper-towels in the dispensers.\r",
+            "sn": 400,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754604,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 113,
+            "name": "Check temperature for all fridges & freezers\r",
+            "sn": 410,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754605,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 114,
+            "name": "Check gas & syrup for the postmix system\r",
+            "sn": 420,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754606,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 115,
+            "name": "Check the beer system & ensure it's functioning\r",
+            "sn": 430,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754607,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 116,
+            "name": "Ensure all rubbish bins have fresh bin-liners and are in place.\r",
+            "sn": 440,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754608,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 117,
+            "name": "Set POS and Tyro. Ensure EFTPOS printers & POS printers have paper indside. Stock extra printer rolls.\r",
+            "sn": 450,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754609,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 118,
+            "name": "Set the till with float amount ($350). Always count -  it's the responsibility of both, open & close managers!\r",
+            "sn": 460,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754610,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 119,
+            "name": "Check with kitchen if there's anything out-of-stock.\r",
+            "sn": 470,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754611,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 120,
+            "name": "Check 7-rooms for booking number, large groups, private dining, set menus, & any special requests etc. and communicate with chefs and team members.\r",
+            "sn": 480,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754612,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 121,
+            "name": "Do staff briefing before guests start to arrive. Ensure Head Chef, Sous Chef, Bar Man, Section Waiters & other managers are present at the briefing. Remember to communicate the important \"reminders\", shift specific adjustments & shift goals to everyone.\r",
+            "sn": 490,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
+        },
+        {
+          "id": 754613,
+          "checked": true,
+          "comment": null,
+          "checklistCriteria": {
+            "id": 122,
+            "name": "Turn music on.",
+            "sn": 500,
+            "checklistType": {
+              "id": 1,
+              "type": "FOH Opening Checklist",
+              "hasGroups": true
+            },
+            "checklistGroup": {
+              "id": 4,
+              "name": "Manager on duty "
+            }
+          }
         }
-      }
+      ]
     }
-  ]
+  }
 }
