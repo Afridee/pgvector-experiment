@@ -52,7 +52,7 @@ def _extract_and_show_download_link(api_response_str: str) -> None:
 
 
 st.set_page_config(
-    page_title="Report Assistant", page_icon="📊", layout="wide",
+    page_title="Elements360 Assistant", page_icon="📊", layout="wide",
 )
 
 # ---------------------------------------------------------------------------
@@ -159,7 +159,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Report Assistant")
+st.title("Elements360 Assistant")
 
 # ----------------------------------------------------------------------------
 # Sidebar
