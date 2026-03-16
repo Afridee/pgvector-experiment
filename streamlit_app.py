@@ -55,6 +55,110 @@ st.set_page_config(
     page_title="Report Assistant", page_icon="📊", layout="wide",
 )
 
+# ---------------------------------------------------------------------------
+# Brand palette — custom CSS overrides
+# ---------------------------------------------------------------------------
+st.markdown(
+    """
+    <style>
+    /* ========== Chat bubbles ========== */
+    /* Assistant messages */
+    .stChatMessage:has(.stAvatar [data-testid="chatAvatarIcon-assistant"]),
+    .stChatMessage:has(div[data-testid="stChatMessageAvatarAssistant"]),
+    div[data-testid="stChatMessage"]:nth-child(odd) {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E2DFD9 !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.07) !important;
+        padding: 1rem 1.25rem !important;
+    }
+    /* User messages */
+    .stChatMessage:has(.stAvatar [data-testid="chatAvatarIcon-user"]),
+    .stChatMessage:has(div[data-testid="stChatMessageAvatarUser"]),
+    div[data-testid="stChatMessage"]:nth-child(even) {
+        background-color: #EAE6DF !important;
+        border: 1px solid #D9D4CC !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 2px 6px rgba(44, 44, 44, 0.07) !important;
+        padding: 1rem 1.25rem !important;
+    }
+    /* Shared bubble spacing */
+    .stChatMessage {
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* ========== Chat input ========== */
+    .stChatInput > div {
+        border-color: #D4A017 !important;
+    }
+    .stChatInput textarea:focus {
+        border-color: #D4A017 !important;
+        box-shadow: 0 0 0 1px #D4A017 !important;
+    }
+
+    /* ========== Alert banners ========== */
+    /* Error */
+    div[data-testid="stAlert"] div[role="alert"][data-baseweb*="negative"],
+    div[data-testid="stNotification"][data-kind="Error"],
+    .element-container div[data-baseweb="notification"][kind="negative"] {
+        background-color: #fdeaea !important;
+        border-left: 4px solid #E05252 !important;
+        color: #2C2C2C !important;
+    }
+    /* Success */
+    div[data-testid="stAlert"] div[role="alert"][data-baseweb*="positive"],
+    div[data-testid="stNotification"][data-kind="Success"],
+    .element-container div[data-baseweb="notification"][kind="positive"] {
+        background-color: #e8f5ec !important;
+        border-left: 4px solid #4CAF72 !important;
+        color: #2C2C2C !important;
+    }
+    /* Warning */
+    div[data-testid="stAlert"] div[role="alert"][data-baseweb*="warning"],
+    div[data-testid="stNotification"][data-kind="Warning"],
+    .element-container div[data-baseweb="notification"][kind="warning"] {
+        background-color: #fdf0ee !important;
+        border-left: 4px solid #E8A09A !important;
+        color: #2C2C2C !important;
+    }
+
+    /* ========== Spinner accent ========== */
+    .stSpinner > div > div,
+    .stSpinner svg circle {
+        border-top-color: #E8861A !important;
+        stroke: #E8861A !important;
+    }
+    .stSpinner > div > span,
+    .stSpinner p {
+        color: #E8861A !important;
+    }
+
+    /* ========== Dividers ========== */
+    hr {
+        border-color: #E2DFD9 !important;
+    }
+
+    /* ========== Scrollbar ========== */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #F8F7F5; }
+    ::-webkit-scrollbar-thumb { background: #DDD9D3; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #CCC8C1; }
+
+    /* ========== Sidebar ========== */
+    section[data-testid="stSidebar"] {
+        background-color: #F0EEEB !important;
+        color: #2C2C2C !important;
+    }
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3 {
+        color: #2C2C2C !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("Report Assistant")
 
 # ----------------------------------------------------------------------------
