@@ -1,0 +1,1220 @@
+---
+title: Enrolment Departments API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:enrolment_departments
+content:
+You use this API to fetch the list of enrolment departments (e.g. Front of House) for staff.
+
+Purpose:
+- Returns all enrolment departments configured for Elements360 staff enrolments.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/enrolment/departments
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (department) has:
+  - id (number)
+  - name (string)
+
+Important field paths:
+- [i].id
+- [i].name
+
+You should request only the fields you actually need (typically id and name) when using selective response field extraction.
+---
+title: Get All Enrolments API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:get_all_enrolments
+content:
+You use this API to fetch all staff enrolment records with full detail, for example to power an iPad clock-in staff selector or admin review screens.
+
+Purpose:
+- Returns all staff enrolment records, including embedded staff data and enrolment-related fields.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/enrolment/getAllEnrolments
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (staff enrolment) includes:
+  - id
+  - staff (object with staff core fields such as id, firstName, lastName, etc.)
+  - personal, banking, tax, and visa/compliance fields
+  - staffDepartment
+  - document lists such as personalPhotoFiles, australianPassportDocuments, and other compliance-related documents
+
+Important field paths:
+- [i].id
+- [i].staff.id
+- [i].staff.firstName
+- [i].staff.lastName
+- [i].staffDepartment
+- [i].personalPhotoFiles
+
+Because this payload can be large, prefer to specify only the required response fields when possible, and follow the extraction and pagination guide for long lists.
+---
+title: Get All Enrolments API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:get_all_enrolments
+content:
+You must treat the list returned by this endpoint as potentially very large and ALWAYS paginate it inside the extraction_script. Do NOT stream the full array of enrolments in one go unless the user explicitly asks for all records.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for a list or summary of enrolments, you MUST:
+  - Use an extraction_script that:
+    - Treats the parsed JSON response as a list of enrolment records.
+    - Slices that list according to a limit and offset defined INSIDE the script.
+    - Returns a compact list of enrolment summaries plus paginationInfo.
+  - On the first call, set offset=0 and limit=20 inside the extraction_script unless the user asks for a different page size.
+  - On follow-up calls, increment offset by limit (20, 40, 60, …) in the script.
+
+Recommended extraction_script (first page):
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+enrolments = response or []
+paged = enrolments[offset: offset + limit]
+has_more = (offset + limit) < len(enrolments)
+
+result = {
+    "items": [
+        {
+            "id": e.get("id"),
+            "staff_id": (e.get("staff") or {}).get("id"),
+            "firstName": (e.get("staff") or {}).get("firstName"),
+            "lastName": (e.get("staff") or {}).get("lastName"),
+            "staffDepartment": e.get("staffDepartment"),
+        }
+        for e in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+
+Pagination behaviour:
+- The extraction_script MUST:
+  - Return at most limit enrolment summaries in items.
+  - Include paginationInfo.limit and paginationInfo.currentOffset so the UI can track state.
+- When the user asks for more enrolments:
+  - Call the same endpoint again with a new extraction_script where offset is increased by limit and limit stays the same (unless the user changes it).
+
+How to present results:
+- When showing enrolments:
+  - Mention which slice you are showing, e.g. "Showing 1–20 enrolments (page 1)".
+  - Present each item with at least staff name and department.
+  - If len(items) == paginationInfo.limit, ask the user if they want to see more and, on confirmation, fetch the next page (offset + limit).
+---
+title: Enrolment All Staffs API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:enrolment_staffs
+content:
+You use this API when you only need a lightweight list of enrolled staff (e.g. for training, selection lists, or simple display), not full enrolment details.
+
+Purpose:
+- Returns a simplified list of all enrolled staff members.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/enrolment/staffs
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (staff mini) includes:
+  - id
+  - firstName
+  - lastName
+  - email (optional)
+  - phoneNumber (optional)
+  - terminated (boolean)
+
+Important field paths:
+- [i].id
+- [i].firstName
+- [i].lastName
+- [i].email
+- [i].phoneNumber
+- [i].terminated
+---
+title: Enrolment All Staffs API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:enrolment_staffs
+content:
+You must assume the staff list for this endpoint can be long and ALWAYS paginate it inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for a list of staff, you MUST:
+  - Use an extraction_script that:
+    - Treats the parsed JSON response as a list of staff objects.
+    - Slices that list based on limit and offset inside the script.
+    - Returns items (paged staff summaries) and paginationInfo.
+  - On the first call, use offset=0 and limit=20 unless the user requests a different page size.
+  - On subsequent calls, increase offset by limit (20, 40, 60, …).
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+staffs = response or []
+paged = staffs[offset: offset + limit]
+has_more = (offset + limit) < len(staffs)
+
+result = {
+    "items": [
+        {
+            "id": s.get("id"),
+            "firstName": s.get("firstName"),
+            "lastName": s.get("lastName"),
+            "email": s.get("email"),
+            "phoneNumber": s.get("phoneNumber"),
+            "terminated": s.get("terminated"),
+        }
+        for s in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+
+How to present results:
+- Mention which slice is shown (e.g. "Showing 1–20 staff members").
+- If len(items) == paginationInfo.limit, explicitly ask if the user wants more, then fetch the next page by bumping offset.
+---
+title: Enrolment Staffs by Department API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:enrolment_staffs_by_department
+content:
+You use this API to fetch only the staff members that belong to a specific enrolment department.
+
+Purpose:
+- Returns the list of enrolled staff filtered by a given department id.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/enrolment/staffsByDepartment?departmentId={departmentId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- departmentId (number): The id of the enrolment department to filter by.
+
+Response Structure:
+- Top-level: JSON array.
+- Element shape is the same as for the Enrolment All Staffs API:
+  - id
+  - firstName
+  - lastName
+  - email (optional)
+  - phoneNumber (optional)
+  - terminated (boolean)
+
+Important field paths:
+- [i].id
+- [i].firstName
+- [i].lastName
+- [i].terminated
+---
+title: Enrolment Staffs by Department API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:enrolment_staffs_by_department
+content:
+You must treat the department-filtered staff list as potentially long and ALWAYS paginate it inside the extraction_script, just like the global staff list.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for staff in a department, you MUST:
+  - Use an extraction_script that:
+    - Treats the parsed JSON response as a list of staff.
+    - Slices that list using limit and offset defined inside the script.
+    - Returns items (staff summaries) and paginationInfo.
+  - Start with offset=0 and limit=20, and increment offset by limit for follow-up pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+staffs = response or []
+paged = staffs[offset: offset + limit]
+has_more = (offset + limit) < len(staffs)
+
+result = {
+    "items": [
+        {
+            "id": s.get("id"),
+            "firstName": s.get("firstName"),
+            "lastName": s.get("lastName"),
+            "email": s.get("email"),
+            "phoneNumber": s.get("phoneNumber"),
+            "terminated": s.get("terminated"),
+        }
+        for s in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+
+How to present results:
+- Clearly indicate the department in the explanation and show the current page slice using paginationInfo.
+---
+title: Clocking Sites API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:clocking_sites
+content:
+You use this API to fetch the list of configured clocking sites for staff clock-in and clock-out, including their geolocation and radius.
+
+Purpose:
+- Returns all clocking sites available in the Elements360 system.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/clocking/sites
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (site) includes:
+  - id
+  - site
+  - latitude
+  - longitude
+  - radius
+  - other site metadata defined in the Site model
+
+Important field paths:
+- [i].id
+- [i].site
+- [i].latitude
+- [i].longitude
+- [i].radius
+---
+title: Clocking Paginated Records API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:clocking_paginated_records
+content:
+You use this API to fetch paginated clocking records for a particular staff member, grouped by week.
+
+Purpose:
+- Returns weekly groupings of clocking records (clock-in and clock-out entries) for a staff member.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/clocking/record/paginated?staffId={staffId}&page={page}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- staffId (number): The staff id whose records you want to fetch.
+- page (number): 1-based page index for pagination.
+
+Response Structure:
+- Top-level: JSON array of ClockingRecordsByWeek objects.
+- Important field paths:
+  - [i].weekStartDate
+  - [i].weekEndDate
+  - [i].clockingRecords (array)
+    - [i].clockingRecords[j].id
+    - [i].clockingRecords[j].clockInDate
+    - [i].clockingRecords[j].clockInTime
+    - [i].clockingRecords[j].clockOutTime
+    - [i].clockingRecords[j].workDuration
+
+You should allow the caller to specify which page they need and optionally request only the clockingRecords-related fields to keep responses small.
+---
+title: Clocking Check Status API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:clocking_check_status
+content:
+You use this API to check the current clock-in status for a staff member, for example to know whether a clock-in is currently running.
+
+Purpose:
+- Returns the current clocking status and key timing details for a staff member.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/clocking/record/checkClockingStatus?staffId={staffId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- staffId (number): The staff id to check.
+
+Response Structure:
+- Top-level: flat JSON object.
+- Important field paths:
+  - RESPONSE (string; e.g. "CLOCK_IN_NOT_RUNNING" or other status)
+  - CLOCKING_RECORD_ID (number)
+  - WORK_DURATION (string, format HH:mm)
+  - CLOCK_IN_TIME (string, e.g. "10:30 AM")
+  - CLOCK_IN_DATE (string, yyyy-MM-dd)
+
+Use the RESPONSE field to determine if a clock-in is running and present the other fields descriptively to the user.
+---
+title: Checklist Venues API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:checklist_venues
+content:
+You use this API to fetch all venues that can have checklists created or managed in Elements360.
+
+Purpose:
+- Returns the list of checklist-capable venues.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/checklist/venues
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (venue) includes:
+  - id
+  - venueName
+  - venueInitial
+  - site
+
+Important field paths:
+- [i].id
+- [i].venueName
+- [i].venueInitial
+- [i].site
+---
+title: Checklist Types API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:checklist_types
+content:
+You use this API to fetch the available checklist types, such as opening and closing checklists for front-of-house or back-of-house.
+
+Purpose:
+- Returns all checklist types configured in Elements360.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/checklist/type/all
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (checklist type) includes:
+  - id
+  - type (string, e.g. "BOH Opening Checklist")
+  - hasGroups (boolean)
+
+Important field paths:
+- [i].id
+- [i].type
+- [i].hasGroups
+---
+title: Checklist Record API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:checklist_record
+content:
+You use this API to check whether a checklist record exists for a particular date, type, and venue, and to retrieve it if it does.
+
+Purpose:
+- Returns the checklist record for a given date, checklist type, and venue if one has been created; otherwise indicates that no record exists.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/checklist/record?date={date}&typeId={typeId}&venueId={venueId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- date (string, yyyy-MM-dd): The checklist date.
+- typeId (number): The checklist type id.
+- venueId (number): The venue id.
+
+Response Structure:
+- Top-level fields:
+  - RESPONSE (string)
+    - "CHECKLIST_RECORD_FOUND" if a record exists.
+    - Other values when not found.
+  - RECORD (object, present only when a record exists).
+- Important field paths within RECORD:
+  - RECORD.id
+  - RECORD.date
+  - RECORD.checklistType.id
+  - RECORD.checklistType.type
+  - RECORD.elementsVenue.id
+  - RECORD.elementsVenue.venueName
+  - RECORD.submitted (boolean)
+  - RECORD.checklistReadings (array)
+    - RECORD.checklistReadings[i].id
+    - RECORD.checklistReadings[i].checked (boolean)
+    - RECORD.checklistReadings[i].comment (string or null)
+    - RECORD.checklistReadings[i].checklistCriteria.id
+    - RECORD.checklistReadings[i].checklistCriteria.name
+    - RECORD.checklistReadings[i].checklistCriteria.checklistType.id
+
+Use the RESPONSE value to decide if there is an existing record, and surface key fields like submitted and checklistReadings to the user.
+---
+title: Checklist Record API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:checklist_record
+content:
+You must treat RECORD.checklistReadings as a potentially long list and ALWAYS paginate it inside the extraction_script. Do NOT rely on api_call's list pagination for this endpoint; instead, the extraction_script itself must return only one page of readings plus explicit paginationInfo.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for a checklist report (to view or summarise checklist readings), you MUST:
+  - Use an extraction_script that:
+    - Reads the full RECORD object from response["RECORD"].
+    - Slices RECORD.checklistReadings to only the current page.
+    - Returns a single object containing: date, venueName, submitted, readings (paged), and paginationInfo.
+  - On the first call, hard-code offset=0 and limit=20 inside the extraction_script unless the user explicitly asks for a different page size.
+  - On follow-up calls, update the offset literal in the extraction_script to the next page's starting index (e.g. 20, 40, 60, ...).
+
+Recommended extraction_script (first page, offset 0, limit 20):
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+record = (response or {}).get("RECORD") or {}
+if not record:
+    result = {"message": "No checklist record found for the specified date."}
+else:
+    all_readings = record.get("checklistReadings") or []
+    paged = all_readings[offset: offset + limit]
+    has_more = (offset + limit) < len(all_readings)
+
+    result = {
+        "date": record.get("date"),
+        "venueName": (record.get("elementsVenue") or {}).get("venueName"),
+        "submitted": record.get("submitted"),
+        "readings": [
+            {
+                "criteria_name": (r.get("checklistCriteria") or {}).get("name"),
+                "checked": r.get("checked"),
+                "comment": r.get("comment"),
+            }
+            for r in paged
+        ],
+        "paginationInfo": {
+            "limit": limit,
+            "currentOffset": offset,
+            "has_more": has_more,
+            "next_offset": offset + limit if has_more else None,
+        },
+    }
+```
+
+Pagination behaviour:
+- The extraction_script MUST:
+  - Return at most limit readings in the readings array.
+  - Include paginationInfo.limit and paginationInfo.currentOffset so the UI can track state.
+- On the first call:
+  - Use offset = 0 and limit = 20 unless the user has requested a different size.
+- When the user asks for "more" readings:
+  - Call the same endpoint again with a new extraction_script where:
+    - offset is increased by limit (e.g. 20, 40, 60, ...).
+    - limit stays the same, unless the user changes it.
+
+How to present results:
+- When showing checklist readings to the user:
+  - Use paginationInfo.limit and paginationInfo.currentOffset to compute the item range, e.g. "Showing 1–20 checklist readings (page 1)".
+  - Display readings as a table or bullet list including at least:
+    - criteria_name
+    - checked
+    - comment (if present)
+  - After showing a page, ask the user if they want to see more when the length of readings equals paginationInfo.limit.
+
+Important notes:
+- Do NOT return the full RECORD object when the user only needs readings; always use the paged result structure above.
+- For this endpoint, you SHOULD NOT use api_call's list_limit/list_offset pagination, because pagination is handled inside the extraction_script with paginationInfo.
+- Never auto-fetch all pages unless the user explicitly asks for all checklist readings.
+---
+title: Checklist Criteria by Type API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:checklist_criteria_by_type
+content:
+You use this API to fetch all checklist criteria for a specific checklist type, which define the individual items that must be checked.
+
+Purpose:
+- Returns the list of checklist criteria linked to a given checklist type.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/checklist/criteria/type?typeId={typeId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- typeId (number): The checklist type id whose criteria you want to fetch.
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (checklist criteria) includes:
+  - id
+  - name (string)
+  - sn (sequence number)
+  - checklistType.id
+  - checklistType.type
+  - checklistGroup (optional)
+    - checklistGroup.id
+    - checklistGroup.name
+
+Important field paths:
+- [i].id
+- [i].name
+- [i].sn
+- [i].checklistType.id
+- [i].checklistGroup.id
+---
+title: Checklist Criteria by Type API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:checklist_criteria_by_type
+content:
+You must treat the checklist criteria list as potentially long and paginate it inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks to view checklist criteria for a type, you MUST:
+  - Use an extraction_script that:
+    - Treats the JSON response as a list of criteria.
+    - Slices it based on limit and offset defined in the script.
+    - Returns items (criteria summaries) and paginationInfo.
+  - Use offset=0 and limit=20 for the first call, and increase offset by limit for further pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+criteria_list = response or []
+paged = criteria_list[offset: offset + limit]
+has_more = (offset + limit) < len(criteria_list)
+
+result = {
+    "items": [
+        {
+            "id": c.get("id"),
+            "name": c.get("name"),
+            "sn": c.get("sn"),
+            "group": (c.get("checklistGroup") or {}).get("name"),
+        }
+        for c in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+
+How to present results:
+- Show criteria_name (name), sequence number, and group in a table or bullet list.
+---
+title: TempLog Record API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:templog_record
+content:
+You use this API to fetch the temperature log record for a specific venue and date, or confirm that no record exists.
+
+Purpose:
+- Returns a temperature log record and its readings for a given date and venue when available.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/templog/record?date={date}&venueId={venueId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- date (string, yyyy-MM-dd): The date of the temperature log.
+- venueId (number): The venue id.
+
+Response Structure:
+- Top-level fields:
+  - RESPONSE (string)
+    - "TEMP_LOG_RECORD_NOT_FOUND" if no record exists.
+    - Other values when a record exists.
+  - RECORD (object, present only when a record exists).
+- Important field paths within RECORD:
+  - RECORD.id
+  - RECORD.date
+  - RECORD.elementsVenue.id
+  - RECORD.elementsVenue.venueName
+  - RECORD.submitted (boolean)
+  - RECORD.submittedBy.id
+  - RECORD.tempLogReadings (array)
+    - RECORD.tempLogReadings[i].id
+    - RECORD.tempLogReadings[i].recordedValue (number or null)
+    - RECORD.tempLogReadings[i].acceptable (boolean or null)
+    - RECORD.tempLogReadings[i].na (boolean)
+    - RECORD.tempLogReadings[i].comment
+    - RECORD.tempLogReadings[i].tempLogCriteria.id
+    - RECORD.tempLogReadings[i].tempLogCriteria.name
+    - RECORD.tempLogReadings[i].tempLogCriteria.unitCode
+    - RECORD.tempLogReadings[i].tempLogCriteria.acceptableLowerValue
+    - RECORD.tempLogReadings[i].tempLogCriteria.acceptableUpperValue
+    - RECORD.tempLogReadings[i].tempLogCriteria.unit ("DEG_CEL" or "PERCENT")
+    - RECORD.tempLogReadings[i].tempLogCriteria.tempLogGroup.name
+
+Use the RESPONSE field to detect not-found cases, and present key fields like submitted, venueName, and tempLogReadings when a record exists.
+---
+title: TempLog Record API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:templog_record
+content:
+You must treat RECORD.tempLogReadings as a potentially long list and paginate it inside the extraction_script, similar to the checklist readings pattern.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for a temperature log report, you MUST:
+  - Use an extraction_script that:
+    - Reads response["RECORD"].
+    - Slices RECORD.tempLogReadings based on limit and offset defined in the script.
+    - Returns record metadata plus paged readings and paginationInfo.
+  - Start with offset=0 and limit=20, and bump offset by limit for subsequent pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+record = (response or {}).get("RECORD") or {}
+if not record:
+    result = {"message": "No temperature log record found for the specified date and venue."}
+else:
+    all_readings = record.get("tempLogReadings") or []
+    paged = all_readings[offset: offset + limit]
+    has_more = (offset + limit) < len(all_readings)
+
+    def _criteria(r):
+        return (r.get("tempLogCriteria") or {})
+
+    result = {
+        "date": record.get("date"),
+        "venueName": (record.get("elementsVenue") or {}).get("venueName"),
+        "submitted": record.get("submitted"),
+        "readings": [
+            {
+                "criteria_name": _criteria(r).get("name"),
+                "unit": _criteria(r).get("unit"),
+                "unitCode": _criteria(r).get("unitCode"),
+                "acceptableLowerValue": _criteria(r).get("acceptableLowerValue"),
+                "acceptableUpperValue": _criteria(r).get("acceptableUpperValue"),
+                "recordedValue": r.get("recordedValue"),
+                "acceptable": r.get("acceptable"),
+                "na": r.get("na"),
+                "comment": r.get("comment"),
+            }
+            for r in paged
+        ],
+        "paginationInfo": {
+            "limit": limit,
+            "currentOffset": offset,
+            "has_more": has_more,
+            "next_offset": offset + limit if has_more else None,
+        },
+    }
+```
+
+How to present results:
+- Summarise record metadata (date, venueName, submitted) and show a paged list of readings with recordedValue, acceptable flags, and criteria_name.
+- Ask if the user wants to see more when len(readings) == paginationInfo.limit.
+---
+title: TempLog Criteria by Venue API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:templog_criteria_by_venue
+content:
+You use this API to fetch the configured temperature log criteria for a specific venue, which describe the items and acceptable ranges to be monitored.
+
+Purpose:
+- Returns the list of temperature log criteria for a given venue.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/templog/criteria/venue?venueId={venueId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- venueId (number): The venue id to fetch criteria for.
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (templog criteria) includes:
+  - id
+  - unitCode (string)
+  - name (string/description)
+  - acceptableLowerValue (number)
+  - acceptableUpperValue (number)
+  - unit ("DEG_CEL" or "PERCENT")
+  - tempLogGroup.id
+  - tempLogGroup.name
+
+Important field paths:
+- [i].id
+- [i].name
+- [i].acceptableLowerValue
+- [i].acceptableUpperValue
+- [i].unit
+- [i].tempLogGroup.name
+---
+title: TempLog Criteria by Venue API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:templog_criteria_by_venue
+content:
+You must paginate the list of TempLog criteria inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for TempLog criteria for a venue, you MUST:
+  - Use an extraction_script that:
+    - Treats the JSON response as a list of criteria.
+    - Slices based on limit and offset defined in the script.
+    - Returns items (criteria summaries) and paginationInfo.
+  - Start with offset=0, limit=20, and bump offset for later pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+criteria_list = response or []
+paged = criteria_list[offset: offset + limit]
+has_more = (offset + limit) < len(criteria_list)
+
+result = {
+    "items": [
+        {
+            "id": c.get("id"),
+            "name": c.get("name"),
+            "unit": c.get("unit"),
+            "acceptableLowerValue": c.get("acceptableLowerValue"),
+            "acceptableUpperValue": c.get("acceptableUpperValue"),
+            "group": (c.get("tempLogGroup") or {}).get("name"),
+        }
+        for c in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+---
+title: Audit Record API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:audit_record
+content:
+You use this API to fetch an audit record (internal audit or short audit) for a given date, venue, and audit type, or determine that none exists.
+
+Purpose:
+- Returns an audit record and its readings for a given combination of date, venue, and audit type when available.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/audit/record?date={date}&venueId={venueId}&auditTypeId={auditTypeId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- date (string, yyyy-MM-dd): The audit date.
+- venueId (number): The venue id.
+- auditTypeId (number): The audit type id.
+
+Response Structure:
+- Top-level fields:
+  - RESPONSE (string)
+    - "AUDIT_RECORD_FOUND" if a record exists.
+    - Other values when not found.
+  - RECORD (object, present only when a record exists).
+- Important field paths within RECORD:
+  - RECORD.id
+  - RECORD.date
+  - RECORD.elementsVenue.id
+  - RECORD.elementsVenue.venueName
+  - RECORD.auditType.id
+  - RECORD.auditType.name
+  - RECORD.submitted (boolean)
+  - RECORD.auditor.id
+  - RECORD.totalScore (number)
+  - RECORD.scorePercentage (number)
+  - RECORD.auditPassed (boolean)
+  - RECORD.auditReadings (array)
+    - RECORD.auditReadings[i].id
+    - RECORD.auditReadings[i].checked (bool or null)
+    - RECORD.auditReadings[i].na (bool or null)
+    - RECORD.auditReadings[i].comment
+    - RECORD.auditReadings[i].auditCriteria.id
+    - RECORD.auditReadings[i].auditCriteria.name
+    - RECORD.auditReadings[i].auditCriteria.sn
+    - RECORD.auditReadings[i].auditCriteria.critical (boolean)
+    - RECORD.auditReadings[i].auditCriteria.allocatedPoint (number)
+    - RECORD.auditReadings[i].auditCriteria.auditGroup.id
+    - RECORD.auditReadings[i].auditCriteria.auditGroup.name
+    - RECORD.auditReadings[i].auditCriteria.auditGroup.sn
+    - RECORD.auditReadings[i].auditReadingAttachedFiles (optional array with id and url)
+
+Use the RESPONSE field to detect missing records and present the key metrics (score, auditPassed) and selected readings when a record exists.
+---
+title: Audit Record API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:audit_record
+content:
+You must treat RECORD.auditReadings as a potentially long list and paginate it inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for an audit report or for audit readings, you MUST:
+  - Use an extraction_script that:
+    - Reads response["RECORD"].
+    - Slices RECORD.auditReadings per limit and offset in the script.
+    - Returns core audit metadata plus paged readings and paginationInfo.
+  - Start with offset=0 and limit=20; increase offset by limit for subsequent pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+record = (response or {}).get("RECORD") or {}
+if not record:
+    result = {"message": "No audit record found for the specified date, venue, and audit type."}
+else:
+    all_readings = record.get("auditReadings") or []
+    paged = all_readings[offset: offset + limit]
+    has_more = (offset + limit) < len(all_readings)
+
+    def _criteria(r):
+        return (r.get("auditCriteria") or {})
+
+    result = {
+        "date": record.get("date"),
+        "venueName": (record.get("elementsVenue") or {}).get("venueName"),
+        "auditTypeName": (record.get("auditType") or {}).get("name"),
+        "totalScore": record.get("totalScore"),
+        "scorePercentage": record.get("scorePercentage"),
+        "auditPassed": record.get("auditPassed"),
+        "readings": [
+            {
+                "criteria_name": _criteria(r).get("name"),
+                "sn": _criteria(r).get("sn"),
+                "critical": _criteria(r).get("critical"),
+                "allocatedPoint": _criteria(r).get("allocatedPoint"),
+                "checked": r.get("checked"),
+                "na": r.get("na"),
+                "comment": r.get("comment"),
+            }
+            for r in paged
+        ],
+        "paginationInfo": {
+            "limit": limit,
+            "currentOffset": offset,
+            "has_more": has_more,
+            "next_offset": offset + limit if has_more else None,
+        },
+    }
+```
+
+How to present results:
+- Show high-level scores and pass/fail, and list readings with criteria_name, critical flag, and checked/na status.
+- When len(readings) == paginationInfo.limit, ask if the user wants to see more and fetch the next page using a higher offset.
+---
+title: Audit Types API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:audit_types
+content:
+You use this API to fetch the list of audit types available in the system, such as internal audits or short audits.
+
+Purpose:
+- Returns all configured audit types.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/audit/auditType/all
+
+Payload/Headers:
+- Content-Type: application/json
+- Query params: none
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (audit type) includes:
+  - id
+  - name
+
+Important field paths:
+- [i].id
+- [i].name
+---
+title: Audit Criteria API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:audit_criteria
+content:
+You use this API to fetch all audit criteria for a specific audit type, which define the questions or checks that make up an audit.
+
+Purpose:
+- Returns the list of audit criteria associated with a given audit type.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/audit/criteria/all?auditTypeId={auditTypeId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- auditTypeId (number): The id of the audit type whose criteria you want.
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (audit criteria) includes:
+  - id
+  - name
+  - sn (sequence number)
+  - allocatedPoint (number)
+  - critical (boolean)
+  - auditGroup.id
+  - auditGroup.name
+  - auditGroup.sn
+
+Important field paths:
+- [i].id
+- [i].name
+- [i].sn
+- [i].allocatedPoint
+- [i].critical
+- [i].auditGroup.name
+---
+title: Audit Criteria API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:audit_criteria
+content:
+You must paginate the list of audit criteria inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for audit criteria, you MUST:
+  - Use an extraction_script that:
+    - Treats the response as a list of criteria.
+    - Slices per limit and offset defined in the script.
+    - Returns items (criteria summaries) and paginationInfo.
+  - Start with offset=0, limit=20, and bump offset on later pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+criteria_list = response or []
+paged = criteria_list[offset: offset + limit]
+has_more = (offset + limit) < len(criteria_list)
+
+result = {
+    "items": [
+        {
+            "id": c.get("id"),
+            "name": c.get("name"),
+            "sn": c.get("sn"),
+            "allocatedPoint": c.get("allocatedPoint"),
+            "critical": c.get("critical"),
+            "group": (c.get("auditGroup") or {}).get("name"),
+        }
+        for c in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+---
+title: Training Criteria List API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:training_criteria_list
+content:
+You use this API to fetch the criteria that belong to a particular training subject.
+
+Purpose:
+- Returns all training criteria linked to a specific training subject.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/training/trainingCriteriaList?trainingSubjectId={trainingSubjectId}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- trainingSubjectId (number): The id of the training subject whose criteria you want.
+
+Response Structure:
+- Top-level: JSON array.
+- Each element (training criteria) includes:
+  - id
+  - name (string)
+  - sn (sequence/order index)
+  - Optional additional training-specific fields defined in TrainingCriteria.
+
+Important field paths:
+- [i].id
+- [i].name
+- [i].sn
+---
+title: Training Criteria List API — Response Extraction and Pagination Guide
+tags: topic:response, topic:extraction, applies_to:training_criteria_list
+content:
+You must paginate the list of training criteria returned by this endpoint inside the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+- When the user asks for training criteria, you MUST:
+  - Use an extraction_script that:
+    - Treats the JSON response as a list of criteria.
+    - Slices according to limit and offset set in the script.
+    - Returns items and paginationInfo.
+  - Start with offset=0 and limit=20; increase offset for later pages.
+
+Recommended extraction_script:
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset for this call; update to 20, 40, ... for later pages
+
+criteria_list = response or []
+paged = criteria_list[offset: offset + limit]
+has_more = (offset + limit) < len(criteria_list)
+
+result = {
+    "items": [
+        {
+            "id": c.get("id"),
+            "name": c.get("name"),
+            "sn": c.get("sn"),
+        }
+        for c in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+---
+title: Training Subject API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:training_subject
+content:
+You use this API to fetch a single training subject configuration for a specific station and training type.
+
+Purpose:
+- Returns the training subject (topic) assigned to a station for a given training type.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/e360/training/trainingSubject?stationId={stationId}&trainingType={trainingType}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- stationId (number): The station id.
+- trainingType (string): The training type, e.g. "INITIAL_TRAINING" or "TRAINING_VERIFICATION".
+
+Response Structure:
+- Top-level: object representing the training subject.
+- Important field paths:
+  - id
+  - name
+  - trainingStation.id
+  - trainingStation.name
+  - trainingType
+
+You should surface the name, trainingStation, and trainingType fields prominently when presenting this data.
+---
+title: Breakage Report by Venue and Date API — Endpoint, Parameters, and Response
+tags: topic:endpoint, topic:parameters, topic:response, applies_to:breakage_report_by_venue_and_date
+content:
+You use this API to fetch a glassware breakage report for a specific venue and date, or to confirm that no report exists.
+
+Purpose:
+- Returns a breakage report and its details (costs and percentages) for a given venue and date when available.
+
+Endpoint:
+- Method: GET
+- URL: {BASE_URL}/api/breakageReport/reportByVenueAndDate?date={date}&venue={venue}
+
+Payload/Headers:
+- Content-Type: application/json
+- Auth: Use the standard Elements360 auth mechanism (token is injected automatically; do NOT ask the user for the token).
+
+Required query parameters:
+- date (string, yyyy-MM-dd): The report date.
+- venue (string): Venue identifier or name used by the backend.
+
+Response Structure:
+- Top-level fields:
+  - RESPONSE (string)
+    - "REPORT_EXISTS" if a report exists.
+    - Other values when not found.
+  - REPORT (object, present only when a report exists).
+- Important field paths within REPORT:
+  - REPORT.venue (string)
+  - REPORT.date (string, yyyy-MM-dd)
+  - REPORT.day (string, e.g. "Monday")
+  - REPORT.submittedByStaff.id
+  - REPORT.totalBreakageCost (number)
+  - REPORT.netSales (number)
+  - REPORT.totalBreakagePercentage (number; totalBreakageCost / netSales)
+  - REPORT.finalized (boolean)
+  - REPORT.breakageDetails (array)
+    - REPORT.breakageDetails[i].id
+    - REPORT.breakageDetails[i].qty (number)
+    - REPORT.breakageDetails[i].reason (string)
+    - REPORT.breakageDetails[i].totalCost (number)
+    - REPORT.breakageDetails[i].glasswareItem.id
+    - REPORT.breakageDetails[i].glasswareItem.name
+    - REPORT.breakageDetails[i].glasswareItem.type
+    - REPORT.breakageDetails[i].glasswareItem.unitCost
+
+Use the RESPONSE value to detect not-found cases, and present key KPIs like totalBreakageCost, netSales, and totalBreakagePercentage, along with summarized breakageDetails.
