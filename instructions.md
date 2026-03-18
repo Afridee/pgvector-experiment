@@ -263,6 +263,101 @@ Response Structure:
 
 ---
 
+## Pagination via `paginationInfo`
+
+Many API responses return arrays that can be very large (hundreds of items). Instead of streaming the full array to the agent, every extraction/pagination guide chunk must instruct the agent to **paginate inside the `extraction_script`** and include a standard `paginationInfo` object in the result.
+
+### Required `paginationInfo` fields
+
+Every paginated `extraction_script` result must include a `paginationInfo` object with exactly these four keys:
+
+| Field            | Type            | Description                                                    |
+| ---------------- | --------------- | -------------------------------------------------------------- |
+| `limit`          | `int`           | Page size used for this call (default 20)                      |
+| `currentOffset`  | `int`           | Starting index of the current page (0-based)                   |
+| `has_more`       | `bool`          | `True` if there are more items beyond this page                |
+| `next_offset`    | `int` or `None` | The offset to use on the next call, or `None` if no more pages |
+
+### Standard extraction_script pattern
+
+There are two variants depending on the response shape.
+
+**Variant A — top-level array** (e.g. staff lists, criteria lists):
+
+```python
+limit = 20          # page size; change only if the user asks
+offset = 0          # currentOffset; bump to 20, 40, ... for later pages
+
+items_list = response or []
+paged = items_list[offset: offset + limit]
+has_more = (offset + limit) < len(items_list)
+
+result = {
+    "items": [
+        {
+            "id": item.get("id"),
+            "name": item.get("name"),
+            # ... other fields
+        }
+        for item in paged
+    ],
+    "paginationInfo": {
+        "limit": limit,
+        "currentOffset": offset,
+        "has_more": has_more,
+        "next_offset": offset + limit if has_more else None,
+    },
+}
+```
+
+**Variant B — nested array inside a record** (e.g. checklist readings, audit readings, templog readings):
+
+```python
+limit = 20
+offset = 0
+
+record = (response or {}).get("RECORD") or {}
+if not record:
+    result = {"message": "No record found."}
+else:
+    all_readings = record.get("someReadings") or []
+    paged = all_readings[offset: offset + limit]
+    has_more = (offset + limit) < len(all_readings)
+
+    result = {
+        # record-level metadata
+        "date": record.get("date"),
+        "readings": [
+            { ... }
+            for r in paged
+        ],
+        "paginationInfo": {
+            "limit": limit,
+            "currentOffset": offset,
+            "has_more": has_more,
+            "next_offset": offset + limit if has_more else None,
+        },
+    }
+```
+
+### Rules for writing pagination guide chunks
+
+1. **Always paginate.** If a response can return a list of items, the extraction_script must slice it and include `paginationInfo`. Never return an unbounded array.
+2. **Default page size is 20.** Use `limit = 20` unless the user explicitly asks for a different size.
+3. **First call uses `offset = 0`.** Follow-up pages increment offset by limit (20, 40, 60, ...).
+4. **`has_more` must be computed right after slicing.** The standard formula is `has_more = (offset + limit) < len(full_list)`.
+5. **`next_offset` must be conditional.** Set to `offset + limit` when `has_more` is `True`, otherwise `None`.
+6. **Tell the agent how to present paginated results.** Include a "How to present results" section that instructs the agent to:
+   - State which slice is being shown (e.g. "Showing 1–20 of N items").
+   - Ask the user if they want to see more when `has_more` is `True`.
+   - Fetch the next page by bumping `offset` in a new `extraction_script`.
+
+### Where to document pagination
+
+For each endpoint that returns a potentially long list, write a separate **"Response Extraction and Pagination Guide"** chunk with tags `topic:response, topic:extraction`. Keep it next to the endpoint's main chunk in `knowledge_chunks.txt`.
+
+---
+
 ## What Makes a Good Chunk?
 
 | ✅ Good chunk                                         | ❌ Bad chunk                                  |
