@@ -44,7 +44,6 @@ LIGHT_THEME = {
 }
 
 
-
 # ----------------------------------------------------------------------------
 # Helper — extract and render download links from API response strings
 # ----------------------------------------------------------------------------
@@ -89,7 +88,8 @@ st.set_page_config(
 
 T = LIGHT_THEME
 
-st.markdown(f"""
+st.markdown(
+    f"""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -290,7 +290,9 @@ html, body, [data-testid="stAppViewContainer"] {{
 .env-val-false {{ color: {T["destructive"]} !important; font-weight: 600; }}
 .env-val-info  {{ color: {T["primary"]} !important; font-size: 0.75rem; }}
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.markdown('<div class="app-title">📊 Report Assistant</div>', unsafe_allow_html=True)
 
@@ -334,7 +336,8 @@ if "auth_tokens" not in st.session_state:
 if st.session_state.auth_tokens is None:
     col_l, col_m, col_r = st.columns([1, 1.2, 1])
     with col_m:
-        st.markdown("""
+        st.markdown(
+            """
 <div class="login-card">
   <div style="text-align:center;margin-bottom:24px;">
     <span style="font-size:2.4rem;">📊</span>
@@ -342,10 +345,16 @@ if st.session_state.auth_tokens is None:
     <div class="login-subtitle">Sign in to continue</div>
   </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+            unsafe_allow_html=True,
+        )
         with st.form("login_form"):
-            username = st.text_input("Username / Email", placeholder="e.g. abir@manush.tech")
-            password = st.text_input("Password", type="password", placeholder="••••••••")
+            username = st.text_input(
+                "Username / Email", placeholder="e.g. abir@manush.tech"
+            )
+            password = st.text_input(
+                "Password", type="password", placeholder="••••••••"
+            )
             submitted = st.form_submit_button("Sign in →", use_container_width=True)
 
         if submitted:
@@ -357,7 +366,9 @@ if st.session_state.auth_tokens is None:
                     st.session_state.auth_tokens = tokens
                     st.rerun()
                 except requests.exceptions.HTTPError as e:
-                    st.error(f"Login failed: {e.response.status_code} — {e.response.text}")
+                    st.error(
+                        f"Login failed: {e.response.status_code} — {e.response.text}"
+                    )
                 except Exception as e:
                     st.error(f"Login error: {e}")
     st.stop()  # Don't render the rest of the app until logged in
@@ -369,7 +380,8 @@ with st.sidebar:
     # ── Profile card ──
     user_info = (st.session_state.auth_tokens or {}).get("user_info", {})
     if user_info:
-        st.markdown(f"""
+        st.markdown(
+            f"""
 <div class="profile-card">
   <div class="profile-name">👤 {user_info['name']}</div>
   <div class="profile-row">📧 {user_info['email']}</div>
@@ -380,7 +392,9 @@ with st.sidebar:
     <span class="status-badge">{user_info['status']}</span>
   </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+            unsafe_allow_html=True,
+        )
 
     # ── Controls ──
     st.markdown('<div class="sidebar-section">Controls</div>', unsafe_allow_html=True)
@@ -400,10 +414,13 @@ with st.sidebar:
             st.rerun()
 
     # ── Environment ──
-    st.markdown('<div class="sidebar-section">Environment</div>', unsafe_allow_html=True)
-    db_set  = bool(os.getenv("DATABASE_URL"))
+    st.markdown(
+        '<div class="sidebar-section">Environment</div>', unsafe_allow_html=True
+    )
+    db_set = bool(os.getenv("DATABASE_URL"))
     vc_name = os.getenv("VECTOR_COLLECTION", "qmr_knowledge_chunks")
-    st.markdown(f"""
+    st.markdown(
+        f"""
 <div class="env-row"><span>DATABASE_URL</span>
   <span class="{'env-val-true' if db_set else 'env-val-false'}">{'✔ set' if db_set else '✘ not set'}</span>
 </div>
@@ -413,10 +430,15 @@ with st.sidebar:
 <div class="env-row" style="border:none"><span>Vector collection</span>
   <span class="env-val-info">{vc_name}</span>
 </div>
-""", unsafe_allow_html=True)
+""",
+        unsafe_allow_html=True,
+    )
 
     # ── Example questions ──
-    st.markdown('<div class="sidebar-section" style="margin-top:16px">Example prompts</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sidebar-section" style="margin-top:16px">Example prompts</div>',
+        unsafe_allow_html=True,
+    )
     examples = [
         "SSS report for 2026-01-15, ffType 2, point Dhanmondi",
         "Query Manager Report for Jan 2026, Dhaka South, sub-channels BCC & RCC",
@@ -465,10 +487,10 @@ if prompt:
         with st.spinner("Thinking…"):
             try:
                 result = ask_agent(
-                        prompt,
-                        thread_id=st.session_state.thread_id,
-                        auth_tokens=st.session_state.auth_tokens,
-                    )
+                    prompt,
+                    thread_id=st.session_state.thread_id,
+                    auth_tokens=st.session_state.auth_tokens,
+                )
 
                 if isinstance(result, dict):
                     answer = result.get("answer") or result.get("content") or ""

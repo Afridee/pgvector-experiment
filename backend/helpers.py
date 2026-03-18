@@ -6,9 +6,11 @@ import json
 import threading
 from typing import Any, Dict, List
 
-from backend.config import (EXTRACTION_TIMEOUT_SECS,
-                            MAX_FIELD_MATCHES_PER_TARGET,
-                            MAX_TOOL_OUTPUT_CHARS)
+from backend.config import (
+    EXTRACTION_TIMEOUT_SECS,
+    MAX_FIELD_MATCHES_PER_TARGET,
+    MAX_TOOL_OUTPUT_CHARS,
+)
 
 _SCRIPT_BUILTINS: Dict[str, Any] = {
     "abs": abs,

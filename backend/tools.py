@@ -13,8 +13,11 @@ from langchain_postgres.vectorstores import PGVector
 from pydantic import BaseModel, Field
 
 from backend.config import DATABASE_URL, VECTOR_COLLECTION, auth_tokens
-from backend.helpers import (extract_response_fields, run_extraction_script,
-                             truncate_text)
+from backend.helpers import (
+    extract_response_fields,
+    run_extraction_script,
+    truncate_text,
+)
 
 # ---------------------------------------------------------------------------
 # Vector store
