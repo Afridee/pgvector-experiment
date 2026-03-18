@@ -72,12 +72,20 @@ def make_api_response_readable(state: MessagesState):
 
 
 # ---------------------------------------------------------------------------
+# Node names
+# ---------------------------------------------------------------------------
+NODE_REQUEST_ANALYSER = "request_analyser"
+NODE_TOOL_CALL = "tool_call"
+NODE_FORMAT_RESPONSE = "make_api_response_readable"
+
+
+# ---------------------------------------------------------------------------
 # Routing functions
 # ---------------------------------------------------------------------------
 def route_after_analyser(state: MessagesState) -> str:
     last_message = state["messages"][-1]
     if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-        return "api_call"
+        return NODE_TOOL_CALL
     return END
 
 
@@ -85,8 +93,8 @@ def route_after_tools(state: MessagesState) -> str:
     for msg in reversed(state["messages"]):
         if isinstance(msg, ToolMessage):
             if msg.name == "ready_to_format":
-                return "make_api_response_readable"
-            return "request_analyser"
+                return NODE_FORMAT_RESPONSE
+            return NODE_REQUEST_ANALYSER
     return END
 
 
@@ -95,21 +103,23 @@ def route_after_tools(state: MessagesState) -> str:
 # ---------------------------------------------------------------------------
 graph_builder = StateGraph(MessagesState)
 
-graph_builder.add_node("request_analyser", request_analyser)
-graph_builder.add_node("api_call", tool_node)
-graph_builder.add_node("make_api_response_readable", make_api_response_readable)
+graph_builder.add_node(NODE_REQUEST_ANALYSER, request_analyser)
+graph_builder.add_node(NODE_TOOL_CALL, tool_node)
+graph_builder.add_node(NODE_FORMAT_RESPONSE, make_api_response_readable)
 
-graph_builder.add_edge(START, "request_analyser")
+graph_builder.add_edge(START, NODE_REQUEST_ANALYSER)
 graph_builder.add_conditional_edges(
-    "request_analyser", route_after_analyser, {"api_call": "api_call", END: END},
+    NODE_REQUEST_ANALYSER,
+    route_after_analyser,
+    {NODE_TOOL_CALL: NODE_TOOL_CALL, END: END},
 )
 graph_builder.add_conditional_edges(
-    "api_call",
+    NODE_TOOL_CALL,
     route_after_tools,
     {
-        "request_analyser": "request_analyser",
-        "make_api_response_readable": "make_api_response_readable",
+        NODE_REQUEST_ANALYSER: NODE_REQUEST_ANALYSER,
+        NODE_FORMAT_RESPONSE: NODE_FORMAT_RESPONSE,
         END: END,
     },
 )
-graph_builder.add_edge("make_api_response_readable", END)
+graph_builder.add_edge(NODE_FORMAT_RESPONSE, END)
