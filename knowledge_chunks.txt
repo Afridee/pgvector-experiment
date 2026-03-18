@@ -92,19 +92,49 @@ Without an extraction_script, most data will be silently truncated.
 
 Example extraction scripts:
 
-1. Overall summary only:
+1. Overall summary only (no pagination needed — single object):
    result = response.get("data", {}).get("summation", {})
 
-2. Per-route table (innerData), key columns only:
+2. Per-route table (innerData), key columns only — PAGINATED:
+   limit = 20
+   offset = 0
    rows = response.get("data", {}).get("innerData", [])
-   result = [{"route": r.get("route_name"), "ff": r.get("user_name"), "memos": r.get("no_of_memo"), "volume": r.get("total_volume"), "value": r.get("total_value"), "net_value": r.get("net_value"), "outlets": r.get("targeted_outlet")} for r in rows]
+   paged = rows[offset: offset + limit]
+   has_more = (offset + limit) < len(rows)
+   result = {
+       "items": [{"route": r.get("route_name"), "ff": r.get("user_name"), "memos": r.get("no_of_memo"), "volume": r.get("total_volume"), "value": r.get("total_value"), "net_value": r.get("net_value"), "outlets": r.get("targeted_outlet")} for r in paged],
+       "paginationInfo": {
+           "limit": limit,
+           "currentOffset": offset,
+           "has_more": has_more,
+           "next_offset": offset + limit if has_more else None,
+       },
+   }
 
-3. Sub-channel summary (outerData):
-   result = [{"sub_channel": item.get("type"), "data": item.get("data", {})} for item in response.get("data", {}).get("outerData", [])]
+3. Sub-channel summary (outerData) — PAGINATED:
+   limit = 20
+   offset = 0
+   all_items = [{"sub_channel": item.get("type"), "data": item.get("data", {})} for item in response.get("data", {}).get("outerData", [])]
+   paged = all_items[offset: offset + limit]
+   has_more = (offset + limit) < len(all_items)
+   result = {
+       "items": paged,
+       "paginationInfo": {
+           "limit": limit,
+           "currentOffset": offset,
+           "has_more": has_more,
+           "next_offset": offset + limit if has_more else None,
+       },
+   }
 
-4. Total STT and Memo rows only:
+4. Total STT and Memo rows only (no pagination needed — filtered to at most 2 rows):
    outer = response.get("data", {}).get("outerData", [])
    result = [x for x in outer if x.get("type") in ("total STT", "Total Memo")]
+
+How to present paginated results:
+When using scripts 2 or 3, tell the user which slice is shown (e.g. "Showing routes 1–20 of 45").
+If paginationInfo.has_more is True, ask the user if they want to see more.
+To fetch the next page, re-call the API with the same parameters but set offset to paginationInfo.next_offset in the extraction_script.
 
 DEFAULT EXTRACTION RULE — follow this unless told otherwise:
 Use script 1 (summation) for any general request. This includes prompts like:
@@ -1337,5 +1367,33 @@ Use the product "id" field as the value for productFilter[] in any report API.
 When a user asks about a product by name or SKU, call this endpoint and use an
 extraction_script to find the matching id before calling a report.
 
-Example extraction — get id for a product whose sku contains "LS OG":
-  result = next((p["id"] for p in response.get("data",{}).get("products",[]) if "LS OG" in p.get("sku","")), None)
+Extraction scripts:
+
+1. Find a single product by name/SKU (no pagination needed):
+   result = next((p["id"] for p in response.get("data",{}).get("products",[]) if "LS OG" in p.get("sku","")), None)
+
+2. List all products — PAGINATED:
+   limit = 20
+   offset = 0
+   all_products = response.get("data", {}).get("products", [])
+   paged = all_products[offset: offset + limit]
+   has_more = (offset + limit) < len(all_products)
+   result = {
+       "items": [{"id": p.get("id"), "sku": p.get("sku"), "title": p.get("title"), "family": (p.get("family") or {}).get("name"), "brand": (p.get("brand") or {}).get("name")} for p in paged],
+       "total_products": len(all_products),
+       "paginationInfo": {
+           "limit": limit,
+           "currentOffset": offset,
+           "has_more": has_more,
+           "next_offset": offset + limit if has_more else None,
+       },
+   }
+
+How to present paginated results:
+When listing products, tell the user which slice is shown (e.g. "Showing products 1–20 of 55").
+If paginationInfo.has_more is True, ask the user if they want to see more.
+To fetch the next page, re-call the API with the same parameters but set offset to paginationInfo.next_offset in the extraction_script.
+
+DEFAULT EXTRACTION RULE:
+Use script 1 when the user asks about a specific product or needs a product ID for a report filter.
+Use script 2 when the user asks to see/list all products or browse the catalogue.
