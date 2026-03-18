@@ -402,36 +402,41 @@ Before saving the file, verify:
 
 Update this table whenever you add or remove a chunk.
 
-| Title                                                         | Topic                         | Applies To                    |
-| ------------------------------------------------------------- | ----------------------------- | ----------------------------- |
-| Enrolment Departments API — Endpoint, Parameters, and Response| endpoint/parameters/response | enrolment_departments         |
-| Get All Enrolments API — Endpoint, Parameters, and Response   | endpoint/parameters/response | get_all_enrolments            |
-| Get All Enrolments API — Response Extraction and Pagination Guide | response/extraction     | get_all_enrolments            |
-| Enrolment All Staffs API — Endpoint, Parameters, and Response | endpoint/parameters/response | enrolment_staffs              |
-| Enrolment All Staffs API — Response Extraction and Pagination Guide | response/extraction   | enrolment_staffs              |
-| Enrolment Staffs by Department API — Endpoint, Parameters, and Response | endpoint/parameters/response | enrolment_staffs_by_department |
-| Enrolment Staffs by Department API — Response Extraction and Pagination Guide | response/extraction | enrolment_staffs_by_department |
-| Clocking Sites API — Endpoint, Parameters, and Response       | endpoint/parameters/response | clocking_sites                |
-| Clocking Paginated Records API — Endpoint, Parameters, and Response | endpoint/parameters/response | clocking_paginated_records    |
-| Clocking Check Status API — Endpoint, Parameters, and Response | endpoint/parameters/response | clocking_check_status         |
-| Checklist Venues API — Endpoint, Parameters, and Response     | endpoint/parameters/response | checklist_venues              |
-| Checklist Types API — Endpoint, Parameters, and Response      | endpoint/parameters/response | checklist_types               |
-| Checklist Record API — Endpoint, Parameters, and Response     | endpoint/parameters/response | checklist_record              |
-| Checklist Record API — Response Extraction and Pagination Guide | response/extraction       | checklist_record              |
-| Checklist Criteria by Type API — Endpoint, Parameters, and Response | endpoint/parameters/response | checklist_criteria_by_type    |
-| Checklist Criteria by Type API — Response Extraction and Pagination Guide | response/extraction | checklist_criteria_by_type    |
-| TempLog Record API — Endpoint, Parameters, and Response       | endpoint/parameters/response | templog_record                |
-| TempLog Record API — Response Extraction and Pagination Guide | response/extraction         | templog_record                |
-| TempLog Criteria by Venue API — Endpoint, Parameters, and Response | endpoint/parameters/response | templog_criteria_by_venue     |
-| TempLog Criteria by Venue API — Response Extraction and Pagination Guide | response/extraction | templog_criteria_by_venue     |
-| Audit Record API — Endpoint, Parameters, and Response         | endpoint/parameters/response | audit_record                  |
-| Audit Record API — Response Extraction and Pagination Guide   | response/extraction         | audit_record                  |
-| Audit Types API — Endpoint, Parameters, and Response          | endpoint/parameters/response | audit_types                   |
-| Audit Criteria API — Endpoint, Parameters, and Response       | endpoint/parameters/response | audit_criteria                |
-| Audit Criteria API — Response Extraction and Pagination Guide | response/extraction         | audit_criteria                |
-| Training Criteria List API — Endpoint, Parameters, and Response | endpoint/parameters/response | training_criteria_list        |
-| Training Criteria List API — Response Extraction and Pagination Guide | response/extraction | training_criteria_list        |
-| Training Subject API — Endpoint, Parameters, and Response     | endpoint/parameters/response | training_subject              |
-| Breakage Report by Venue and Date API — Endpoint, Parameters, and Response | endpoint/parameters/response | breakage_report_by_venue_and_date |
+| Title                                                              | Topic                          | Applies To              |
+| ------------------------------------------------------------------ | ------------------------------ | ----------------------- |
+| Authentication — Required Headers for All Endpoints                | auth                           | all                     |
+| SSS Report API — Endpoint and Method                               | endpoint                       | sss_report              |
+| SSS Report API — Required Parameters                               | parameters                     | sss_report              |
+| SSS Report API — Response Structure and Extraction Guide           | response/extraction            | sss_report              |
+| Query Manager Report API — Endpoint and Method                     | endpoint                       | query_manager_report    |
+| Query Manager Report API — Required Parameters                     | parameters                     | query_manager_report    |
+| Query Manager Report API — Optional Parameters                     | parameters                     | query_manager_report    |
+| Query Manager Report API — Response and Download Link              | response                       | query_manager_report    |
+| Route Wise STT Report API — Endpoint and Method                    | endpoint                       | route_wise_stt_report   |
+| Route Wise STT Report API — Required Parameters                    | parameters                     | route_wise_stt_report   |
+| Route Wise STT Report API — Optional Parameters                    | parameters                     | route_wise_stt_report   |
+| Route Wise STT Report API — Response and Download Link             | response                       | route_wise_stt_report   |
+| Route Wise Memo Report API — Endpoint and Method                   | endpoint                       | route_wise_memo_report  |
+| Route Wise Memo Report API — Required Parameters                   | parameters                     | route_wise_memo_report  |
+| Route Wise Memo Report API — Optional Parameters                   | parameters                     | route_wise_memo_report  |
+| Route Wise Memo Report API — Response and Download Link            | response                       | route_wise_memo_report  |
+| Survey Report API — Endpoint and Method                            | endpoint                       | survey_report           |
+| Survey Report API — Required Parameters                            | parameters                     | survey_report           |
+| Survey Report API — Optional Parameters                            | parameters                     | survey_report           |
+| Survey Report API — Response and Download Link                     | response                       | survey_report           |
+| IRIS Gift Requisition Report API — Endpoint and Method             | endpoint                       | iris_gift_report        |
+| IRIS Gift Requisition Report API — Required Parameters             | parameters                     | iris_gift_report        |
+| IRIS Gift Requisition Report API — Response and Download Link      | response                       | iris_gift_report        |
+| Location Reference — Regions                                       | lookup                         | all                     |
+| Location Reference — Areas                                         | lookup                         | all                     |
+| Location Reference — Sub-Channels                                  | lookup                         | query_manager_report    |
+| Location Reference — Territories                                   | lookup                         | all                     |
+| Location Reference — Distributors                                  | lookup                         | all                     |
+| Location Reference — Points (part 1, IDs 1–100)                   | lookup                         | all                     |
+| Location Reference — Points (part 2, IDs 101–200)                 | lookup                         | all                     |
+| Location Reference — Points (part 3, IDs 201–300)                 | lookup                         | all                     |
+| Location Reference — Points (part 4, IDs 301–400)                 | lookup                         | all                     |
+| Location Reference — Points (part 5, IDs 401–469)                 | lookup                         | all                     |
+| Products API — Endpoint and Response Shape                         | endpoint/response/extraction   | all                     |
 
 > **Tip:** Group rows by endpoint name and keep extraction/pagination guides next to their corresponding endpoint chunks for readability.
