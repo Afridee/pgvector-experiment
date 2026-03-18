@@ -27,35 +27,50 @@
 
 ## **1. ARCHITECTURE OVERVIEW**
 
+### LangGraph Node Flow
+
+![Graph Diagram](graph_diagram.png)
+
+### Project Modules
+
+```
+backend/
+├── agent.py      Public API: get_agent() + ask_agent()
+├── config.py     Env vars, constants, per-request auth (ContextVar)
+├── graph.py      LangGraph StateGraph: nodes, routing, graph assembly
+├── helpers.py    Pure utilities: extraction, truncation, field matching
+├── prompts.py    System prompts for analyser and formatter nodes
+└── tools.py      Tool definitions: semantic_search_tool, APIInput, ready_to_format
+```
+
+### Data Flow
+
 ```
 User Question (Streamlit chat)
           │
           ▼
-┌─────────────────────────────────────────────┐
-│  Report Assistant  (backend/agent.py)       │
-│  GPT-4o + LangGraph checkpointing           │
-│  - Understands the request                  │
-│  - Retrieves API docs from knowledge base   │
-│  - Collects required parameters from user   │
-│  - Calls external API                       │
-└─────────────────────────────────────────────┘
-          │
-          ├──────────────────────────────────────┐
-          ▼                                      ▼
-  ┌─────────────────────────┐        ┌──────────────────────┐
-  │  semantic_search_tool   │        │  api_call            │
-  │  RAG over pgvector      │        │  HTTP GET/POST/etc.  │
-  │  Retrieves API docs,    │        │  Injects API_TOKEN   │
-  │  required params, etc.  │        │  from environment    │
-  └─────────────────────────┘        └──────────────────────┘
-          │                                      │
-          ▼                                      ▼
-┌──────────────────────────┐        ┌────────────────────────┐
-│  PostgreSQL (pgvector)   │        │  External REST APIs    │
-│  knowledge_chunks        │        │  (configured in        │
-│  collection — API docs,  │        │  knowledge_chunks.txt) │
-│  parameters, responses   │        │                        │
-└──────────────────────────┘        └────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│  ask_agent()  (backend/agent.py)                    │
+│  Sets auth tokens via ContextVar, invokes the graph │
+└──────────────────────┬──────────────────────────────┘
+                       │
+          ┌────────────┼─────────────────┐
+          ▼            ▼                 ▼
+  ┌──────────────┐  ┌───────────┐  ┌──────────────────┐
+  │ semantic_    │  │ APIInput  │  │ ready_to_format  │
+  │ search_tool  │  │ HTTP call │  │ Signal tool      │
+  │ RAG over     │  │ Injects   │  │ Routes to        │
+  │ pgvector     │  │ auth via  │  │ formatter node   │
+  │              │  │ ContextVar│  │                  │
+  └──────┬───────┘  └─────┬─────┘  └──────────────────┘
+         │                │
+         ▼                ▼
+┌────────────────┐  ┌────────────────────┐
+│ PostgreSQL     │  │ External REST APIs │
+│ (pgvector)     │  │ (configured in     │
+│ knowledge_     │  │ knowledge_         │
+│ chunks         │  │ chunks.txt)        │
+└────────────────┘  └────────────────────┘
 
   Conversation history stored in PostgreSQL via LangGraph PostgresSaver
 ```

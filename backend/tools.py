@@ -13,8 +13,8 @@ from langchain_postgres.vectorstores import PGVector
 from pydantic import BaseModel, Field
 
 from backend.config import DATABASE_URL, VECTOR_COLLECTION, auth_tokens
-from backend.helpers import (extract_response_fields, paginate_result,
-                             run_extraction_script, truncate_text)
+from backend.helpers import (extract_response_fields, run_extraction_script,
+                             truncate_text)
 
 # ---------------------------------------------------------------------------
 # Vector store
@@ -116,20 +116,6 @@ class APIInput(BaseModel):
             "Prefer this over response_fields for nested or conditional extraction."
         ),
     )
-    list_offset: Optional[int] = Field(
-        default=None,
-        description=(
-            "For list responses: zero-based index of the first item to return. "
-            "Use with list_limit to page through results. Defaults to 0."
-        ),
-    )
-    list_limit: Optional[int] = Field(
-        default=None,
-        description=(
-            "For list responses: maximum number of items to return per page. "
-            "Always set this (recommended: 20) when the response is a list of records."
-        ),
-    )
 
 
 @tool("APIInput", args_schema=APIInput)
@@ -141,8 +127,6 @@ def api_call_tool(
     params: Optional[Dict[str, Any]] = None,
     response_fields: Optional[List[str]] = None,
     extraction_script: Optional[str] = None,
-    list_offset: Optional[int] = None,
-    list_limit: Optional[int] = None,
 ) -> str:
     """Make an HTTP API call and return the response.
     Use this ONLY after you have collected all required parameters from the user.
@@ -196,19 +180,6 @@ def api_call_tool(
 
             if extraction_script:
                 extracted = run_extraction_script(data, extraction_script)
-                if list_limit is not None:
-                    try:
-                        extracted_data = json.loads(extracted)
-                        if isinstance(extracted_data, list):
-                            paged = paginate_result(
-                                extracted_data, list_offset or 0, list_limit
-                            )
-                            serialized = json.dumps(
-                                paged, ensure_ascii=True, default=str
-                            )
-                            return f"Success ({response.status_code}) [extracted+paged]: {truncate_text(serialized)}"
-                    except (ValueError, TypeError):
-                        pass
                 return f"Success ({response.status_code}) [extracted]: {truncate_text(extracted)}"
 
             if response_fields:
@@ -218,11 +189,6 @@ def api_call_tool(
                     filtered["top_level_keys"] = sorted(data.keys())
                 serialized = json.dumps(filtered, ensure_ascii=True, default=str)
                 return f"Success ({response.status_code}) [filtered]: {truncate_text(serialized)}"
-
-            if list_limit is not None and isinstance(data, list):
-                paged = paginate_result(data, list_offset or 0, list_limit)
-                serialized = json.dumps(paged, ensure_ascii=True, default=str)
-                return f"Success ({response.status_code}) [paged]: {truncate_text(serialized)}"
 
             serialized = json.dumps(data, ensure_ascii=True, default=str)
             return f"Success ({response.status_code}): {truncate_text(serialized)}"
