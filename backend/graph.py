@@ -51,7 +51,7 @@ tool_node = ToolNode(tools=[api_call_tool, semantic_search_tool, ready_to_format
 
 def make_api_response_readable(state: MessagesState):
     user_question = None
-    for msg in state["messages"]:
+    for msg in reversed(state["messages"]):
         if isinstance(msg, HumanMessage):
             user_question = msg
             break
