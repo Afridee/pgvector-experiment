@@ -183,10 +183,13 @@ with st.sidebar:
     st.markdown(
         """
 **Example questions**
-- Generate a sales report for Dhaka region for January 2025
-- Show me the SKU-level report for territory X last month
-- Download the memo summary for February 2025
-- Give me a report for all channels in Q1 2025
+- List all enrolment departments
+- Show me all enrolled staff members
+- What is the clocking status for staff member #5?
+- Show the checklist record for 2025-03-01 at venue #2
+- Get the temperature log for venue #1 on 2025-03-15
+- Fetch the audit report for venue #3 on 2025-02-20
+- Show the breakage report for venue #1 on 2025-03-10
 """
     )
 
