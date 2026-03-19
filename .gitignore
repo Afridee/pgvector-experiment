@@ -201,3 +201,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Debug / demo files
+api_response_debug.json
+demo_script.md

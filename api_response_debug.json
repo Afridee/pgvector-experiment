@@ -1,7 +1,7 @@
 {
   "status_code": 200,
   "headers": {
-    "Date": "Wed, 18 Mar 2026 15:12:03 GMT",
+    "Date": "Thu, 19 Mar 2026 08:18:39 GMT",
     "Content-Type": "application/json",
     "Transfer-Encoding": "chunked",
     "Connection": "keep-alive",
@@ -16,53 +16,53 @@
     "strict-transport-security": "max-age=15768000",
     "cf-cache-status": "DYNAMIC",
     "Nel": "{\"report_to\":\"cf-nel\",\"success_fraction\":0.0,\"max_age\":604800}",
-    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=AwdbtYSD1uRwoXM8hdEmmfYUmeLer8L6PYfuobi0w8U2gtrV2QcG4NYHDBB1Izu8Xi4yfquEW8KfzYD25JArVmXaAw2KeYyMZ6jliYufnBEWADBEohsCggOSdQil\"}]}",
+    "Report-To": "{\"group\":\"cf-nel\",\"max_age\":604800,\"endpoints\":[{\"url\":\"https://a.nel.cloudflare.com/report/v4?s=%2FSpUdJWhaYX%2BDk2rlvCf4vecLRhG2sDeZFaqqyrqq0zK2Ct8NnBo73bB9QZXoAwD5k40mSoKILVkLKsMI7uMSPH88re9YK0n25bE%2BioB3Hfnbtz6IgnZbV2Q2%2Fxt\"}]}",
     "Content-Encoding": "gzip",
-    "CF-RAY": "9de52c63ad74fdc6-SIN",
+    "CF-RAY": "9deb0c33dcaa55de-SIN",
     "alt-svc": "h3=\":443\"; ma=86400"
   },
   "body": {
     "RESPONSE": "CHECKLIST_RECORD_FOUND",
     "RECORD": {
-      "id": 17193,
-      "date": "2026-03-12",
+      "id": 10801,
+      "date": "2025-03-01",
       "checklistType": {
         "id": 1,
         "type": "FOH Opening Checklist",
         "hasGroups": true
       },
       "elementsVenue": {
-        "id": 3,
-        "venueName": "Elements Bar & Grill Haberfield",
-        "venueInitial": "HAB",
+        "id": 2,
+        "venueName": "Elements Bar & Grill Pyrmont",
+        "venueInitial": "PYR",
         "site": "EBG"
       },
       "submitted": true,
-      "submissionDateTime": "2026-03-12 10:09 PM",
+      "submissionDateTime": "2025-03-01 11:50 PM",
       "submittedBy": {
-        "id": 19,
+        "id": 56,
         "name": null,
         "enrolmentSubmitted": true,
         "enrolmentCorrectionRequired": false,
         "enrolmentCompleted": false,
-        "firstName": "Jenisha",
+        "firstName": "Isha",
         "middleName": "",
-        "lastName": "Shrestha",
-        "dob": "2000-01-13",
-        "phoneNumber": "0424416954",
-        "address": "9/3 seventh avenue Campsie",
-        "postCode": "2192 NSW",
-        "suburb": "campsie ",
+        "lastName": "Sharma",
+        "dob": "2002-06-23",
+        "phoneNumber": "+61410307791",
+        "address": "5 Stanley Road, Lidcombe",
+        "postCode": "2141 NSW",
+        "suburb": "Sydney ",
         "terminated": false,
         "dateOfTermination": null,
         "tempStaff": false,
         "authUser": {
-          "id": 192,
+          "id": 229,
           "email": "",
-          "e360loginEmail": "znishashrestha@gmail.com",
+          "e360loginEmail": "eshasharma1410@gmail.com",
           "customerHashId": null,
           "refreshToken": null,
-          "pin": null,
+          "pin": "58449",
           "roles": [
             {
               "id": 2,
@@ -74,13 +74,17 @@
           "customer": null,
           "clubMember": null,
           "source": null,
-          "accessCode": "2000"
+          "accessCode": "2002"
         },
         "staffDepartment": {
           "id": 1,
           "name": "Front of House"
         },
         "staffPermissions": [
+          {
+            "id": 22,
+            "permission": "BIRTHDAY_JOURNEY_VOUCHER_REDEEM"
+          },
           {
             "id": 3,
             "permission": "CLOCKING_APPROVAL"
@@ -114,19 +118,19 @@
             "permission": "TRAINING_READONLY"
           }
         ],
-        "mobileDeviceId": "2d3c0d55-077d-489e-a4e4-e28e9f3f4975",
+        "mobileDeviceId": "aa0f3693-40c8-4856-a3f4-21b97b7b0f86",
         "mobileDeviceOS": "IOS",
         "appVersion": "3.1.8",
         "accessProhibited": false,
         "businessEntity": {
-          "id": 2,
-          "entity": "Elements Bar & Grill Haberfield Pty Ltd"
+          "id": 3,
+          "entity": "Elements Bar & Grill Pyrmont"
         },
         "employmentPeriods": []
       },
       "checklistReadings": [
         {
-          "id": 754564,
+          "id": 464138,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -145,7 +149,7 @@
           }
         },
         {
-          "id": 754565,
+          "id": 464139,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -164,7 +168,7 @@
           }
         },
         {
-          "id": 754566,
+          "id": 464140,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -183,7 +187,7 @@
           }
         },
         {
-          "id": 754567,
+          "id": 464141,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -202,7 +206,7 @@
           }
         },
         {
-          "id": 754568,
+          "id": 464142,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -221,7 +225,7 @@
           }
         },
         {
-          "id": 754569,
+          "id": 464143,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -240,7 +244,7 @@
           }
         },
         {
-          "id": 754570,
+          "id": 464144,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -259,7 +263,7 @@
           }
         },
         {
-          "id": 754571,
+          "id": 464145,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -278,7 +282,7 @@
           }
         },
         {
-          "id": 754572,
+          "id": 464146,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -297,7 +301,7 @@
           }
         },
         {
-          "id": 754573,
+          "id": 464147,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -316,7 +320,7 @@
           }
         },
         {
-          "id": 754574,
+          "id": 464148,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -335,7 +339,7 @@
           }
         },
         {
-          "id": 754575,
+          "id": 464149,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -354,7 +358,7 @@
           }
         },
         {
-          "id": 754576,
+          "id": 464150,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -373,7 +377,7 @@
           }
         },
         {
-          "id": 754577,
+          "id": 464151,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -392,7 +396,7 @@
           }
         },
         {
-          "id": 754578,
+          "id": 464152,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -411,7 +415,7 @@
           }
         },
         {
-          "id": 754579,
+          "id": 464153,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -430,7 +434,7 @@
           }
         },
         {
-          "id": 754580,
+          "id": 464154,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -449,7 +453,7 @@
           }
         },
         {
-          "id": 754581,
+          "id": 464155,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -468,7 +472,7 @@
           }
         },
         {
-          "id": 754582,
+          "id": 464156,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -487,7 +491,7 @@
           }
         },
         {
-          "id": 754583,
+          "id": 464157,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -506,7 +510,7 @@
           }
         },
         {
-          "id": 754584,
+          "id": 464158,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -525,7 +529,7 @@
           }
         },
         {
-          "id": 754585,
+          "id": 464159,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -544,7 +548,7 @@
           }
         },
         {
-          "id": 754586,
+          "id": 464160,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -563,7 +567,7 @@
           }
         },
         {
-          "id": 754587,
+          "id": 464161,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -582,7 +586,7 @@
           }
         },
         {
-          "id": 754588,
+          "id": 464162,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -601,7 +605,7 @@
           }
         },
         {
-          "id": 754589,
+          "id": 464163,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -620,7 +624,7 @@
           }
         },
         {
-          "id": 754590,
+          "id": 464164,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -639,7 +643,7 @@
           }
         },
         {
-          "id": 754591,
+          "id": 464165,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -658,7 +662,7 @@
           }
         },
         {
-          "id": 754592,
+          "id": 464166,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -677,7 +681,7 @@
           }
         },
         {
-          "id": 754593,
+          "id": 464167,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -696,7 +700,7 @@
           }
         },
         {
-          "id": 754594,
+          "id": 464168,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -715,7 +719,7 @@
           }
         },
         {
-          "id": 754595,
+          "id": 464169,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -734,7 +738,7 @@
           }
         },
         {
-          "id": 754596,
+          "id": 464170,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -753,7 +757,7 @@
           }
         },
         {
-          "id": 754597,
+          "id": 464171,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -772,7 +776,7 @@
           }
         },
         {
-          "id": 754598,
+          "id": 464172,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -791,7 +795,7 @@
           }
         },
         {
-          "id": 754599,
+          "id": 464173,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -810,7 +814,7 @@
           }
         },
         {
-          "id": 754600,
+          "id": 464174,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -829,7 +833,7 @@
           }
         },
         {
-          "id": 754601,
+          "id": 464175,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -848,7 +852,7 @@
           }
         },
         {
-          "id": 754602,
+          "id": 464176,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -867,7 +871,7 @@
           }
         },
         {
-          "id": 754603,
+          "id": 464177,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -886,7 +890,7 @@
           }
         },
         {
-          "id": 754604,
+          "id": 464178,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -905,7 +909,7 @@
           }
         },
         {
-          "id": 754605,
+          "id": 464179,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -924,7 +928,7 @@
           }
         },
         {
-          "id": 754606,
+          "id": 464180,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -943,7 +947,7 @@
           }
         },
         {
-          "id": 754607,
+          "id": 464181,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -962,7 +966,7 @@
           }
         },
         {
-          "id": 754608,
+          "id": 464182,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -981,7 +985,7 @@
           }
         },
         {
-          "id": 754609,
+          "id": 464183,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -1000,7 +1004,7 @@
           }
         },
         {
-          "id": 754610,
+          "id": 464184,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -1019,7 +1023,7 @@
           }
         },
         {
-          "id": 754611,
+          "id": 464185,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -1038,7 +1042,7 @@
           }
         },
         {
-          "id": 754612,
+          "id": 464186,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
@@ -1057,7 +1061,7 @@
           }
         },
         {
-          "id": 754613,
+          "id": 464187,
           "checked": true,
           "comment": null,
           "checklistCriteria": {
