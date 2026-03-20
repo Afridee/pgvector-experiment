@@ -1,8 +1,16 @@
-# 🚀 API + Knowledge Agent (Report Assistant)
+# Karo
+
+*Your company's knowledge, one question away.*
+
+An AI agent that ingests your company's internal knowledge — API docs, business rules, operational procedures — and lets anyone on the team query live data and get answers in plain English. No SQL. No Postman. No tickets to engineering.
+
+**[Watch the full build walkthrough on YouTube →](https://youtube.com/playlist?list=PLQJcnbfcEQTTFeGbseG-k2VfKO4GEaHo1&si=bweqdxU0uAjNVW01)**
+
+---
 
 **System:** macOS (Intel) with Homebrew  
 **Date:** March 2026  
-**Purpose:** Hybrid API-calling + RAG agent that retrieves context from a pgvector knowledge base and calls external REST APIs to generate reports and answer questions.
+**Stack:** LangGraph · GPT-4o · pgvector · OpenAI Embeddings · PostgreSQL · Streamlit
 
 ---
 
